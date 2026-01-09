@@ -6,22 +6,28 @@ import { MapPin, Clock, DollarSign, Calendar, QrCode, CheckCircle2, XCircle } fr
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+interface JobOwner {
+  restaurant_name?: string;
+  restaurant_address?: string;
+}
+
 interface Job {
   id: string;
   title: string;
-  restaurant_name: string;
-  location: string;
-  hourly_rate: number;
+  description?: string;
+  hourly_rate_vnd: number;
   shift_start_time: string;
   shift_end_time: string;
   shift_date: string;
+  owner?: JobOwner;
 }
 
 interface Application {
   id: string;
   status: 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled';
   created_at: string;
-  instant_book: boolean;
+  is_instant_book?: boolean;
+  checkin_qr_code?: string;
   jobs: Job;
 }
 
@@ -30,7 +36,7 @@ interface ApplicationCardProps {
 }
 
 export function ApplicationCard({ application }: ApplicationCardProps) {
-  const { jobs: job, status, instant_book } = application;
+  const { jobs: job, status, is_instant_book } = application;
 
   const getStatusBadge = () => {
     switch (status) {
@@ -96,7 +102,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
           <h3 className="text-lg font-semibold text-slate-900 mb-1">
             {job.title}
           </h3>
-          <p className="text-slate-600 font-medium">{job.restaurant_name}</p>
+          <p className="text-slate-600 font-medium">{job.owner?.restaurant_name || 'Nhà hàng'}</p>
         </div>
         {getStatusBadge()}
       </div>
@@ -105,7 +111,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
       <div className="space-y-2 mb-4">
         <div className="flex items-center text-sm text-slate-600">
           <MapPin className="h-4 w-4 mr-2 text-slate-400" />
-          {job.location}
+          {job.owner?.restaurant_address || 'Địa chỉ chưa cập nhật'}
         </div>
 
         <div className="flex items-center text-sm text-slate-600">
@@ -120,12 +126,12 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
 
         <div className="flex items-center text-sm font-semibold text-slate-900">
           <DollarSign className="h-4 w-4 mr-2 text-green-600" />
-          {job.hourly_rate.toLocaleString('vi-VN')}đ/giờ
+          {job.hourly_rate_vnd.toLocaleString('vi-VN')}đ/giờ
         </div>
       </div>
 
       {/* Instant Book Badge */}
-      {instant_book && (
+      {is_instant_book && (
         <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
           <svg
             className="h-4 w-4 text-green-600"

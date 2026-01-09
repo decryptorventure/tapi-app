@@ -25,9 +25,9 @@ import { useTranslation } from '@/lib/i18n';
 
 interface LanguageSkill {
     id: string;
-    language_type: string;
+    language: string;
     level: string;
-    is_verified: boolean;
+    verification_status: string;
     certificate_url: string | null;
 }
 
@@ -88,7 +88,7 @@ export default function WorkerProfilePage() {
             const { data: skillsData } = await supabase
                 .from('language_skills')
                 .select('*')
-                .eq('worker_id', user.id);
+                .eq('user_id', user.id);
 
             setLanguageSkills(skillsData || []);
 
@@ -278,14 +278,24 @@ export default function WorkerProfilePage() {
                                 >
                                     <div>
                                         <p className="font-medium text-slate-900">
-                                            {getLanguageLabel(skill.language_type)}
+                                            {getLanguageLabel(skill.language)}
                                         </p>
                                         <p className="text-sm text-slate-600">
                                             {getLevelLabel(skill.level)}
                                         </p>
+                                        {skill.certificate_url && (
+                                            <a
+                                                href={skill.certificate_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-xs text-blue-600 hover:underline mt-1 inline-block"
+                                            >
+                                                📄 Xem chứng chỉ
+                                            </a>
+                                        )}
                                     </div>
                                     <div className="flex items-center gap-1">
-                                        {skill.is_verified ? (
+                                        {skill.verification_status === 'verified' ? (
                                             <span className="flex items-center gap-1 text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
                                                 <CheckCircle2 className="w-3 h-3" />
                                                 {t('worker.verified')}

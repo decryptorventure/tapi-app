@@ -18,6 +18,7 @@ import {
     Sparkles
 } from 'lucide-react';
 import { Job, JobApplication, Profile } from '@/types/database.types';
+import { approveApplication } from '@/lib/services/job-application.service';
 
 interface ApplicationWithWorker extends JobApplication {
     worker: Profile;
@@ -125,15 +126,19 @@ export default function JobApplicationsPage() {
         const supabase = createUntypedClient();
 
         try {
-            const { error } = await supabase
-                .from('job_applications')
-                .update({
-                    status: 'approved',
-                    approved_at: new Date().toISOString()
-                })
-                .eq('id', applicationId);
+            // Get current user to pass as ownerId
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                toast.error('Bạn cần đăng nhập lại');
+                return;
+            }
 
-            if (error) throw error;
+            // Use the service which generates QR code
+            const result = await approveApplication(applicationId, user.id);
+
+            if (!result.success) {
+                throw new Error(result.message);
+            }
 
             // Update job current_workers count
             if (job) {
@@ -143,11 +148,11 @@ export default function JobApplicationsPage() {
                     .eq('id', jobId);
             }
 
-            toast.success('Đã duyệt đơn ứng tuyển');
+            toast.success('Đã duyệt đơn ứng tuyển và tạo mã QR check-in');
             fetchData();
         } catch (error: any) {
             console.error('Approve error:', error);
-            toast.error('Lỗi duyệt đơn');
+            toast.error(error.message || 'Lỗi duyệt đơn');
         } finally {
             setProcessing(null);
         }

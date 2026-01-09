@@ -36,12 +36,16 @@ export default function MyJobsPage() {
           jobs (
             id,
             title,
-            restaurant_name,
-            location,
-            hourly_rate,
+            description,
+            hourly_rate_vnd,
             shift_start_time,
             shift_end_time,
-            shift_date
+            shift_date,
+            owner_id,
+            owner:profiles!jobs_owner_id_fkey (
+              restaurant_name,
+              restaurant_address
+            )
           )
         `)
         .eq('worker_id', user.id)
