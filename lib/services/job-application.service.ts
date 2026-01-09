@@ -25,13 +25,17 @@ export async function applyToJob(
 
   try {
     // 1. Fetch job details
-    const { data: job, error: jobError } = await supabase
+    console.log('applyToJob - Step 1: Fetching job', jobId);
+    const { data: jobs, error: jobError } = await supabase
       .from('jobs')
       .select('*')
       .eq('id', jobId)
-      .single();
+      .limit(1);
+
+    const job = jobs?.[0];
 
     if (jobError || !job) {
+      console.error('applyToJob - Job not found', jobError);
       return {
         success: false,
         isInstantBook: false,
@@ -50,14 +54,22 @@ export async function applyToJob(
     }
 
     // 3. Check if already applied
-    const { data: existingApp } = await supabase
+    console.log('applyToJob - Step 3: Checking existing application', { jobId, workerId });
+    const { data: apps, error: existingError } = await supabase
       .from('job_applications')
       .select('*')
       .eq('job_id', jobId)
       .eq('worker_id', workerId)
-      .single();
+      .limit(1);
+
+    const existingApp = apps?.[0];
+
+    if (existingError) {
+      console.error('Error checking existing application:', existingError);
+    }
 
     if (existingApp) {
+      console.log('Applying to job - Already applied', existingApp.id);
       return {
         success: false,
         isInstantBook: existingApp.is_instant_book,
@@ -66,20 +78,24 @@ export async function applyToJob(
     }
 
     // 4. Fetch worker profile with language skills
-    const { data: workerProfile, error: profileError } = await supabase
+    console.log('applyToJob - Step 4: Fetching profile', workerId);
+    const { data: profiles, error: profileError } = await supabase
       .from('profiles')
       .select(`
         *,
-        language_skills (
+        language_skills!language_skills_user_id_fkey (
           language,
           level,
           verification_status
         )
       `)
       .eq('id', workerId)
-      .single();
+      .limit(1);
+
+    const workerProfile = profiles?.[0];
 
     if (profileError || !workerProfile) {
+      console.error('applyToJob - Profile not found', profileError);
       return {
         success: false,
         isInstantBook: false,
@@ -89,6 +105,7 @@ export async function applyToJob(
     }
 
     // 5. Evaluate qualification
+    console.log('Applying to job - Step 5: Profile found', workerProfile.id);
     const workerProfileTyped = {
       reliability_score: workerProfile.reliability_score,
       is_account_frozen: workerProfile.is_account_frozen,
@@ -107,6 +124,7 @@ export async function applyToJob(
     );
 
     const isInstantBook = qualification.qualifiesForInstantBook;
+    console.log('Applying to job - Step 6: Qualification result', { isInstantBook });
 
     // 6. Create application
     const applicationData: Partial<JobApplication> = {
@@ -121,20 +139,26 @@ export async function applyToJob(
       }),
     };
 
-    const { data: application, error: insertError } = await supabase
+    console.log('Applying to job - Step 7: Inserting application', applicationData);
+    const { data: insertedApps, error: insertError } = await supabase
       .from('job_applications')
       .insert(applicationData)
       .select()
-      .single();
+      .limit(1);
+
+    const application = insertedApps?.[0];
 
     if (insertError || !application) {
+      console.error('Applying to job - FAILED at insert:', insertError);
       return {
         success: false,
         isInstantBook: false,
-        message: 'Có lỗi xảy ra khi ứng tuyển',
+        message: 'Có lỗi xảy ra khi ứng tuyển: ' + (insertError?.message || 'Không thể tạo đơn'),
         error: insertError?.message,
       };
     }
+
+    console.log('Applying to job - Step 8: Successfully inserted', application.id);
 
     // 7. If instant book, update job workers count and generate QR code
     if (isInstantBook) {
@@ -201,28 +225,32 @@ export async function getWorkerQualificationForJob(
 }> {
   const supabase = createUntypedClient();
 
-  const { data: job } = await supabase
+  const { data: jobs } = await supabase
     .from('jobs')
     .select('*')
     .eq('id', jobId)
-    .single();
+    .limit(1);
+
+  const job = jobs?.[0];
 
   if (!job) {
     throw new Error('Job not found');
   }
 
-  const { data: workerProfile } = await supabase
+  const { data: profiles } = await supabase
     .from('profiles')
     .select(`
       *,
-      language_skills (
+      language_skills!language_skills_user_id_fkey (
         language,
         level,
         verification_status
       )
     `)
     .eq('id', workerId)
-    .single();
+    .limit(1);
+
+  const workerProfile = profiles?.[0];
 
   if (!workerProfile) {
     throw new Error('Worker profile not found');
@@ -262,11 +290,13 @@ export async function approveApplication(
   const supabase = createUntypedClient();
 
   // Verify owner owns the job
-  const { data: application } = await supabase
+  const { data: apps } = await supabase
     .from('job_applications')
     .select('*, jobs!inner(*)')
     .eq('id', applicationId)
-    .single();
+    .limit(1);
+
+  const application = apps?.[0];
 
   if (!application || (application as any).jobs.owner_id !== ownerId) {
     return {

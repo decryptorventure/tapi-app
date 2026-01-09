@@ -95,7 +95,12 @@
         "pending": "Đang chờ duyệt",
         "instantBook": "Đặt chỗ ngay",
         "sendRequest": "Gửi yêu cầu",
-        "processing": "Đang xử lý..."
+        "processing": "Đang xử lý...",
+        "description": "Mô tả công việc",
+        "noDescription": "Chưa có mô tả chi tiết.",
+        "restaurant": "Nhà hàng",
+        "trustedPartner": "Đối tác uy tín của Tapy",
+        "viewQr": "XEM MÃ QR CHECK-IN"
     },
     "owner": {
         "dashboard": "Bảng điều khiển",

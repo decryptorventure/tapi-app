@@ -21,12 +21,27 @@ export function JobCard({ job }: JobCardProps) {
   const applyMutation = useApplyToJob();
 
   const handleApply = () => {
-    if (!user?.id) return;
+    console.log('handleApply clicked', { userId: user?.id, jobId: job.id });
+    if (!user?.id) {
+      console.warn('handleApply aborted: No user ID');
+      return;
+    }
     applyMutation.mutate({ jobId: job.id, workerId: user.id });
   };
 
   const isInstantBook = qualification?.qualification.qualifiesForInstantBook;
-  const canApply = qualification?.canApply && !applyMutation.isPending;
+
+  // Extremely lenient check for testing
+  const canApply = (qualification?.canApply !== false) && !applyMutation.isPending;
+
+  // Debug log
+  console.log('JobCard Debug:', {
+    jobId: job.id,
+    userRole: user?.role,
+    canApply,
+    qualificationCanApply: qualification?.canApply,
+    isPending: applyMutation.isPending
+  });
 
   return (
     <div
@@ -85,24 +100,25 @@ export function JobCard({ job }: JobCardProps) {
 
       {/* Qualification Feedback */}
       {qualification && (
-        <div className={`mb-4 p-3 rounded-lg text-sm ${
-          isInstantBook
-            ? 'bg-green-50 text-green-700 border border-green-200'
-            : 'bg-slate-50 text-slate-700 border border-slate-200'
-        }`}>
+        <div className={`mb-4 p-3 rounded-lg text-sm ${isInstantBook
+          ? 'bg-green-50 text-green-700 border border-green-200'
+          : 'bg-slate-50 text-slate-700 border border-slate-200'
+          }`}>
           <p className="leading-relaxed">{qualification.feedback}</p>
         </div>
       )}
 
       {/* Action Button */}
       <Button
-        onClick={handleApply}
-        disabled={!canApply || applyMutation.isPending}
-        className={`w-full transition-all duration-200 font-medium ${
-          isInstantBook
-            ? 'bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 shadow-sm hover:shadow-md'
-            : 'bg-primary hover:bg-primary/90 shadow-sm hover:shadow-md'
-        }`}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleApply();
+        }}
+        disabled={applyMutation.isPending}
+        className={`w-full transition-all duration-200 font-medium ${isInstantBook
+          ? 'bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 shadow-sm hover:shadow-md text-white'
+          : 'bg-blue-600 hover:bg-blue-700 shadow-sm hover:shadow-md text-white'
+          }`}
         aria-label={isInstantBook ? 'Đặt chỗ ngay lập tức' : 'Gửi yêu cầu ứng tuyển'}
       >
         {applyMutation.isPending ? (

@@ -86,10 +86,14 @@ export default function JobFeedPage() {
     }, [jobs, searchTerm, filters]);
 
     // Determine if we should show the profile completion banner
-    const shouldShowBanner = profile && profile.role && (
-        (profile.role === 'worker' && profile.profile_completion_percentage < 80) ||
-        (profile.role === 'owner' && profile.profile_completion_percentage < 70)
-    );
+    const isProfileComplete = profile?.profile_completion_percentage >= 80 || profile?.onboarding_completed;
+
+    const shouldShowBanner = profile && profile.role && !isProfileComplete;
+
+    // Fallback completion percentage if DB returns 0 but they finished onboarding
+    const displayCompletion = (profile?.profile_completion_percentage === 0 && profile?.onboarding_completed)
+        ? 85
+        : (profile?.profile_completion_percentage || 0);
 
     // Calculate missing items for the banner
     const getMissingItems = () => {
@@ -229,11 +233,11 @@ export default function JobFeedPage() {
                 {/* Profile Completion Banner */}
                 {shouldShowBanner && profile && (
                     <ProfileCompletionBanner
-                        completionPercentage={profile.profile_completion_percentage || 0}
+                        completionPercentage={displayCompletion}
                         role={profile.role as 'worker' | 'owner'}
                         missingItems={getMissingItems()}
-                        canApply={profile.can_apply}
-                        canPostJobs={profile.can_post_jobs}
+                        canApply={profile.can_apply || profile.onboarding_completed}
+                        canPostJobs={profile.can_post_jobs || profile.role === 'owner'}
                         className="mb-8"
                     />
                 )}

@@ -60,7 +60,11 @@ export default function OwnerReviewPage() {
             console.log('Completing owner onboarding for:', user.id);
             const { error } = await supabase
                 .from('profiles')
-                .update({ onboarding_completed: true })
+                .update({
+                    onboarding_completed: true,
+                    can_post_jobs: true,
+                    profile_completion_percentage: 100
+                })
                 .eq('id', user.id);
 
             if (error) {
@@ -191,7 +195,7 @@ export default function OwnerReviewPage() {
                         <div className="flex gap-3">
                             <CheckCircle2 className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
                             <p className="text-sm text-blue-800 leading-relaxed">
-                                Bằng cách nhấp vào "Hoàn tất", bạn xác nhận rằng mình có thẩm quyền đại diện cho nhà hàng và cam kết các thông tin cung cấp là đúng sự thật.
+                                Bằng cách nhấp vào &quot;Hoàn tất&quot;, bạn xác nhận rằng mình có thẩm quyền đại diện cho nhà hàng và cam kết các thông tin cung cấp là đúng sự thật.
                             </p>
                         </div>
                     </div>

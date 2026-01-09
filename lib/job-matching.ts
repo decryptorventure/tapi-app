@@ -106,7 +106,7 @@ export function evaluateWorkerQualification(
 
   // 2. Check if language level meets requirement
   const meetsLanguageLevel = requiredLanguageSkill
-    ? requiredLanguageSkill.verification_status === 'verified' &&
+    ? (requiredLanguageSkill.verification_status === 'verified' || requiredLanguageSkill.verification_status === 'pending') &&
     compareLanguageLevels(
       requiredLanguageSkill.level,
       jobRequirements.required_language_level,

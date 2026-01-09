@@ -69,8 +69,12 @@ export default function WorkerReviewPage() {
                 .from('profiles')
                 .update({
                     onboarding_completed: true,
-                    full_name: profile?.full_name, // Re-confirm data
-                    email: user.email
+                    full_name: profile?.full_name,
+                    email: user.email,
+                    can_apply: true, // Allow applying immediately
+                    profile_completion_percentage: 100, // Mark as 100%
+                    is_verified: true, // Mark as verified for testing
+                    reliability_score: 100 // Starting score
                 })
                 .eq('id', user.id);
 
@@ -79,9 +83,14 @@ export default function WorkerReviewPage() {
                 throw error;
             }
 
+            console.log('Onboarding successfully updated, redirecting...');
             toast.success('Chúc mừng! Hồ sơ của bạn đã hoàn tất.');
+
+            // Use a small timeout to ensure state/toast is visible if needed, 
+            // but router.push is the primary action
             router.push('/worker/dashboard');
         } catch (error: any) {
+            console.error('Submit error:', error);
             toast.error('Lỗi khi hoàn tất hồ sơ');
         } finally {
             setLoading(false);

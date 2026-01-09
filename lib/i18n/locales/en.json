@@ -95,7 +95,12 @@
         "pending": "Pending",
         "instantBook": "Instant Book",
         "sendRequest": "Send Request",
-        "processing": "Processing..."
+        "processing": "Processing...",
+        "description": "Job Description",
+        "noDescription": "No detailed description provided.",
+        "restaurant": "Restaurant",
+        "trustedPartner": "Trusted Partner",
+        "viewQr": "VIEW CHECK-IN QR CODE"
     },
     "owner": {
         "dashboard": "Dashboard",

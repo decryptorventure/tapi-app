@@ -368,12 +368,14 @@ export default function WorkerDashboardPage() {
                         </div>
 
                         {/* Profile Completion Card */}
-                        {profile?.profile_completion_percentage < 100 && (
+                        {profile?.profile_completion_percentage < 100 && !profile?.onboarding_completed && (
                             <div className="bg-gradient-to-br from-[#1E293B] to-[#0F172A] rounded-[2rem] p-8 text-white relative overflow-hidden shadow-2xl shadow-slate-900/20">
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl"></div>
                                 <div className="relative z-10">
                                     <div className="flex items-center gap-2 mb-4">
-                                        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center font-black text-xs italic">80%</div>
+                                        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center font-black text-xs italic">
+                                            {profile?.profile_completion_percentage || 0}%
+                                        </div>
                                         <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">{t('dashboard.profileCompletion.percentage')}</p>
                                     </div>
                                     <h4 className="text-xl font-black mb-2 leading-tight">{t('dashboard.profileCompletion.boost')}</h4>
