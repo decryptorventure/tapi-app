@@ -220,7 +220,7 @@ export async function getWorkerQualificationForJob(
   workerId: string
 ): Promise<{
   qualification: ReturnType<typeof evaluateWorkerQualification>;
-  feedback: string;
+  feedback: string | string[];
   canApply: boolean;
 }> {
   const supabase = createUntypedClient();
