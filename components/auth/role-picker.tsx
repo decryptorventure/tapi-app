@@ -16,12 +16,15 @@ interface RolePickerProps {
  * Two-card role selection UI for signup flow
  * Allows users to choose between Worker and Owner roles
  */
+import { useTranslation } from '@/lib/i18n';
+
 export function RolePicker({
   onRoleSelect,
   allowSkip = true,
-  title = 'Bạn muốn tham gia Tapy với vai trò gì?',
-  subtitle = 'Chọn vai trò phù hợp với nhu cầu của bạn',
+  title,
+  subtitle,
 }: RolePickerProps) {
+  const { t } = useTranslation();
   const [selectedRole, setSelectedRole] = useState<'worker' | 'owner' | null>(null);
 
   const handleRoleClick = (role: 'worker' | 'owner') => {
@@ -42,8 +45,8 @@ export function RolePicker({
     <div className="w-full max-w-3xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">{title}</h2>
-        <p className="text-slate-600">{subtitle}</p>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">{title || t('rolePicker.title')}</h2>
+        <p className="text-slate-600">{subtitle || t('rolePicker.subtitle')}</p>
       </div>
 
       {/* Role Cards */}
@@ -98,62 +101,32 @@ export function RolePicker({
 
           {/* Content */}
           <h3 className="text-xl font-bold text-slate-900 mb-2">
-            Tôi đang tìm việc
+            {t('rolePicker.workerTitle')}
           </h3>
           <p className="text-slate-600 text-sm mb-4">
-            Tìm kiếm các công việc bán thời gian tại nhà hàng Nhật Bản và Hàn Quốc
+            {t('rolePicker.workerDesc')}
           </p>
 
           {/* Features */}
           <ul className="space-y-2">
-            <li className="flex items-center text-sm text-slate-700">
-              <svg
-                className="h-4 w-4 text-green-500 mr-2 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              Ứng tuyển nhanh chóng
-            </li>
-            <li className="flex items-center text-sm text-slate-700">
-              <svg
-                className="h-4 w-4 text-green-500 mr-2 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              Xác minh kỹ năng ngôn ngữ
-            </li>
-            <li className="flex items-center text-sm text-slate-700">
-              <svg
-                className="h-4 w-4 text-green-500 mr-2 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              QR check-in tiện lợi
-            </li>
+            {[1, 2, 3].map(i => (
+              <li key={i} className="flex items-center text-sm text-slate-700">
+                <svg
+                  className="h-4 w-4 text-green-500 mr-2 flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                {t(`rolePicker.workerFeature${i}`)}
+              </li>
+            ))}
           </ul>
         </button>
 
@@ -207,62 +180,32 @@ export function RolePicker({
 
           {/* Content */}
           <h3 className="text-xl font-bold text-slate-900 mb-2">
-            Tôi cần tuyển nhân viên
+            {t('rolePicker.ownerTitle')}
           </h3>
           <p className="text-slate-600 text-sm mb-4">
-            Đăng tin tuyển dụng và tìm nhân viên phù hợp cho nhà hàng
+            {t('rolePicker.ownerDesc')}
           </p>
 
           {/* Features */}
           <ul className="space-y-2">
-            <li className="flex items-center text-sm text-slate-700">
-              <svg
-                className="h-4 w-4 text-green-500 mr-2 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              Đăng tin tuyển dụng nhanh
-            </li>
-            <li className="flex items-center text-sm text-slate-700">
-              <svg
-                className="h-4 w-4 text-green-500 mr-2 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              Quản lý ứng viên dễ dàng
-            </li>
-            <li className="flex items-center text-sm text-slate-700">
-              <svg
-                className="h-4 w-4 text-green-500 mr-2 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              Xác minh giấy phép kinh doanh
-            </li>
+            {[1, 2, 3].map(i => (
+              <li key={i} className="flex items-center text-sm text-slate-700">
+                <svg
+                  className="h-4 w-4 text-green-500 mr-2 flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                {t(`rolePicker.ownerFeature${i}`)}
+              </li>
+            ))}
           </ul>
         </button>
       </div>
@@ -275,8 +218,8 @@ export function RolePicker({
             onClick={handleConfirm}
             className="w-full max-w-md bg-gradient-to-r from-blue-600 to-blue-500 text-white px-8 py-4 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-600 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
           >
-            Tiếp tục với vai trò{' '}
-            {selectedRole === 'worker' ? 'Người tìm việc' : 'Nhà tuyển dụng'}
+            {t('rolePicker.continueWith')}{' '}
+            {selectedRole === 'worker' ? t('roles.worker') : t('roles.owner')}
             <ArrowRight className="h-5 w-5" />
           </button>
         )}
@@ -287,7 +230,7 @@ export function RolePicker({
             onClick={handleSkip}
             className="text-slate-600 hover:text-slate-800 text-sm font-medium transition-colors"
           >
-            Bỏ qua - Xem danh sách việc làm trước
+            {t('rolePicker.skip')}
           </button>
         )}
       </div>

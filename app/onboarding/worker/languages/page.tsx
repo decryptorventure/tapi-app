@@ -47,13 +47,48 @@ const levelsByLanguage: Record<LanguageType, { value: LanguageLevel; label: stri
     ],
 };
 
+import { useTranslation } from '@/lib/i18n';
+
 export default function WorkerLanguagesPage() {
     const router = useRouter();
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [checkingAuth, setCheckingAuth] = useState(true);
     const [languageSkills, setLanguageSkills] = useState<LanguageSkill[]>([
         { language: 'japanese', level: 'n5', certificateFile: null }
     ]);
+
+    const languageOptions: { value: LanguageType; label: string; flag: string }[] = [
+        { value: 'japanese', label: t('onboarding.japanese'), flag: '🇯🇵' },
+        { value: 'korean', label: t('onboarding.korean'), flag: '🇰🇷' },
+        { value: 'english', label: t('onboarding.english'), flag: '🇬🇧' },
+    ];
+
+    const levelsByLanguage: Record<LanguageType, { value: LanguageLevel; label: string }[]> = {
+        japanese: [
+            { value: 'n5', label: t('languageLevels.japanese.n5') },
+            { value: 'n4', label: t('languageLevels.japanese.n4') },
+            { value: 'n3', label: t('languageLevels.japanese.n3') },
+            { value: 'n2', label: t('languageLevels.japanese.n2') },
+            { value: 'n1', label: t('languageLevels.japanese.n1') },
+        ],
+        korean: [
+            { value: 'topik_1', label: t('languageLevels.korean.topik_1') },
+            { value: 'topik_2', label: t('languageLevels.korean.topik_2') },
+            { value: 'topik_3', label: t('languageLevels.korean.topik_3') },
+            { value: 'topik_4', label: t('languageLevels.korean.topik_4') },
+            { value: 'topik_5', label: t('languageLevels.korean.topik_5') },
+            { value: 'topik_6', label: t('languageLevels.korean.topik_6') },
+        ],
+        english: [
+            { value: 'a1', label: t('languageLevels.english.a1') },
+            { value: 'a2', label: t('languageLevels.english.a2') },
+            { value: 'b1', label: t('languageLevels.english.b1') },
+            { value: 'b2', label: t('languageLevels.english.b2') },
+            { value: 'c1', label: t('languageLevels.english.c1') },
+            { value: 'c2', label: t('languageLevels.english.c2') },
+        ],
+    };
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -70,7 +105,7 @@ export default function WorkerLanguagesPage() {
 
     const addLanguage = () => {
         if (languageSkills.length >= 3) {
-            toast.error('Tối đa 3 ngôn ngữ');
+            toast.error(t('onboarding.maxLanguages'));
             return;
         }
 
@@ -78,7 +113,7 @@ export default function WorkerLanguagesPage() {
         const availableLanguage = languageOptions.find(l => !usedLanguages.includes(l.value));
 
         if (!availableLanguage) {
-            toast.error('Đã thêm tất cả ngôn ngữ');
+            toast.error(t('onboarding.allLanguagesAdded'));
             return;
         }
 
@@ -92,7 +127,7 @@ export default function WorkerLanguagesPage() {
 
     const removeLanguage = (index: number) => {
         if (languageSkills.length === 1) {
-            toast.error('Cần ít nhất 1 ngôn ngữ');
+            toast.error(t('onboarding.minOneLanguage'));
             return;
         }
         setLanguageSkills(languageSkills.filter((_, i) => i !== index));
@@ -153,11 +188,11 @@ export default function WorkerLanguagesPage() {
                 }
             }
 
-            toast.success('Đã lưu kỹ năng ngôn ngữ!');
+            toast.success(t('languageSkills.success') || 'Đã lưu kỹ năng ngôn ngữ!');
             router.push('/onboarding/worker/video'); // Go to intro video step
         } catch (error: any) {
             console.error('Submit error:', error);
-            toast.error(error.message || 'Lỗi lưu thông tin');
+            toast.error(error.message || t('common.error'));
         } finally {
             setLoading(false);
         }
@@ -182,7 +217,7 @@ export default function WorkerLanguagesPage() {
                             <div className="w-8 h-2 bg-blue-600 rounded-full" />
                             <div className="w-8 h-2 bg-slate-200 rounded-full" />
                         </div>
-                        <span className="text-sm text-slate-500">Bước 2/3</span>
+                        <span className="text-sm text-slate-500">{t('onboarding.step')} 2/3</span>
                     </div>
 
                     <div className="flex items-center gap-3 mb-2">
@@ -191,10 +226,10 @@ export default function WorkerLanguagesPage() {
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold text-slate-900">
-                                Kỹ năng ngôn ngữ
+                                {t('onboarding.languageStep')}
                             </h1>
                             <p className="text-slate-600">
-                                Thêm bằng cấp ngôn ngữ để được xác minh và ứng tuyển nhanh hơn
+                                {t('onboarding.languageStepDesc')}
                             </p>
                         </div>
                     </div>
@@ -207,7 +242,7 @@ export default function WorkerLanguagesPage() {
                                 <div className="flex items-center gap-2">
                                     <Award className="w-5 h-5 text-blue-600" />
                                     <span className="font-medium text-slate-900">
-                                        Ngôn ngữ {index + 1}
+                                        {t('onboarding.languageN')} {index + 1}
                                     </span>
                                 </div>
                                 {languageSkills.length > 1 && (
@@ -224,7 +259,7 @@ export default function WorkerLanguagesPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-2">
-                                        Ngôn ngữ <span className="text-red-500">*</span>
+                                        {t('onboarding.languageN')} <span className="text-red-500">*</span>
                                     </label>
                                     <select
                                         required
@@ -246,7 +281,7 @@ export default function WorkerLanguagesPage() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-2">
-                                        Trình độ <span className="text-red-500">*</span>
+                                        {t('onboarding.levelRequired')} <span className="text-red-500">*</span>
                                     </label>
                                     <select
                                         required
@@ -265,8 +300,8 @@ export default function WorkerLanguagesPage() {
 
                             <div>
                                 <ImageUpload
-                                    label="Ảnh chứng chỉ (tùy chọn)"
-                                    helperText="Tải lên ảnh bằng cấp để xác minh nhanh hơn"
+                                    label={t('onboarding.certOptional')}
+                                    helperText={t('onboarding.certHelper')}
                                     onFileSelect={(file) => updateLanguage(index, 'certificateFile', file)}
                                     onFileRemove={() => updateLanguage(index, 'certificateFile', null)}
                                     accept="image/*,.pdf"
@@ -284,15 +319,14 @@ export default function WorkerLanguagesPage() {
                             className="w-full py-3 border-2 border-dashed border-slate-300 rounded-xl text-slate-600 hover:border-blue-500 hover:text-blue-600 transition-colors flex items-center justify-center gap-2"
                         >
                             <Plus className="w-5 h-5" />
-                            Thêm ngôn ngữ khác
+                            {t('onboarding.addLanguage')}
                         </button>
                     )}
 
                     {/* Info Box */}
                     <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                         <p className="text-sm text-blue-800">
-                            💡 <strong>Lưu ý:</strong> Bằng cấp ngôn ngữ sẽ được xác minh trong 24-48 giờ.
-                            Sau khi xác minh, bạn có thể ứng tuyển các công việc yêu cầu ngôn ngữ này.
+                            💡 {t('onboarding.certNote')}
                         </p>
                     </div>
 
@@ -304,7 +338,7 @@ export default function WorkerLanguagesPage() {
                             onClick={() => router.push('/onboarding/worker/profile')}
                             className="flex-1"
                         >
-                            Quay lại
+                            {t('onboarding.goBack')}
                         </Button>
 
                         <Button
@@ -315,10 +349,10 @@ export default function WorkerLanguagesPage() {
                             {loading ? (
                                 <>
                                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                    Đang lưu...
+                                    {t('onboarding.saving')}
                                 </>
                             ) : (
-                                'Tiếp tục'
+                                t('onboarding.continue')
                             )}
                         </Button>
                     </div>

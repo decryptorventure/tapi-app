@@ -7,12 +7,14 @@ import { ProfileCompletionBanner } from '@/components/shared/profile-completion-
 import { createUntypedClient } from '@/lib/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { Job } from '@/types/database.types';
-import { Briefcase, Search, Filter, X, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { Briefcase, Search, Filter, X, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/lib/i18n';
 
 export default function JobFeedPage() {
     const supabase = createUntypedClient();
+    const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState('');
     const [showFilters, setShowFilters] = useState(false);
     const [filters, setFilters] = useState({
@@ -55,7 +57,7 @@ export default function JobFeedPage() {
             if (error) throw error;
             return (data as any[]).map(job => ({
                 ...job,
-                restaurant_name: job.owner?.restaurant_name || 'Nhà hàng'
+                restaurant_name: job.owner?.restaurant_name || (t('jobs.restaurant') || 'Nhà hàng')
             })) as (Job & { restaurant_name: string })[];
         },
     });
@@ -83,7 +85,7 @@ export default function JobFeedPage() {
         }
 
         return result;
-    }, [jobs, searchTerm, filters]);
+    }, [jobs, searchTerm, filters, t]);
 
     // Determine if we should show the profile completion banner
     const isProfileComplete = profile?.profile_completion_percentage >= 80 || profile?.onboarding_completed;
@@ -102,17 +104,17 @@ export default function JobFeedPage() {
         const items: string[] = [];
 
         if (profile.role === 'worker') {
-            if (!profile.date_of_birth) items.push('Thêm ngày sinh');
+            if (!profile.date_of_birth) items.push(t('profileBanner.addDob'));
             if (!profile.can_apply) {
-                items.push('Xác minh kỹ năng ngôn ngữ');
-                items.push('Xác minh danh tính (CCCD/Passport)');
+                items.push(t('profileBanner.verifyLanguage'));
+                items.push(t('profileBanner.verifyIdentity'));
             }
         } else if (profile.role === 'owner') {
             if (!profile.restaurant_name || !profile.restaurant_address) {
-                items.push('Thêm thông tin nhà hàng');
+                items.push(t('profileBanner.addRestaurantInfo'));
             }
             if (!profile.can_post_jobs) {
-                items.push('Xác minh giấy phép kinh doanh');
+                items.push(t('profileBanner.verifyLicense'));
             }
         }
 
@@ -131,7 +133,7 @@ export default function JobFeedPage() {
                                     <Briefcase className="w-5 h-5 text-blue-600" />
                                 </div>
                                 <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-                                    Việc làm
+                                    {t('feed.jobs')}
                                 </h1>
                             </div>
 
@@ -143,7 +145,7 @@ export default function JobFeedPage() {
                                     className={cn(showFilters && "bg-slate-100")}
                                 >
                                     <SlidersHorizontal className="w-4 h-4 mr-2" />
-                                    Lọc
+                                    {t('feed.filter')}
                                 </Button>
                             </div>
                         </div>
@@ -153,7 +155,7 @@ export default function JobFeedPage() {
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                             <input
                                 type="text"
-                                placeholder="Tìm việc, nhà hàng..."
+                                placeholder={t('feed.searchPlaceholder')}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2.5 bg-slate-100 border-none rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-slate-900"
@@ -173,7 +175,7 @@ export default function JobFeedPage() {
                             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 animate-in slide-in-from-top-2 duration-200">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Ngôn ngữ</label>
+                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-2">{t('feed.language')}</label>
                                         <div className="flex flex-wrap gap-2">
                                             {['all', 'japanese', 'korean', 'english'].map(lang => (
                                                 <button
@@ -186,27 +188,27 @@ export default function JobFeedPage() {
                                                             : "bg-white border-slate-200 text-slate-600 hover:border-blue-400"
                                                     )}
                                                 >
-                                                    {lang === 'all' ? 'Tất cả' : lang === 'japanese' ? 'Tiếng Nhật' : lang === 'korean' ? 'Tiếng Hàn' : 'Tiếng Anh'}
+                                                    {t(`feed.${lang}`)}
                                                 </button>
                                             ))}
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Sắp xếp</label>
+                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-2">{t('feed.sortBy')}</label>
                                         <select
                                             value={filters.sortBy}
                                             onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
-                                            className="w-full p-2 bg-white border border-slate-200 rounded-lg text-sm"
+                                            className="w-full p-2 bg-white border border-slate-200 rounded-lg text-sm transition-all focus:ring-2 focus:ring-blue-500 outline-none"
                                         >
-                                            <option value="newest">Ngày đăng (Mới nhất)</option>
-                                            <option value="rate_high">Lương (Cao nhất)</option>
-                                            <option value="date_soon">Ngày làm (Gần nhất)</option>
+                                            <option value="newest">{t('feed.sortNewest')}</option>
+                                            <option value="rate_high">{t('feed.sortHighestPay')}</option>
+                                            <option value="date_soon">{t('feed.sortSoonest')}</option>
                                         </select>
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Mức lương tối thiểu</label>
+                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-2">{t('feed.minWage')}</label>
                                         <input
                                             type="range"
                                             min="0"
@@ -249,13 +251,13 @@ export default function JobFeedPage() {
                             {searchTerm || filters.language !== 'all' || filters.minRate > 0 ? (
                                 <>
                                     <Filter className="w-4 h-4 text-blue-600" />
-                                    Kết quả tìm kiếm
+                                    {t('feed.results')}
                                 </>
                             ) : (
-                                'Gợi ý cho bạn'
+                                t('feed.suggestions')
                             )}
                             <span className="text-sm font-normal text-slate-500">
-                                ({filteredJobs.length} công việc)
+                                ({filteredJobs.length} {t('feed.jobCount')})
                             </span>
                         </h2>
                     </div>
@@ -287,10 +289,10 @@ export default function JobFeedPage() {
                                 <Search className="w-10 h-10 text-slate-300" />
                             </div>
                             <h3 className="text-xl font-bold text-slate-900 mb-2">
-                                Không tìm thấy việc làm phù hợp
+                                {t('feed.noResults')}
                             </h3>
                             <p className="text-slate-500 max-w-sm mx-auto mb-6">
-                                Hãy thử thay đổi từ khóa hoặc bộ lọc để tìm kiếm thêm cơ hội nhé!
+                                {t('feed.noResultsDesc')}
                             </p>
                             {(searchTerm || filters.language !== 'all' || filters.minRate > 0) && (
                                 <Button
@@ -299,9 +301,8 @@ export default function JobFeedPage() {
                                         setFilters({ language: 'all', minRate: 0, sortBy: 'newest' });
                                     }}
                                     variant="outline"
-                                // className="mt-4"
                                 >
-                                    Xóa tất cả bộ lọc
+                                    {t('feed.clearFilters')}
                                 </Button>
                             )}
                         </div>

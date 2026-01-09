@@ -7,8 +7,11 @@ import { RolePicker } from '@/components/auth/role-picker';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
+import { useTranslation } from '@/lib/i18n';
+
 export default function RoleSelectionPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
 
@@ -20,7 +23,7 @@ export default function RoleSelectionPage() {
 
       if (!user) {
         // Not authenticated - redirect to login
-        router.push('/login?message=Vui lòng đăng nhập trước');
+        router.push(`/login?message=${encodeURIComponent(t('roles.loginRequired'))}`);
         return;
       }
 
@@ -56,7 +59,7 @@ export default function RoleSelectionPage() {
     };
 
     checkAuth();
-  }, [router]);
+  }, [router, t]);
 
   const handleRoleSelect = async (role: 'worker' | 'owner' | 'skip') => {
     if (role === 'skip') {
@@ -71,7 +74,7 @@ export default function RoleSelectionPage() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast.error('Vui lòng đăng nhập trước');
+        toast.error(t('roles.loginRequired'));
         router.push('/login');
         return;
       }
@@ -88,12 +91,12 @@ export default function RoleSelectionPage() {
 
       if (error) {
         console.error('Upsert error:', error);
-        toast.error(`Lỗi database: ${error.message}`);
+        toast.error(`${t('roles.dbError')}: ${error.message}`);
         throw error;
       }
 
       toast.success(
-        `Vai trò đã được chọn: ${role === 'worker' ? 'Người tìm việc' : 'Nhà tuyển dụng'}`
+        `${t('roles.selectedToast')} ${role === 'worker' ? t('roles.worker') : t('roles.owner')}`
       );
 
       // Navigate to appropriate onboarding flow
@@ -104,7 +107,7 @@ export default function RoleSelectionPage() {
       }
     } catch (error: any) {
       console.error('Role selection error:', error);
-      toast.error('Lỗi chọn vai trò');
+      toast.error(t('roles.error'));
     } finally {
       setLoading(false);
     }

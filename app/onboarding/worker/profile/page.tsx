@@ -7,9 +7,11 @@ import { Button } from '@/components/ui/button';
 import { ImageUpload } from '@/components/shared/image-upload';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n';
 
 export default function WorkerProfilePage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
@@ -57,11 +59,11 @@ export default function WorkerProfilePage() {
 
       if (error) throw error;
 
-      toast.success('Hồ sơ đã được cập nhật!');
+      toast.success(t('onboardingWorker.success') || 'Hồ sơ đã được cập nhật!');
       router.push('/onboarding/worker/languages'); // Go to language skills step
     } catch (error: any) {
       console.error('Profile update error:', error);
-      toast.error('Lỗi cập nhật hồ sơ');
+      toast.error(t('onboardingWorker.error') || 'Lỗi cập nhật hồ sơ');
     } finally {
       setLoading(false);
     }
@@ -72,17 +74,17 @@ export default function WorkerProfilePage() {
       <div className="max-w-2xl mx-auto py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900 mb-2">
-            Hoàn thiện hồ sơ Worker
+            {t('onboarding.workerProfile')}
           </h1>
           <p className="text-slate-600">
-            Thông tin này giúp nhà tuyển dụng hiểu về bạn
+            {t('onboarding.workerProfileDesc')}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <ImageUpload
-            label="Ảnh đại diện (tùy chọn)"
-            helperText="Tải lên ảnh chân dung rõ mặt"
+            label={t('onboarding.avatarOptional')}
+            helperText={t('onboarding.avatarHelper')}
             onFileSelect={(file) => setAvatarFile(file)}
             onFileRemove={() => setAvatarFile(null)}
             accept="image/*"
@@ -91,7 +93,7 @@ export default function WorkerProfilePage() {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Ngày sinh
+              {t('onboarding.dobLabel')}
             </label>
             <input
               type="date"
@@ -102,13 +104,13 @@ export default function WorkerProfilePage() {
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             />
             <p className="text-xs text-slate-500 mt-1">
-              Phải từ 18 tuổi trở lên
+              {t('onboarding.dobHelper')}
             </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Trường đại học
+              {t('onboarding.universityLabel')}
             </label>
             <select
               required
@@ -116,27 +118,27 @@ export default function WorkerProfilePage() {
               onChange={(e) => setFormData({ ...formData, universityName: e.target.value })}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             >
-              <option value="">Chọn trường</option>
-              <option value="VNU-HCM">Đại học Quốc gia TP.HCM</option>
-              <option value="HCMUT">Đại học Bách Khoa TP.HCM</option>
-              <option value="UEH">Đại học Kinh tế TP.HCM</option>
-              <option value="HUFLIT">Đại học Ngoại ngữ - Tin học</option>
-              <option value="RMIT">RMIT Vietnam</option>
-              <option value="FTU">Đại học Ngoại thương</option>
-              <option value="Other">Khác</option>
+              <option value="">{t('onboarding.selectUniversity')}</option>
+              <option value="VNU-HCM">{t('universities.vnu_hcm')}</option>
+              <option value="HCMUT">{t('universities.hcmut')}</option>
+              <option value="UEH">{t('universities.ueh')}</option>
+              <option value="HUFLIT">{t('universities.huflit')}</option>
+              <option value="RMIT">{t('universities.rmit')}</option>
+              <option value="FTU">{t('universities.ftu')}</option>
+              <option value="Other">{t('universities.other')}</option>
             </select>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Giới thiệu bản thân (tùy chọn)
+              {t('onboarding.bioLabel')}
             </label>
             <textarea
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
               rows={4}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-              placeholder="Giới thiệu về bản thân, kinh nghiệm làm việc, sở thích..."
+              placeholder={t('onboarding.bioPlaceholder')}
             />
           </div>
 
@@ -147,7 +149,7 @@ export default function WorkerProfilePage() {
               onClick={() => router.push('/')}
               className="flex-1"
             >
-              Bỏ qua - xem việc làm
+              {t('onboarding.skipViewJobs')}
             </Button>
 
             <Button
@@ -158,10 +160,10 @@ export default function WorkerProfilePage() {
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Đang lưu...
+                  {t('onboarding.saving')}
                 </>
               ) : (
-                'Tiếp tục'
+                t('onboarding.continue')
               )}
             </Button>
           </div>

@@ -18,7 +18,13 @@
         "vietnamese": "Tiếng Việt",
         "english": "English",
         "jobs": "việc làm",
-        "details": "Chi tiết"
+        "details": "Chi tiết",
+        "status": {
+            "pending": "Đang xét",
+            "approved": "Đã duyệt",
+            "completed": "Hoàn thành",
+            "rejected": "Từ chối"
+        }
     },
     "landing": {
         "tagline": "Kết nối nhân sự Just-in-Time",
@@ -67,7 +73,27 @@
         "owner": "Chủ nhà hàng",
         "selectRole": "Chọn vai trò của bạn",
         "workerDesc": "Tìm việc làm thêm tại nhà hàng Nhật/Hàn",
-        "ownerDesc": "Tuyển nhân viên part-time cho nhà hàng"
+        "ownerDesc": "Tuyển nhân viên part-time cho nhà hàng",
+        "selectedToast": "Vai trò đã được chọn:",
+        "loginRequired": "Vui lòng đăng nhập trước",
+        "dbError": "Lỗi database",
+        "error": "Lỗi chọn vai trò"
+    },
+    "rolePicker": {
+        "title": "Bạn muốn tham gia Tapy với vai trò gì?",
+        "subtitle": "Chọn vai trò phù hợp với nhu cầu của bạn",
+        "workerTitle": "Tôi đang tìm việc",
+        "workerDesc": "Tìm kiếm các công việc bán thời gian tại nhà hàng Nhật Bản và Hàn Quốc",
+        "workerFeature1": "Ứng tuyển nhanh chóng",
+        "workerFeature2": "Xác minh kỹ năng ngôn ngữ",
+        "workerFeature3": "QR check-in tiện lợi",
+        "ownerTitle": "Tôi cần tuyển nhân viên",
+        "ownerDesc": "Đăng tin tuyển dụng và tìm nhân viên phù hợp cho nhà hàng",
+        "ownerFeature1": "Đăng tin tuyển dụng nhanh",
+        "ownerFeature2": "Quản lý ứng viên dễ dàng",
+        "ownerFeature3": "Xác minh giấy phép kinh doanh",
+        "continueWith": "Tiếp tục với vai trò",
+        "skip": "Bỏ qua - Xem danh sách việc làm trước"
     },
     "jobs": {
         "title": "Công việc phù hợp",
@@ -100,7 +126,21 @@
         "noDescription": "Chưa có mô tả chi tiết.",
         "restaurant": "Nhà hàng",
         "trustedPartner": "Đối tác uy tín của Tapy",
-        "viewQr": "XEM MÃ QR CHECK-IN"
+        "viewQr": "XEM MÃ QR CHECK-IN",
+        "hour": "giờ"
+    },
+    "myJobs": {
+        "title": "Công việc của tôi",
+        "desc": "Quản lý các công việc đã ứng tuyển",
+        "upcoming": "Sắp tới",
+        "pending": "Chờ duyệt",
+        "completed": "Hoàn thành",
+        "noUpcoming": "Chưa có công việc sắp tới",
+        "noUpcomingDesc": "Các công việc đã được chấp nhận sẽ hiển thị ở đây",
+        "noPending": "Chưa có yêu cầu chờ duyệt",
+        "noPendingDesc": "Ứng tuyển công việc để bắt đầu",
+        "noCompleted": "Chưa hoàn thành công việc nào",
+        "noCompletedDesc": "Lịch sử công việc của bạn sẽ hiển thị ở đây"
     },
     "owner": {
         "dashboard": "Bảng điều khiển",
@@ -152,15 +192,121 @@
         "verified": "Đã xác minh",
         "pending": "Chờ xác minh",
         "jobHistory": "Lịch sử công việc",
+        "identityVerification": "Xác minh danh tính",
+        "verify": "Xác minh",
+        "unverified": "Chưa xác minh",
+        "viewCertificate": "Xem chứng chỉ",
+        "noLanguages": "Chưa có kỹ năng ngôn ngữ nào",
+        "noCompletedJobs": "Chưa có công việc nào hoàn thành",
+        "findJobs": "Tìm việc làm",
         "completedJobs": "Công việc đã hoàn thành",
         "qrCode": "Mã QR Check-in",
-        "identityVerification": "Xác minh danh tính",
-        "notVerified": "Chưa xác minh",
-        "verify": "Xác minh",
-        "noLanguageSkills": "Chưa có kỹ năng ngôn ngữ nào",
-        "noCompletedJobs": "Chưa có công việc nào hoàn thành",
-        "findJobs": "Tìm việc",
         "myJobsBtn": "Việc của tôi"
+    },
+    "applicationCard": {
+        "approved": "Đã chấp nhận",
+        "pending": "Chờ duyệt",
+        "rejected": "Bị từ chối",
+        "completed": "Hoàn thành",
+        "cancelled": "Đã hủy",
+        "restaurant": "Nhà hàng",
+        "noAddress": "Địa chỉ chưa cập nhật",
+        "viewQr": "Xem QR Code",
+        "waitingOwner": "Đang chờ owner xác nhận",
+        "viewDetails": "Xem chi tiết",
+        "viewOtherJobs": "Xem công việc khác",
+        "instantBook": "Instant Book"
+    },
+    "languageSkills": {
+        "title": "Kỹ năng ngôn ngữ",
+        "description": "Thêm chứng chỉ để tăng cơ hội việc làm (cần thiết để ứng tuyển)",
+        "addLanguage": "Thêm ngôn ngữ",
+        "language": "Ngôn ngữ",
+        "chooseLanguage": "Chọn ngôn ngữ",
+        "level": "Trình độ",
+        "chooseLevel": "Chọn trình độ",
+        "certificateLabel": "Chứng chỉ (PDF hoặc ảnh)",
+        "certificateHelper": "Tải lên ảnh hoặc scan chứng chỉ ngôn ngữ",
+        "saving": "Đang lưu...",
+        "addSkill": "Thêm kỹ năng",
+        "fillAll": "Vui lòng điền đầy đủ thông tin",
+        "success": "Kỹ năng ngôn ngữ đã được thêm! Đang chờ xác minh",
+        "rejectionReason": "Lý do",
+        "nextIdentity": "Tiếp tục: Xác thực danh tính",
+        "rejected": "Bị từ chối"
+    },
+    "languageLevels": {
+        "japanese": {
+            "n5": "JLPT N5 - Sơ cấp",
+            "n4": "JLPT N4 - Sơ trung",
+            "n3": "JLPT N3 - Trung cấp",
+            "n2": "JLPT N2 - Trung cao",
+            "n1": "JLPT N1 - Cao cấp"
+        },
+        "korean": {
+            "topik_1": "TOPIK 1",
+            "topik_2": "TOPIK 2",
+            "topik_3": "TOPIK 3",
+            "topik_4": "TOPIK 4",
+            "topik_5": "TOPIK 5",
+            "topik_6": "TOPIK 6"
+        },
+        "english": {
+            "a1": "CEFR A1 - Beginner",
+            "a2": "CEFR A2 - Elementary",
+            "b1": "CEFR B1 - Intermediate",
+            "b2": "CEFR B2 - Upper Intermediate",
+            "c1": "CEFR C1 - Advanced",
+            "c2": "CEFR C2 - Proficiency"
+        }
+    },
+    "identity": {
+        "title": "Xác thực danh tính",
+        "description": "Đảm bảo an toàn cho cả worker và owner",
+        "whyTitle": "Tại sao cần xác thực?",
+        "whyReason1": "Tăng độ tin cậy với nhà tuyển dụng",
+        "whyReason2": "Bảo vệ quyền lợi của bạn",
+        "whyReason3": "Cần thiết để ứng tuyển công việc (80% profile)",
+        "frontLabel": "Mặt trước CMND/CCCD",
+        "backLabel": "Mặt sau CMND/CCCD",
+        "helperText": "Ảnh rõ ràng, không bị mờ hoặc che khuất",
+        "idNumber": "Số CMND/CCCD (tùy chọn)",
+        "issueDate": "Ngày cấp (tùy chọn)",
+        "privacyNotice": "Bảo mật: Thông tin của bạn được mã hóa và bảo mật tuyệt đối. Chỉ admin xác minh mới có thể xem để xác nhận danh tính.",
+        "submit": "Gửi xác thực",
+        "submitting": "Đang tải lên...",
+        "success": "Đã gửi xác thực! Chúng tôi sẽ xem xét trong 24h",
+        "footerNote": "Sau khi gửi, bạn có thể xem danh sách việc làm và ứng tuyển khi hồ sơ đạt 80%",
+        "missingImages": "Vui lòng tải lên cả 2 mặt CMND/CCCD"
+    },
+    "introVideo": {
+        "title": "Video giới thiệu",
+        "description": "Gây ấn tượng với nhà tuyển dụng bằng một video ngắn 30-60 giây",
+        "uploadTitle": "Tải lên video của bạn",
+        "uploadHelper": "Kéo thả hoặc nhấp để chọn tệp video. Hỗ trợ MP4, MOV, WebM. Tối đa 50MB.",
+        "tipsTitle": "Mẹo quay video:",
+        "tip1": "Mỉm cười và chào hỏi thân thiện",
+        "tip2": "Giới thiệu tên và kinh nghiệm làm việc (nếu có)",
+        "tip3": "Nói về trình độ ngôn ngữ của bạn (Nhật/Hàn/Anh)",
+        "tip4": "Đảm bảo đủ ánh sáng và âm thanh rõ ràng",
+        "skipStep": "Bỏ qua bước này",
+        "tooLarge": "Video quá lớn. Giới hạn 50MB.",
+        "invalidType": "Vui lòng chọn tệp video.",
+        "success": "Video đã được tải lên!",
+        "error": "Lỗi tải video",
+        "submitting": "Đang tải lên..."
+    },
+    "review": {
+        "success": "Chúc mừng! Hồ sơ của bạn đã hoàn tất.",
+        "error": "Lỗi khi hoàn tất hồ sơ",
+        "noIntro": "Chưa có giới thiệu",
+        "noLanguages": "Chưa cập nhật ngôn ngữ"
+    },
+    "workerNav": {
+        "home": "Trang chủ",
+        "feed": "Tìm việc",
+        "myJobs": "Của tôi",
+        "profile": "Hồ sơ"
     },
     "dashboard": {
         "welcomeBack": "Chào mừng trở lại",
@@ -179,6 +325,7 @@
         "noApplications": "Chưa có đơn ứng tuyển nào",
         "pendingReview": "Đang xét",
         "approvedStatus": "Đã duyệt",
+        "defaultLocation": "Quận 1, TP.HCM",
         "loadingDashboard": "Đang tải bảng điều khiển...",
         "wallet": {
             "title": "VÍ THU NHẬP",
@@ -303,5 +450,23 @@
         "checkedIn": "Đã check-in",
         "shiftStartsIn": "Ca làm bắt đầu",
         "scanInstructions": "Hướng camera vào mã QR của nhân viên"
+    },
+    "matching": {
+        "instantBookSuccess": "Bạn đủ điều kiện để đặt chỗ ngay lập tức!",
+        "missingLanguage": "Bạn chưa có kỹ năng ngôn ngữ yêu cầu",
+        "lowLanguageLevel": "Trình độ ngôn ngữ của bạn chưa đạt yêu cầu",
+        "lowReliability": "Điểm tin cậy của bạn chưa đạt yêu cầu",
+        "accountFrozen": "Tài khoản của bạn đang bị tạm khóa",
+        "notVerified": "Bạn cần hoàn tất xác minh danh tính (upload video giới thiệu)",
+        "needImprovement": "Bạn cần cải thiện:"
+    },
+    "universities": {
+        "vnu_hcm": "Đại học Quốc gia TP.HCM",
+        "hcmut": "Đại học Bách Khoa TP.HCM",
+        "ueh": "Đại học Kinh tế TP.HCM",
+        "huflit": "Đại học Ngoại ngữ - Tin học",
+        "rmit": "RMIT Vietnam",
+        "ftu": "Đại học Ngoại thương",
+        "other": "Khác"
     }
 }

@@ -144,32 +144,33 @@ export function evaluateWorkerQualification(
 
 /**
  * Get detailed feedback message for why worker doesn't qualify for instant book
+ * Returns translation keys
  */
-export function getQualificationFeedback(qualification: WorkerQualification): string {
+export function getQualificationFeedback(qualification: WorkerQualification): string[] {
   if (qualification.qualifiesForInstantBook) {
-    return 'Bạn đủ điều kiện để đặt chỗ ngay lập tức!';
+    return ['matching.instantBookSuccess'];
   }
 
   const reasons: string[] = [];
 
   if (!qualification.hasRequiredLanguage) {
-    reasons.push('Bạn chưa có kỹ năng ngôn ngữ yêu cầu');
+    reasons.push('matching.missingLanguage');
   } else if (!qualification.meetsLanguageLevel) {
-    reasons.push('Trình độ ngôn ngữ của bạn chưa đạt yêu cầu');
+    reasons.push('matching.lowLanguageLevel');
   }
 
   if (!qualification.meetsReliabilityScore) {
-    reasons.push(`Điểm tin cậy của bạn chưa đạt yêu cầu (tối thiểu: ${qualification.meetsReliabilityScore ? 'Đạt' : 'Chưa đạt'})`);
+    reasons.push('matching.lowReliability');
   }
 
   if (!qualification.isAccountActive) {
-    reasons.push('Tài khoản của bạn đang bị tạm khóa');
+    reasons.push('matching.accountFrozen');
   }
 
   if (!qualification.isVerified) {
-    reasons.push('Bạn cần hoàn tất xác minh danh tính (upload video giới thiệu)');
+    reasons.push('matching.notVerified');
   }
 
-  return `Bạn cần cải thiện: ${reasons.join(', ')}`;
+  return reasons;
 }
 

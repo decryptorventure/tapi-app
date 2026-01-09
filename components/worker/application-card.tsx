@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { MapPin, Clock, DollarSign, Calendar, QrCode, CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/lib/i18n';
 
 interface JobOwner {
   restaurant_name?: string;
@@ -37,6 +38,7 @@ interface ApplicationCardProps {
 
 export function ApplicationCard({ application }: ApplicationCardProps) {
   const { jobs: job, status, is_instant_book } = application;
+  const { t, locale } = useTranslation();
 
   const getStatusBadge = () => {
     switch (status) {
@@ -44,35 +46,35 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
         return (
           <div className="flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm font-medium">
             <CheckCircle2 className="h-4 w-4" />
-            Đã chấp nhận
+            {t('applicationCard.approved')}
           </div>
         );
       case 'pending':
         return (
           <div className="flex items-center gap-1.5 px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-sm font-medium">
             <Clock className="h-4 w-4" />
-            Chờ duyệt
+            {t('applicationCard.pending')}
           </div>
         );
       case 'rejected':
         return (
           <div className="flex items-center gap-1.5 px-3 py-1 bg-red-50 text-red-700 rounded-full text-sm font-medium">
             <XCircle className="h-4 w-4" />
-            Bị từ chối
+            {t('applicationCard.rejected')}
           </div>
         );
       case 'completed':
         return (
           <div className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
             <CheckCircle2 className="h-4 w-4" />
-            Hoàn thành
+            {t('applicationCard.completed')}
           </div>
         );
       case 'cancelled':
         return (
           <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm font-medium">
             <XCircle className="h-4 w-4" />
-            Đã hủy
+            {t('applicationCard.cancelled')}
           </div>
         );
       default:
@@ -82,7 +84,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
+    return date.toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', {
       weekday: 'short',
       day: '2-digit',
       month: '2-digit',
@@ -102,7 +104,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
           <h3 className="text-lg font-semibold text-slate-900 mb-1">
             {job.title}
           </h3>
-          <p className="text-slate-600 font-medium">{job.owner?.restaurant_name || 'Nhà hàng'}</p>
+          <p className="text-slate-600 font-medium">{job.owner?.restaurant_name || t('applicationCard.restaurant')}</p>
         </div>
         {getStatusBadge()}
       </div>
@@ -111,7 +113,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
       <div className="space-y-2 mb-4">
         <div className="flex items-center text-sm text-slate-600">
           <MapPin className="h-4 w-4 mr-2 text-slate-400" />
-          {job.owner?.restaurant_address || 'Địa chỉ chưa cập nhật'}
+          {job.owner?.restaurant_address || t('applicationCard.noAddress')}
         </div>
 
         <div className="flex items-center text-sm text-slate-600">
@@ -126,7 +128,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
 
         <div className="flex items-center text-sm font-semibold text-slate-900">
           <DollarSign className="h-4 w-4 mr-2 text-green-600" />
-          {job.hourly_rate_vnd.toLocaleString('vi-VN')}đ/giờ
+          {job.hourly_rate_vnd.toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US')}{locale === 'vi' ? 'đ/giờ' : 'VND/hour'}
         </div>
       </div>
 
@@ -141,7 +143,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
             <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
           </svg>
           <span className="text-sm font-medium text-green-700">
-            Instant Book
+            {t('applicationCard.instantBook')}
           </span>
         </div>
       )}
@@ -153,7 +155,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
             <Link href={`/worker/jobs/${application.id}/qr`} className="flex-1">
               <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600">
                 <QrCode className="h-4 w-4 mr-2" />
-                Xem QR Code
+                {t('applicationCard.viewQr')}
               </Button>
             </Link>
           </>
@@ -165,14 +167,14 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
             className="flex-1"
             disabled
           >
-            Đang chờ owner xác nhận
+            {t('applicationCard.waitingOwner')}
           </Button>
         )}
 
         {status === 'completed' && (
           <Link href={`/worker/jobs/${application.id}`} className="flex-1">
             <Button variant="outline" className="w-full">
-              Xem chi tiết
+              {t('applicationCard.viewDetails')}
             </Button>
           </Link>
         )}
@@ -180,7 +182,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
         {status === 'rejected' && (
           <Link href={`/jobs/${job.id}`} className="flex-1">
             <Button variant="outline" className="w-full">
-              Xem công việc khác
+              {t('applicationCard.viewOtherJobs')}
             </Button>
           </Link>
         )}

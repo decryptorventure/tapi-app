@@ -7,8 +7,11 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Loader2, Video, X, Upload, Play, CheckCircle2 } from 'lucide-react';
 
+import { useTranslation } from '@/lib/i18n';
+
 export default function WorkerVideoPage() {
     const router = useRouter();
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [checkingAuth, setCheckingAuth] = useState(true);
     const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -32,11 +35,11 @@ export default function WorkerVideoPage() {
         const file = e.target.files?.[0];
         if (file) {
             if (file.size > 50 * 1024 * 1024) { // 50MB limit
-                toast.error('Video quá lớn. Giới hạn 50MB.');
+                toast.error(t('introVideo.tooLarge'));
                 return;
             }
             if (!file.type.startsWith('video/')) {
-                toast.error('Vui lòng chọn tệp video.');
+                toast.error(t('introVideo.invalidType'));
                 return;
             }
             setVideoFile(file);
@@ -91,11 +94,11 @@ export default function WorkerVideoPage() {
 
             if (updateError) throw updateError;
 
-            toast.success('Video đã được tải lên!');
+            toast.success(t('introVideo.success'));
             router.push('/onboarding/worker/review');
         } catch (error: any) {
             console.error('Video upload error:', error);
-            toast.error(error.message || 'Lỗi tải video');
+            toast.error(error.message || t('introVideo.error'));
         } finally {
             setLoading(false);
         }
@@ -121,7 +124,7 @@ export default function WorkerVideoPage() {
                             <div className="w-8 h-2 bg-blue-600 rounded-full" />
                             <div className="w-8 h-2 bg-slate-200 rounded-full" />
                         </div>
-                        <span className="text-sm text-slate-500">Bước 3/4</span>
+                        <span className="text-sm text-slate-500">{t('onboarding.step')} 3/4</span>
                     </div>
 
                     <div className="flex items-center gap-3 mb-2">
@@ -130,10 +133,10 @@ export default function WorkerVideoPage() {
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold text-slate-900">
-                                Video giới thiệu
+                                {t('introVideo.title')}
                             </h1>
                             <p className="text-slate-600">
-                                Gây ấn tượng với nhà tuyển dụng bằng một video ngắn 30-60 giây
+                                {t('introVideo.description')}
                             </p>
                         </div>
                     </div>
@@ -156,10 +159,10 @@ export default function WorkerVideoPage() {
                                 <Upload className="w-8 h-8 text-blue-600" />
                             </div>
                             <h3 className="text-lg font-medium text-slate-900 mb-2">
-                                Tải lên video của bạn
+                                {t('introVideo.uploadTitle')}
                             </h3>
                             <p className="text-slate-500 text-sm max-w-sm mx-auto">
-                                Kéo thả hoặc nhấp để chọn tệp video. Hỗ trợ MP4, MOV, WebM. Tối đa 50MB.
+                                {t('introVideo.uploadHelper')}
                             </p>
                         </div>
                     ) : (
@@ -181,13 +184,13 @@ export default function WorkerVideoPage() {
                     <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
                         <h4 className="flex items-center gap-2 font-medium text-blue-900 mb-2">
                             <Play className="w-4 h-4" />
-                            Mẹo quay video:
+                            {t('introVideo.tipsTitle')}
                         </h4>
                         <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-                            <li>Mỉm cười và chào hỏi thân thiện</li>
-                            <li>Giới thiệu tên và kinh nghiệm làm việc (nếu có)</li>
-                            <li>Nói về trình độ ngôn ngữ của bạn (Nhật/Hàn/Anh)</li>
-                            <li>Đảm bảo đủ ánh sáng và âm thanh rõ ràng</li>
+                            <li>{t('introVideo.tip1')}</li>
+                            <li>{t('introVideo.tip2')}</li>
+                            <li>{t('introVideo.tip3')}</li>
+                            <li>{t('introVideo.tip4')}</li>
                         </ul>
                     </div>
 
@@ -198,7 +201,7 @@ export default function WorkerVideoPage() {
                             onClick={() => router.push('/onboarding/worker/languages')}
                             className="flex-1"
                         >
-                            Quay lại
+                            {t('onboarding.goBack')}
                         </Button>
 
                         <Button
@@ -209,12 +212,12 @@ export default function WorkerVideoPage() {
                             {loading ? (
                                 <>
                                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                    Đang tải lên...
+                                    {t('introVideo.submitting')}
                                 </>
                             ) : videoFile ? (
-                                'Tiếp tục'
+                                t('onboarding.continue')
                             ) : (
-                                'Bỏ qua bước này'
+                                t('introVideo.skipStep')
                             )}
                         </Button>
                     </div>

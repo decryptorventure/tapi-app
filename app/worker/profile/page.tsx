@@ -22,8 +22,11 @@ import {
 } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
 import { useTranslation } from '@/lib/i18n';
+import { format } from 'date-fns';
+import { vi, enUS } from 'date-fns/locale';
 
 interface LanguageSkill {
+    //...
     id: string;
     language: string;
     level: string;
@@ -114,7 +117,7 @@ export default function WorkerProfilePage() {
             }
         } catch (error: any) {
             console.error('Fetch error:', error);
-            toast.error('Lỗi tải thông tin');
+            toast.error(t('common.error') || 'Lỗi tải thông tin');
         } finally {
             setLoading(false);
         }
@@ -128,41 +131,20 @@ export default function WorkerProfilePage() {
 
     const getLanguageLabel = (lang: string) => {
         const labels: Record<string, string> = {
-            japanese: '🇯🇵 Tiếng Nhật',
-            korean: '🇰🇷 Tiếng Hàn',
-            english: '🇬🇧 Tiếng Anh',
+            japanese: `🇯🇵 ${t('onboarding.japanese')}`,
+            korean: `🇰🇷 ${t('onboarding.korean')}`,
+            english: `🇬🇧 ${t('onboarding.english')}`,
         };
         return labels[lang] || lang;
     };
 
     const getLevelLabel = (level: string) => {
-        const labels: Record<string, string> = {
-            n5: 'JLPT N5',
-            n4: 'JLPT N4',
-            n3: 'JLPT N3',
-            n2: 'JLPT N2',
-            n1: 'JLPT N1',
-            topik_1: 'TOPIK 1',
-            topik_2: 'TOPIK 2',
-            topik_3: 'TOPIK 3',
-            topik_4: 'TOPIK 4',
-            topik_5: 'TOPIK 5',
-            topik_6: 'TOPIK 6',
-            a1: 'CEFR A1',
-            a2: 'CEFR A2',
-            b1: 'CEFR B1',
-            b2: 'CEFR B2',
-            c1: 'CEFR C1',
-            c2: 'CEFR C2',
-        };
-        return labels[level] || level;
+        return level.toUpperCase();
     };
 
-    const formatDate = (date: string) => {
-        return new Date(date).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
+    const formatDateStr = (date: string) => {
+        return format(new Date(date), 'dd MMM yyyy', {
+            locale: locale === 'vi' ? vi : enUS
         });
     };
 
@@ -290,7 +272,7 @@ export default function WorkerProfilePage() {
                                                 rel="noopener noreferrer"
                                                 className="text-xs text-blue-600 hover:underline mt-1 inline-block"
                                             >
-                                                📄 Xem chứng chỉ
+                                                📄 {t('worker.viewCertificate')}
                                             </a>
                                         )}
                                     </div>
@@ -314,7 +296,7 @@ export default function WorkerProfilePage() {
                         <div className="text-center py-6">
                             <Languages className="w-10 h-10 mx-auto text-slate-300 mb-2" />
                             <p className="text-slate-500 text-sm mb-3">
-                                Chưa có kỹ năng ngôn ngữ nào
+                                {t('worker.noLanguages')}
                             </p>
                             <Link href="/onboarding/worker/languages">
                                 <Button size="sm">
@@ -331,12 +313,12 @@ export default function WorkerProfilePage() {
                         <div className="flex items-center gap-2">
                             <Shield className="w-5 h-5 text-blue-600" />
                             <h3 className="font-semibold text-slate-900">
-                                Xác minh danh tính
+                                {t('worker.identityVerification')}
                             </h3>
                         </div>
                         <Link href="/worker/profile/identity">
                             <Button variant="outline" size="sm">
-                                {profile.is_verified ? t('common.view') : 'Xác minh'}
+                                {profile.is_verified ? t('common.view') : t('worker.verify')}
                             </Button>
                         </Link>
                     </div>
@@ -345,12 +327,12 @@ export default function WorkerProfilePage() {
                         {profile.is_verified ? (
                             <span className="flex items-center gap-1 text-sm text-green-600 bg-green-100 px-3 py-1 rounded-full">
                                 <CheckCircle2 className="w-4 h-4" />
-                                Đã xác minh
+                                {t('worker.verified')}
                             </span>
                         ) : (
                             <span className="flex items-center gap-1 text-sm text-yellow-600 bg-yellow-100 px-3 py-1 rounded-full">
                                 <Clock className="w-4 h-4" />
-                                Chưa xác minh
+                                {t('worker.unverified')}
                             </span>
                         )}
                     </div>
@@ -378,11 +360,11 @@ export default function WorkerProfilePage() {
                                         <p className="font-medium text-slate-900">{job.title}</p>
                                         <p className="text-sm text-slate-600 flex items-center gap-1">
                                             <Calendar className="w-3 h-3" />
-                                            {formatDate(job.shift_date)}
+                                            {formatDateStr(job.shift_date)}
                                         </p>
                                     </div>
                                     <span className="text-green-600 font-medium">
-                                        {job.hourly_rate_vnd.toLocaleString('vi-VN')}đ/h
+                                        {job.hourly_rate_vnd.toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US')} {locale === 'vi' ? 'đ/h' : 'VND/h'}
                                     </span>
                                 </div>
                             ))}
@@ -391,7 +373,7 @@ export default function WorkerProfilePage() {
                         <div className="text-center py-6">
                             <Briefcase className="w-10 h-10 mx-auto text-slate-300 mb-2" />
                             <p className="text-slate-500 text-sm">
-                                Chưa có công việc nào hoàn thành
+                                {t('worker.noCompletedJobs')}
                             </p>
                         </div>
                     )}
@@ -399,16 +381,16 @@ export default function WorkerProfilePage() {
 
                 {/* Quick Actions */}
                 <div className="grid grid-cols-2 gap-4">
-                    <Link href="/" className="block">
+                    <Link href="/worker/feed" className="block">
                         <Button variant="outline" className="w-full">
                             <Briefcase className="h-4 w-4 mr-2" />
-                            Tìm việc
+                            {t('worker.findJobs')}
                         </Button>
                     </Link>
                     <Link href="/worker/jobs" className="block">
                         <Button className="w-full bg-blue-600 hover:bg-blue-700">
                             <Calendar className="h-4 w-4 mr-2" />
-                            Việc của tôi
+                            {t('worker.myJobsBtn')}
                         </Button>
                     </Link>
                 </div>

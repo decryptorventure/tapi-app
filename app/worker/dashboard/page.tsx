@@ -217,7 +217,7 @@ export default function WorkerDashboardPage() {
                                                     <Building2 className="w-4 h-4 text-blue-500" /> {nextShift.restaurant_name}
                                                 </span>
                                                 <span className="flex items-center gap-1.5 text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-100">
-                                                    <MapPin className="w-4 h-4" /> {nextShift.location_name || 'Quận 1, TP.HCM'}
+                                                    <MapPin className="w-4 h-4" /> {nextShift.location_name || t('dashboard.defaultLocation')}
                                                 </span>
                                             </div>
                                         </div>
@@ -287,7 +287,9 @@ export default function WorkerDashboardPage() {
                                                         app.status === 'approved' ? "bg-green-50 text-green-700 border-green-100" :
                                                             "bg-slate-50 text-slate-500 border-slate-200"
                                                 )}>
-                                                    {app.status === 'pending' ? '⏲️ Đang xét' : app.status === 'approved' ? '✅ Đã duyệt' : app.status}
+                                                    {app.status === 'pending' ? `⏲️ ${t('common.status.pending')}` :
+                                                        app.status === 'approved' ? `✅ ${t('common.status.approved')}` :
+                                                            t(`common.status.${app.status}`) || app.status}
                                                 </span>
                                                 <p className="text-[10px] font-bold text-slate-300 mt-2 italic">{format(new Date(app.created_at || new Date()), 'dd/MM/yyyy')}</p>
                                             </div>
@@ -355,7 +357,7 @@ export default function WorkerDashboardPage() {
                                             <h5 className="font-black text-slate-900 text-sm mb-3 group-hover:text-blue-600 transition-colors">{job.title}</h5>
                                             <div className="flex justify-between items-center">
                                                 <p className="text-xs font-black text-slate-900">{job.hourly_rate?.toLocaleString()}đ/h</p>
-                                                <Link href="/worker/feed" className="text-[10px] font-black bg-slate-900 text-white px-3 py-1.5 rounded-full hover:bg-blue-600 transition-colors">CHI TIẾT</Link>
+                                                <Link href="/worker/feed" className="text-[10px] font-black bg-slate-900 text-white px-3 py-1.5 rounded-full hover:bg-blue-600 transition-colors">{t('common.details').toUpperCase()}</Link>
                                             </div>
                                         </div>
                                     ))

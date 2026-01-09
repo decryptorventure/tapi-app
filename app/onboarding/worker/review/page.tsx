@@ -17,8 +17,11 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+import { useTranslation } from '@/lib/i18n';
+
 export default function WorkerReviewPage() {
     const router = useRouter();
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
     const [profile, setProfile] = useState<any>(null);
@@ -84,14 +87,14 @@ export default function WorkerReviewPage() {
             }
 
             console.log('Onboarding successfully updated, redirecting...');
-            toast.success('Chúc mừng! Hồ sơ của bạn đã hoàn tất.');
+            toast.success(t('review.success'));
 
             // Use a small timeout to ensure state/toast is visible if needed, 
             // but router.push is the primary action
             router.push('/worker/dashboard');
         } catch (error: any) {
             console.error('Submit error:', error);
-            toast.error('Lỗi khi hoàn tất hồ sơ');
+            toast.error(t('review.error'));
         } finally {
             setLoading(false);
         }
@@ -117,7 +120,7 @@ export default function WorkerReviewPage() {
                             <div className="w-8 h-2 bg-blue-600 rounded-full" />
                             <div className="w-8 h-2 bg-blue-600 rounded-full" />
                         </div>
-                        <span className="text-sm text-slate-500">Bước 4/4</span>
+                        <span className="text-sm text-slate-500">{t('onboarding.step')} 4/4</span>
                     </div>
 
                     <div className="flex items-center gap-3 mb-2">
@@ -126,10 +129,10 @@ export default function WorkerReviewPage() {
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold text-slate-900">
-                                Kiểm tra & Hoàn tất
+                                {t('onboarding.reviewStep')}
                             </h1>
                             <p className="text-slate-600">
-                                Hãy kiểm tra kỹ thông tin trước khi bắt đầu nhận việc
+                                {t('onboarding.reviewDesc')}
                             </p>
                         </div>
                     </div>
@@ -141,11 +144,11 @@ export default function WorkerReviewPage() {
                         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                             <h3 className="font-semibold flex items-center gap-2 text-slate-800">
                                 <User className="w-4 h-4 text-blue-600" />
-                                Thông tin cá nhân
+                                {t('onboarding.personalInfo')}
                             </h3>
                             <Link href="/onboarding/worker/profile">
                                 <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
-                                    <Edit2 className="w-4 h-4 mr-1" /> Sửa
+                                    <Edit2 className="w-4 h-4 mr-1" /> {t('onboarding.editBtn')}
                                 </Button>
                             </Link>
                         </div>
@@ -160,13 +163,13 @@ export default function WorkerReviewPage() {
                                 )}
                                 <div className="space-y-1">
                                     <h4 className="text-lg font-bold text-slate-900">{profile?.full_name}</h4>
-                                    <p className="text-sm text-slate-600">📅 {profile?.date_of_birth || 'Chưa cập nhật'}</p>
-                                    <p className="text-sm text-slate-600">🎓 {profile?.university_name || 'Chưa cập nhật'}</p>
+                                    <p className="text-sm text-slate-600">📅 {profile?.date_of_birth || t('onboarding.notUpdated')}</p>
+                                    <p className="text-sm text-slate-600">🎓 {profile?.university_name || t('onboarding.notUpdated')}</p>
                                 </div>
                             </div>
                             <div className="mt-4 pt-4 border-t border-slate-50">
                                 <p className="text-sm text-slate-600 leading-relaxed italic">
-                                    &quot;{profile?.bio || 'Chưa có giới thiệu'}&quot;
+                                    &quot;{profile?.bio || t('review.noIntro')}&quot;
                                 </p>
                             </div>
                         </div>
@@ -177,11 +180,11 @@ export default function WorkerReviewPage() {
                         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                             <h3 className="font-semibold flex items-center gap-2 text-slate-800">
                                 <Languages className="w-4 h-4 text-blue-600" />
-                                Kỹ năng ngôn ngữ
+                                {t('onboarding.languageN')}
                             </h3>
                             <Link href="/onboarding/worker/languages">
                                 <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
-                                    <Edit2 className="w-4 h-4 mr-1" /> Sửa
+                                    <Edit2 className="w-4 h-4 mr-1" /> {t('onboarding.editBtn')}
                                 </Button>
                             </Link>
                         </div>
@@ -206,7 +209,7 @@ export default function WorkerReviewPage() {
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-sm text-slate-500 text-center py-2">Chưa cập nhật ngôn ngữ</p>
+                                <p className="text-sm text-slate-500 text-center py-2">{t('review.noLanguages')}</p>
                             )}
                         </div>
                     </div>
@@ -216,11 +219,11 @@ export default function WorkerReviewPage() {
                         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                             <h3 className="font-semibold flex items-center gap-2 text-slate-800">
                                 <Video className="w-4 h-4 text-blue-600" />
-                                Video giới thiệu
+                                {t('onboarding.introVideo')}
                             </h3>
                             <Link href="/onboarding/worker/video">
                                 <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
-                                    <Edit2 className="w-4 h-4 mr-1" /> Sửa
+                                    <Edit2 className="w-4 h-4 mr-1" /> {t('onboarding.editBtn')}
                                 </Button>
                             </Link>
                         </div>
@@ -236,7 +239,7 @@ export default function WorkerReviewPage() {
                                 </div>
                             ) : (
                                 <div className="text-center py-4 border-2 border-dashed border-slate-200 rounded-lg">
-                                    <p className="text-sm text-slate-500">Chưa có video giới thiệu (Tùy chọn)</p>
+                                    <p className="text-sm text-slate-500">{t('onboarding.noVideo')}</p>
                                 </div>
                             )}
                         </div>
@@ -247,7 +250,7 @@ export default function WorkerReviewPage() {
                         <label className="flex gap-3 cursor-pointer">
                             <input type="checkbox" required className="mt-1 w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500" />
                             <span className="text-sm text-slate-600">
-                                Tôi cam kết các thông tin trên là chính xác và tuân thủ các điều khoản sử dụng của Tapy.
+                                {t('onboarding.termsAgree')}
                             </span>
                         </label>
                     </div>
@@ -259,7 +262,7 @@ export default function WorkerReviewPage() {
                             onClick={() => router.push('/onboarding/worker/video')}
                             className="flex-1"
                         >
-                            Quay lại
+                            {t('onboarding.goBack')}
                         </Button>
 
                         <Button
@@ -270,7 +273,7 @@ export default function WorkerReviewPage() {
                             {loading ? (
                                 <Loader2 className="h-5 w-5 animate-spin" />
                             ) : (
-                                'Hoàn tất & Bắt đầu'
+                                t('onboarding.completeStart')
                             )}
                         </Button>
                     </div>

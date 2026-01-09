@@ -18,7 +18,13 @@
         "vietnamese": "Tiếng Việt",
         "english": "English",
         "jobs": "jobs",
-        "details": "Details"
+        "details": "Details",
+        "status": {
+            "pending": "Pending",
+            "approved": "Approved",
+            "completed": "Completed",
+            "rejected": "Rejected"
+        }
     },
     "landing": {
         "tagline": "Just-in-Time Staffing Connection",
@@ -67,7 +73,27 @@
         "owner": "Restaurant Owner",
         "selectRole": "Select your role",
         "workerDesc": "Find part-time jobs at Japanese/Korean restaurants",
-        "ownerDesc": "Hire part-time staff for your restaurant"
+        "ownerDesc": "Hire part-time staff for your restaurant",
+        "selectedToast": "Role selected:",
+        "loginRequired": "Please login first",
+        "dbError": "Database error",
+        "error": "Error selecting role"
+    },
+    "rolePicker": {
+        "title": "How would you like to join Tapy?",
+        "subtitle": "Choose the role that fits your needs",
+        "workerTitle": "I'm looking for a job",
+        "workerDesc": "Find part-time jobs at Japanese and Korean restaurants",
+        "workerFeature1": "Fast applications",
+        "workerFeature2": "Verify language skills",
+        "workerFeature3": "Convenient QR check-in",
+        "ownerTitle": "I need to hire staff",
+        "ownerDesc": "Post job listings and find matching staff for your restaurant",
+        "ownerFeature1": "Fast job posting",
+        "ownerFeature2": "Easy applicant management",
+        "ownerFeature3": "Verify business license",
+        "continueWith": "Continue as",
+        "skip": "Skip - Browse jobs first"
     },
     "jobs": {
         "title": "Matching Jobs",
@@ -100,7 +126,21 @@
         "noDescription": "No detailed description provided.",
         "restaurant": "Restaurant",
         "trustedPartner": "Trusted Partner",
-        "viewQr": "VIEW CHECK-IN QR CODE"
+        "viewQr": "VIEW CHECK-IN QR CODE",
+        "hour": "hour"
+    },
+    "myJobs": {
+        "title": "My Jobs",
+        "desc": "Manage your applied jobs",
+        "upcoming": "Upcoming",
+        "pending": "Pending",
+        "completed": "Completed",
+        "noUpcoming": "No upcoming jobs",
+        "noUpcomingDesc": "Accepted jobs will appear here",
+        "noPending": "No pending applications",
+        "noPendingDesc": "Apply for jobs to get started",
+        "noCompleted": "No completed jobs yet",
+        "noCompletedDesc": "Your work history will appear here"
     },
     "owner": {
         "dashboard": "Dashboard",
@@ -152,15 +192,121 @@
         "verified": "Verified",
         "pending": "Pending Verification",
         "jobHistory": "Job History",
-        "completedJobs": "Completed Jobs",
-        "qrCode": "Check-in QR Code",
         "identityVerification": "Identity Verification",
-        "notVerified": "Not Verified",
         "verify": "Verify",
-        "noLanguageSkills": "No language skills added",
+        "unverified": "Not Verified",
+        "viewCertificate": "View Certificate",
+        "noLanguages": "No language skills added",
         "noCompletedJobs": "No completed jobs yet",
         "findJobs": "Find Jobs",
+        "completedJobs": "Completed Jobs",
+        "qrCode": "Check-in QR Code",
         "myJobsBtn": "My Jobs"
+    },
+    "applicationCard": {
+        "approved": "Accepted",
+        "pending": "Pending",
+        "rejected": "Rejected",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "restaurant": "Restaurant",
+        "noAddress": "Address not updated",
+        "viewQr": "View QR Code",
+        "waitingOwner": "Waiting for owner's confirmation",
+        "viewDetails": "View details",
+        "viewOtherJobs": "View other jobs",
+        "instantBook": "Instant Book"
+    },
+    "languageSkills": {
+        "title": "Language Skills",
+        "description": "Add certificates to increase job opportunities (required to apply)",
+        "addLanguage": "Add Language",
+        "language": "Language",
+        "chooseLanguage": "Select language",
+        "level": "Level",
+        "chooseLevel": "Select level",
+        "certificateLabel": "Certificate (PDF or image)",
+        "certificateHelper": "Upload a photo or scan of your certificate",
+        "saving": "Saving...",
+        "addSkill": "Add Skill",
+        "fillAll": "Please fill in all information",
+        "success": "Language skill added! Pending verification",
+        "rejectionReason": "Reason",
+        "nextIdentity": "Continue: Identity Verification",
+        "rejected": "Rejected"
+    },
+    "languageLevels": {
+        "japanese": {
+            "n5": "JLPT N5 - Beginner",
+            "n4": "JLPT N4 - Elementary",
+            "n3": "JLPT N3 - Intermediate",
+            "n2": "JLPT N2 - Upper Intermediate",
+            "n1": "JLPT N1 - Advanced"
+        },
+        "korean": {
+            "topik_1": "TOPIK 1",
+            "topik_2": "TOPIK 2",
+            "topik_3": "TOPIK 3",
+            "topik_4": "TOPIK 4",
+            "topik_5": "TOPIK 5",
+            "topik_6": "TOPIK 6"
+        },
+        "english": {
+            "a1": "CEFR A1 - Beginner",
+            "a2": "CEFR A2 - Elementary",
+            "b1": "CEFR B1 - Intermediate",
+            "b2": "CEFR B2 - Upper Intermediate",
+            "c1": "CEFR C1 - Advanced",
+            "c2": "CEFR C2 - Proficiency"
+        }
+    },
+    "identity": {
+        "title": "Identity Verification",
+        "description": "Ensuring safety for both workers and owners",
+        "whyTitle": "Why verify?",
+        "whyReason1": "Increase trust with employers",
+        "whyReason2": "Protect your rights",
+        "whyReason3": "Required to apply for jobs (80% profile)",
+        "frontLabel": "ID Card Front",
+        "backLabel": "ID Card Back",
+        "helperText": "Clear photo, not blurry or obscured",
+        "idNumber": "ID Number (optional)",
+        "issueDate": "Issue Date (optional)",
+        "privacyNotice": "Security: Your information is encrypted and completely secure. Only verification admins can view to confirm identity.",
+        "submit": "Submit Verification",
+        "submitting": "Uploading...",
+        "success": "Verification submitted! We will review within 24h",
+        "footerNote": "After submitting, you can view and apply for jobs when your profile reaches 80%",
+        "missingImages": "Please upload both sides of your ID card"
+    },
+    "introVideo": {
+        "title": "Introduction Video",
+        "description": "Impress employers with a short 30-60 second video",
+        "uploadTitle": "Upload your video",
+        "uploadHelper": "Drag and drop or click to select a video file. Supports MP4, MOV, WebM. Max 50MB.",
+        "tipsTitle": "Video tips:",
+        "tip1": "Smile and greet friendly",
+        "tip2": "Introduce your name and work experience (if any)",
+        "tip3": "Talk about your language skills (Japanese/Korean/English)",
+        "tip4": "Ensure good lighting and clear audio",
+        "skipStep": "Skip this step",
+        "tooLarge": "Video too large. Limit 50MB.",
+        "invalidType": "Please select a video file.",
+        "success": "Video uploaded successfully!",
+        "error": "Video upload error",
+        "submitting": "Uploading..."
+    },
+    "review": {
+        "success": "Congratulations! Your profile is complete.",
+        "error": "Error completing profile",
+        "noIntro": "No introduction",
+        "noLanguages": "No languages updated"
+    },
+    "workerNav": {
+        "home": "Home",
+        "feed": "Find Jobs",
+        "myJobs": "My Jobs",
+        "profile": "Profile"
     },
     "dashboard": {
         "welcomeBack": "Welcome back",
@@ -179,6 +325,7 @@
         "noApplications": "No applications yet",
         "pendingReview": "Pending",
         "approvedStatus": "Approved",
+        "defaultLocation": "District 1, HCMC",
         "loadingDashboard": "Loading dashboard...",
         "wallet": {
             "title": "INCOME WALLET",
@@ -303,5 +450,23 @@
         "checkedIn": "Checked In",
         "shiftStartsIn": "Shift starts in",
         "scanInstructions": "Point camera at worker's QR code"
+    },
+    "matching": {
+        "instantBookSuccess": "You qualify for instant booking!",
+        "missingLanguage": "You don't have the required language skills",
+        "lowLanguageLevel": "Your language level does not meet the requirement",
+        "lowReliability": "Your reliability score does not meet the requirement",
+        "accountFrozen": "Your account is temporarily frozen",
+        "notVerified": "You need to complete identity verification (upload intro video)",
+        "needImprovement": "You need to improve:"
+    },
+    "universities": {
+        "vnu_hcm": "VNU-HCM",
+        "hcmut": "HCMUT",
+        "ueh": "UEH",
+        "huflit": "HUFLIT",
+        "rmit": "RMIT Vietnam",
+        "ftu": "FTU",
+        "other": "Other"
     }
 }

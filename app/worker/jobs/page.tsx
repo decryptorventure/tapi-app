@@ -7,12 +7,14 @@ import { createUntypedClient } from '@/lib/supabase/client';
 import { ApplicationCard } from '@/components/worker/application-card';
 import { Briefcase, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/lib/i18n';
 
 type TabType = 'upcoming' | 'pending' | 'completed';
 
 export default function MyJobsPage() {
   const [activeTab, setActiveTab] = useState<TabType>('upcoming');
   const supabase = createUntypedClient();
+  const { t } = useTranslation();
 
   const { data: applications, isLoading } = useQuery({
     queryKey: ['my-applications', activeTab],
@@ -59,19 +61,19 @@ export default function MyJobsPage() {
   const tabs = [
     {
       value: 'upcoming' as TabType,
-      label: 'Sắp tới',
+      label: t('myJobs.upcoming'),
       icon: Briefcase,
       count: applications?.filter(app => app.status === 'approved').length || 0,
     },
     {
       value: 'pending' as TabType,
-      label: 'Chờ duyệt',
+      label: t('myJobs.pending'),
       icon: Clock,
       count: applications?.filter(app => app.status === 'pending').length || 0,
     },
     {
       value: 'completed' as TabType,
-      label: 'Hoàn thành',
+      label: t('myJobs.completed'),
       icon: CheckCircle2,
       count: applications?.filter(app => app.status === 'completed').length || 0,
     },
@@ -81,19 +83,21 @@ export default function MyJobsPage() {
     switch (activeTab) {
       case 'upcoming':
         return {
-          title: 'Chưa có công việc sắp tới',
-          description: 'Các công việc đã được chấp nhận sẽ hiển thị ở đây',
+          title: t('myJobs.noUpcoming'),
+          description: t('myJobs.noUpcomingDesc'),
         };
       case 'pending':
         return {
-          title: 'Chưa có yêu cầu chờ duyệt',
-          description: 'Ứng tuyển công việc để bắt đầu',
+          title: t('myJobs.noPending'),
+          description: t('myJobs.noPendingDesc'),
         };
       case 'completed':
         return {
-          title: 'Chưa hoàn thành công việc nào',
-          description: 'Lịch sử công việc của bạn sẽ hiển thị ở đây',
+          title: t('myJobs.noCompleted'),
+          description: t('myJobs.noCompletedDesc'),
         };
+      default:
+        return { title: '', description: '' };
     }
   };
 
@@ -103,40 +107,36 @@ export default function MyJobsPage() {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-slate-900 mb-2">
-            Công việc của tôi
+            {t('myJobs.title')}
           </h1>
           <p className="text-slate-600">
-            Quản lý các công việc đã ứng tuyển
+            {t('myJobs.desc')}
           </p>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-slate-200 overflow-x-auto">
+        <div className="flex gap-2 p-1 bg-slate-100 rounded-xl mb-6">
           {tabs.map((tab) => {
             const Icon = tab.icon;
+            const isActive = activeTab === tab.value;
             return (
               <button
                 key={tab.value}
                 onClick={() => setActiveTab(tab.value)}
                 className={cn(
-                  'flex items-center gap-2 px-4 py-3 font-medium transition-colors whitespace-nowrap',
-                  'border-b-2 -mb-px',
-                  activeTab === tab.value
-                    ? 'text-blue-600 border-blue-600'
-                    : 'text-slate-600 border-transparent hover:text-slate-900 hover:border-slate-300'
+                  "flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all",
+                  isActive
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-50/50"
                 )}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className={cn("w-4 h-4", isActive ? "text-blue-600" : "text-slate-400")} />
                 {tab.label}
                 {tab.count > 0 && (
-                  <span
-                    className={cn(
-                      'px-2 py-0.5 rounded-full text-xs font-semibold',
-                      activeTab === tab.value
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'bg-slate-100 text-slate-600'
-                    )}
-                  >
+                  <span className={cn(
+                    "px-2 py-0.5 rounded-full text-[10px]",
+                    isActive ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-500"
+                  )}>
                     {tab.count}
                   </span>
                 )}
@@ -159,15 +159,11 @@ export default function MyJobsPage() {
         ) : (
           <div className="text-center py-16 bg-white rounded-xl border border-slate-200">
             <div className="max-w-md mx-auto">
-              {activeTab === 'upcoming' && (
-                <Briefcase className="h-16 w-16 text-slate-300 mx-auto mb-4" />
-              )}
-              {activeTab === 'pending' && (
-                <Clock className="h-16 w-16 text-slate-300 mx-auto mb-4" />
-              )}
-              {activeTab === 'completed' && (
-                <CheckCircle2 className="h-16 w-16 text-slate-300 mx-auto mb-4" />
-              )}
+              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                {activeTab === 'upcoming' && <Briefcase className="w-8 h-8 text-slate-300" />}
+                {activeTab === 'pending' && <Clock className="w-8 h-8 text-slate-300" />}
+                {activeTab === 'completed' && <CheckCircle2 className="w-8 h-8 text-slate-300" />}
+              </div>
               <h3 className="text-lg font-semibold text-slate-900 mb-2">
                 {getEmptyMessage().title}
               </h3>
@@ -179,7 +175,7 @@ export default function MyJobsPage() {
                   href="/worker/feed"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-600 transition-all shadow-sm hover:shadow-md"
                 >
-                  Tìm công việc
+                  {t('worker.findJobs')}
                 </Link>
               )}
             </div>

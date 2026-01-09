@@ -5,28 +5,31 @@ import { usePathname } from 'next/navigation';
 import { Home, Search, Briefcase, User, QrCode } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from '@/lib/i18n';
+
 export function WorkerNav() {
     const pathname = usePathname();
+    const { t } = useTranslation();
 
     const navItems = [
         {
             href: '/worker/dashboard',
-            label: 'Trang chủ',
+            label: t('workerNav.home'),
             icon: Home,
         },
         {
             href: '/worker/feed', // We will move the feed here
-            label: 'Tìm việc',
+            label: t('workerNav.feed'),
             icon: Search,
         },
         {
             href: '/worker/jobs',
-            label: 'Của tôi',
+            label: t('workerNav.myJobs'),
             icon: Briefcase,
         },
         {
             href: '/worker/profile',
-            label: 'Hồ sơ',
+            label: t('workerNav.profile'),
             icon: User,
         },
     ];

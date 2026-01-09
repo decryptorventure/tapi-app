@@ -9,8 +9,11 @@ import { ImageUpload } from '@/components/shared/image-upload';
 import { toast } from 'sonner';
 import { Loader2, Shield, AlertCircle } from 'lucide-react';
 
+import { useTranslation } from '@/lib/i18n';
+
 export default function IdentityVerificationPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [frontFile, setFrontFile] = useState<File | null>(null);
   const [backFile, setBackFile] = useState<File | null>(null);
@@ -19,7 +22,7 @@ export default function IdentityVerificationPage() {
 
   const handleSubmit = async () => {
     if (!frontFile || !backFile) {
-      toast.error('Vui lòng tải lên cả 2 mặt CMND/CCCD');
+      toast.error(t('identity.missingImages'));
       return;
     }
 
@@ -42,11 +45,11 @@ export default function IdentityVerificationPage() {
         throw new Error(result.error);
       }
 
-      toast.success('Đã gửi xác thực! Chúng tôi sẽ xem xét trong 24h');
+      toast.success(t('identity.success'));
       router.push('/');
     } catch (error: any) {
       console.error('Identity verification error:', error);
-      toast.error(error.message || 'Lỗi xác thực danh tính');
+      toast.error(error.message || t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -62,10 +65,10 @@ export default function IdentityVerificationPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-900">
-                Xác thực danh tính
+                {t('identity.title')}
               </h1>
               <p className="text-slate-600">
-                Đảm bảo an toàn cho cả worker và owner
+                {t('identity.description')}
               </p>
             </div>
           </div>
@@ -73,11 +76,11 @@ export default function IdentityVerificationPage() {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-blue-800">
-              <p className="font-medium mb-1">Tại sao cần xác thực?</p>
+              <p className="font-medium mb-1">{t('identity.whyTitle')}</p>
               <ul className="list-disc list-inside space-y-1 text-blue-700">
-                <li>Tăng độ tin cậy với nhà tuyển dụng</li>
-                <li>Bảo vệ quyền lợi của bạn</li>
-                <li>Cần thiết để ứng tuyển công việc (80% profile)</li>
+                <li>{t('identity.whyReason1')}</li>
+                <li>{t('identity.whyReason2')}</li>
+                <li>{t('identity.whyReason3')}</li>
               </ul>
             </div>
           </div>
@@ -85,8 +88,8 @@ export default function IdentityVerificationPage() {
 
         <div className="space-y-6 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <ImageUpload
-            label="Mặt trước CMND/CCCD"
-            helperText="Ảnh rõ ràng, không bị mờ hoặc che khuất"
+            label={t('identity.frontLabel')}
+            helperText={t('identity.helperText')}
             onFileSelect={setFrontFile}
             onFileRemove={() => setFrontFile(null)}
             accept="image/*"
@@ -94,8 +97,8 @@ export default function IdentityVerificationPage() {
           />
 
           <ImageUpload
-            label="Mặt sau CMND/CCCD"
-            helperText="Ảnh rõ ràng, không bị mờ hoặc che khuất"
+            label={t('identity.backLabel')}
+            helperText={t('identity.helperText')}
             onFileSelect={setBackFile}
             onFileRemove={() => setBackFile(null)}
             accept="image/*"
@@ -104,7 +107,7 @@ export default function IdentityVerificationPage() {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Số CMND/CCCD (tùy chọn)
+              {t('identity.idNumber')}
             </label>
             <input
               type="text"
@@ -118,7 +121,7 @@ export default function IdentityVerificationPage() {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Ngày cấp (tùy chọn)
+              {t('identity.issueDate')}
             </label>
             <input
               type="date"
@@ -131,8 +134,7 @@ export default function IdentityVerificationPage() {
 
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
             <p className="text-sm text-green-800">
-              <strong>Bảo mật:</strong> Thông tin của bạn được mã hóa và bảo mật tuyệt đối.
-              Chỉ admin xác minh mới có thể xem để xác nhận danh tính.
+              {t('identity.privacyNotice')}
             </p>
           </div>
 
@@ -144,15 +146,15 @@ export default function IdentityVerificationPage() {
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Đang tải lên...
+                {t('identity.submitting')}
               </>
             ) : (
-              'Gửi xác thực'
+              t('identity.submit')
             )}
           </Button>
 
           <p className="text-center text-sm text-slate-600">
-            Sau khi gửi, bạn có thể xem danh sách việc làm và ứng tuyển khi hồ sơ đạt 80%
+            {t('identity.footerNote')}
           </p>
         </div>
       </div>

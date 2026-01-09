@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ImageUpload } from '@/components/shared/image-upload';
 import { Plus, Loader2, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from '@/lib/i18n';
 
 interface LanguageSkillForm {
   language: string;
@@ -25,6 +26,7 @@ interface LanguageSkill {
 
 export default function LanguageSkillsPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [skills, setSkills] = useState<LanguageSkill[]>([]);
@@ -60,7 +62,7 @@ export default function LanguageSkillsPage() {
 
   const handleAddSkill = async () => {
     if (!formData.language || !formData.level || !formData.certificateFile) {
-      toast.error('Vui lòng điền đầy đủ thông tin');
+      toast.error(t('languageSkills.fillAll'));
       return;
     }
 
@@ -72,9 +74,8 @@ export default function LanguageSkillsPage() {
       if (!user) throw new Error('Not authenticated');
 
       // Upload certificate
-      const certPath = `certificates/${user.id}/${formData.language}-${Date.now()}.${
-        formData.certificateFile.name.split('.').pop()
-      }`;
+      const certPath = `certificates/${user.id}/${formData.language}-${Date.now()}.${formData.certificateFile.name.split('.').pop()
+        }`;
       const { error: uploadError } = await supabase.storage
         .from('verifications')
         .upload(certPath, formData.certificateFile);
@@ -98,7 +99,7 @@ export default function LanguageSkillsPage() {
 
       if (insertError) throw insertError;
 
-      toast.success('Kỹ năng ngôn ngữ đã được thêm! Đang chờ xác minh');
+      toast.success(t('languageSkills.success'));
       setShowForm(false);
       setFormData({ language: '', level: '', certificateFile: null });
 
@@ -106,7 +107,7 @@ export default function LanguageSkillsPage() {
       await loadSkills();
     } catch (error: any) {
       console.error('Add skill error:', error);
-      toast.error(error.message || 'Lỗi thêm kỹ năng');
+      toast.error(error.message || t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -128,13 +129,22 @@ export default function LanguageSkillsPage() {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'verified':
-        return <span className="text-green-600 font-medium">Đã xác minh</span>;
+        return <span className="text-green-600 font-medium">{t('worker.verified')}</span>;
       case 'pending':
-        return <span className="text-orange-600 font-medium">Chờ xác minh</span>;
+        return <span className="text-orange-600 font-medium">{t('worker.pending')}</span>;
       case 'rejected':
-        return <span className="text-red-600 font-medium">Bị từ chối</span>;
+        return <span className="text-red-600 font-medium">{t('languageSkills.rejected')}</span>;
       default:
         return null;
+    }
+  };
+
+  const getLanguageName = (lang: string) => {
+    switch (lang) {
+      case 'japanese': return t('onboarding.japanese');
+      case 'korean': return t('onboarding.korean');
+      case 'english': return t('onboarding.english');
+      default: return lang;
     }
   };
 
@@ -143,10 +153,10 @@ export default function LanguageSkillsPage() {
       <div className="max-w-2xl mx-auto py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-slate-900 mb-2">
-            Kỹ năng ngôn ngữ
+            {t('languageSkills.title')}
           </h1>
           <p className="text-slate-600">
-            Thêm chứng chỉ để tăng cơ hội việc làm (cần thiết để ứng tuyển)
+            {t('languageSkills.description')}
           </p>
         </div>
 
@@ -160,7 +170,7 @@ export default function LanguageSkillsPage() {
               >
                 <div className="flex-1">
                   <p className="font-semibold text-slate-900 mb-1">
-                    {skill.language.charAt(0).toUpperCase() + skill.language.slice(1)} - {skill.level.toUpperCase().replace('_', ' ')}
+                    {getLanguageName(skill.language)} - {skill.level.toUpperCase().replace('_', ' ')}
                   </p>
                   <div className="flex items-center gap-2">
                     {getStatusIcon(skill.verification_status)}
@@ -168,7 +178,7 @@ export default function LanguageSkillsPage() {
                   </div>
                   {skill.verification_status === 'rejected' && skill.rejection_reason && (
                     <p className="text-sm text-red-600 mt-2">
-                      Lý do: {skill.rejection_reason}
+                      {t('languageSkills.rejectionReason')}: {skill.rejection_reason}
                     </p>
                   )}
                 </div>
@@ -185,37 +195,37 @@ export default function LanguageSkillsPage() {
             className="w-full border-2 border-dashed hover:border-blue-500 hover:bg-blue-50"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Thêm ngôn ngữ
+            {t('languageSkills.addLanguage')}
           </Button>
         ) : (
           <div className="border border-slate-200 rounded-lg p-6 space-y-4 bg-white shadow-sm">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Ngôn ngữ
+                {t('languageSkills.language')}
               </label>
               <select
                 value={formData.language}
                 onChange={(e) => setFormData({ ...formData, language: e.target.value, level: '' })}
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               >
-                <option value="">Chọn ngôn ngữ</option>
-                <option value="japanese">Tiếng Nhật</option>
-                <option value="korean">Tiếng Hàn</option>
-                <option value="english">Tiếng Anh</option>
+                <option value="">{t('languageSkills.chooseLanguage')}</option>
+                <option value="japanese">{t('onboarding.japanese')}</option>
+                <option value="korean">{t('onboarding.korean')}</option>
+                <option value="english">{t('onboarding.english')}</option>
               </select>
             </div>
 
             {formData.language && (
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Trình độ
+                  {t('languageSkills.level')}
                 </label>
                 <select
                   value={formData.level}
                   onChange={(e) => setFormData({ ...formData, level: e.target.value })}
                   className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 >
-                  <option value="">Chọn trình độ</option>
+                  <option value="">{t('languageSkills.chooseLevel')}</option>
                   {languageLevels[formData.language]?.map((level) => (
                     <option key={level} value={level}>
                       {level}
@@ -226,8 +236,8 @@ export default function LanguageSkillsPage() {
             )}
 
             <ImageUpload
-              label="Chứng chỉ (PDF hoặc ảnh)"
-              helperText="Tải lên ảnh hoặc scan chứng chỉ ngôn ngữ"
+              label={t('languageSkills.certificateLabel')}
+              helperText={t('languageSkills.certificateHelper')}
               onFileSelect={(file) => setFormData({ ...formData, certificateFile: file })}
               onFileRemove={() => setFormData({ ...formData, certificateFile: null })}
               accept="image/*,application/pdf"
@@ -243,7 +253,7 @@ export default function LanguageSkillsPage() {
                 }}
                 className="flex-1"
               >
-                Hủy
+                {t('common.cancel')}
               </Button>
 
               <Button
@@ -254,10 +264,10 @@ export default function LanguageSkillsPage() {
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Đang lưu...
+                    {t('languageSkills.saving')}
                   </>
                 ) : (
-                  'Thêm kỹ năng'
+                  t('languageSkills.addSkill')
                 )}
               </Button>
             </div>
@@ -269,7 +279,7 @@ export default function LanguageSkillsPage() {
             onClick={() => router.push('/worker/profile/identity')}
             className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
           >
-            Tiếp tục: Xác thực danh tính
+            {t('languageSkills.nextIdentity')}
           </Button>
         </div>
       </div>
