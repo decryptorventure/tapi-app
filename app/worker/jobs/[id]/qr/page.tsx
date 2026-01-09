@@ -1,0 +1,304 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { createUntypedClient } from '@/lib/supabase/client';
+import { QRCodeService } from '@/lib/services/qr-code.service';
+import { toast } from 'sonner';
+import Link from 'next/link';
+import {
+    ArrowLeft,
+    QrCode,
+    Loader2,
+    MapPin,
+    Calendar,
+    Clock,
+    Building2,
+    AlertCircle,
+    CheckCircle2
+} from 'lucide-react';
+import { Job, JobApplication } from '@/types/database.types';
+
+interface ApplicationWithJob extends JobApplication {
+    job: Job & {
+        owner: {
+            restaurant_name: string;
+            restaurant_address: string;
+        };
+    };
+}
+
+export default function WorkerQRPage() {
+    const router = useRouter();
+    const params = useParams();
+    const applicationId = params.id as string;
+
+    const [loading, setLoading] = useState(true);
+    const [application, setApplication] = useState<ApplicationWithJob | null>(null);
+    const [qrCodeData, setQrCodeData] = useState<string | null>(null);
+    const [timeUntilShift, setTimeUntilShift] = useState<string>('');
+
+    useEffect(() => {
+        fetchApplication();
+    }, [applicationId]);
+
+    useEffect(() => {
+        // Update countdown timer
+        if (application?.job) {
+            const timer = setInterval(updateCountdown, 1000);
+            updateCountdown();
+            return () => clearInterval(timer);
+        }
+    }, [application]);
+
+    const updateCountdown = () => {
+        if (!application?.job) return;
+
+        const shiftDateTime = new Date(`${application.job.shift_date}T${application.job.shift_start_time}`);
+        const now = new Date();
+        const diff = shiftDateTime.getTime() - now.getTime();
+
+        if (diff <= 0) {
+            setTimeUntilShift('Đã bắt đầu');
+        } else {
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+            if (hours > 24) {
+                const days = Math.floor(hours / 24);
+                setTimeUntilShift(`${days} ngày nữa`);
+            } else if (hours > 0) {
+                setTimeUntilShift(`${hours} giờ ${minutes} phút nữa`);
+            } else {
+                setTimeUntilShift(`${minutes} phút nữa`);
+            }
+        }
+    };
+
+    const fetchApplication = async () => {
+        const supabase = createUntypedClient();
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                router.push('/login');
+                return;
+            }
+
+            // Fetch application
+            const { data: appData, error: appError } = await supabase
+                .from('job_applications')
+                .select('*')
+                .eq('id', applicationId)
+                .eq('worker_id', user.id)
+                .single();
+
+            if (appError) throw appError;
+            if (!appData || appData.status !== 'approved') {
+                toast.error('Đơn ứng tuyển không hợp lệ');
+                router.push('/worker/jobs');
+                return;
+            }
+
+            // Fetch job details
+            const { data: jobData, error: jobError } = await supabase
+                .from('jobs')
+                .select('*')
+                .eq('id', appData.job_id)
+                .single();
+
+            if (jobError) throw jobError;
+
+            // Fetch restaurant info
+            const { data: ownerData } = await supabase
+                .from('profiles')
+                .select('restaurant_name, restaurant_address')
+                .eq('id', jobData.owner_id)
+                .single();
+
+            setApplication({
+                ...appData,
+                job: {
+                    ...jobData,
+                    owner: ownerData || { restaurant_name: '', restaurant_address: '' },
+                },
+            });
+
+            // Generate QR code
+            try {
+                // Calculate expiry time (shift start + 2 hours)
+                const expiryDate = new Date(`${jobData.shift_date}T${jobData.shift_start_time}`);
+                expiryDate.setHours(expiryDate.getHours() + 2);
+
+                const qrCode = await QRCodeService.generateQRCode(
+                    appData.id,
+                    user.id,
+                    appData.job_id,
+                    expiryDate
+                );
+                setQrCodeData(qrCode);
+            } catch (qrError) {
+                console.error('QR generation error:', qrError);
+                // Generate fallback QR text
+                const qrText = `TAPY:${appData.id}:${user.id}:${appData.job_id}`;
+                setQrCodeData(qrText);
+            }
+
+        } catch (error: any) {
+            console.error('Fetch error:', error);
+            toast.error('Lỗi tải thông tin');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const formatDate = (date: string) => {
+        return new Date(date).toLocaleDateString('vi-VN', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        });
+    };
+
+    const formatTime = (time: string) => {
+        return time.substring(0, 5);
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            </div>
+        );
+    }
+
+    if (!application) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white p-4">
+                <div className="text-center">
+                    <AlertCircle className="w-12 h-12 mx-auto text-red-500 mb-4" />
+                    <h2 className="text-xl font-bold text-slate-900 mb-2">Không tìm thấy</h2>
+                    <p className="text-slate-600 mb-4">Không tìm thấy đơn ứng tuyển này</p>
+                    <Link href="/worker/jobs" className="text-blue-600 hover:underline">
+                        Quay lại danh sách
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+            {/* Header */}
+            <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+                <div className="container mx-auto px-4 py-4 max-w-lg">
+                    <div className="flex items-center gap-4">
+                        <Link href="/worker/jobs" className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                            <ArrowLeft className="w-5 h-5 text-slate-600" />
+                        </Link>
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-blue-100 rounded-lg">
+                                <QrCode className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <h1 className="text-lg font-bold text-slate-900">Mã QR Check-in</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="container mx-auto px-4 py-6 max-w-lg space-y-6">
+                {/* Status Banner */}
+                <div className="bg-green-100 border border-green-200 rounded-xl p-4 flex items-center gap-3">
+                    <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />
+                    <div>
+                        <p className="font-medium text-green-800">Đơn đã được duyệt</p>
+                        <p className="text-sm text-green-700">Đến địa điểm và cho owner quét mã này</p>
+                    </div>
+                </div>
+
+                {/* QR Code Card */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 text-center">
+                    {qrCodeData ? (
+                        <div className="bg-white p-4 rounded-lg inline-block border-2 border-slate-200">
+                            {/* Display QR code as image if it's base64, otherwise show text */}
+                            {qrCodeData.startsWith('data:') ? (
+                                <img
+                                    src={qrCodeData}
+                                    alt="QR Code"
+                                    className="w-48 h-48 mx-auto"
+                                />
+                            ) : (
+                                <div className="w-48 h-48 flex items-center justify-center bg-slate-100 rounded-lg">
+                                    <QrCode className="w-24 h-24 text-slate-400" />
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="w-48 h-48 mx-auto flex items-center justify-center bg-slate-100 rounded-lg">
+                            <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+                        </div>
+                    )}
+
+                    <p className="mt-4 text-sm text-slate-500">
+                        Cho owner quét mã này khi check-in
+                    </p>
+                </div>
+
+                {/* Countdown Timer */}
+                <div className="bg-blue-600 text-white rounded-xl p-4 text-center">
+                    <p className="text-sm opacity-80 mb-1">Ca làm bắt đầu</p>
+                    <p className="text-2xl font-bold">{timeUntilShift}</p>
+                </div>
+
+                {/* Job Details */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                    <h3 className="font-semibold text-slate-900">{application.job.title}</h3>
+
+                    <div className="space-y-3 text-sm">
+                        <div className="flex items-start gap-3">
+                            <Building2 className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                            <div>
+                                <p className="font-medium text-slate-900">{application.job.owner.restaurant_name}</p>
+                                <p className="text-slate-600">{application.job.owner.restaurant_address}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <Calendar className="w-5 h-5 text-slate-400" />
+                            <span className="text-slate-700">{formatDate(application.job.shift_date)}</span>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <Clock className="w-5 h-5 text-slate-400" />
+                            <span className="text-slate-700">
+                                {formatTime(application.job.shift_start_time)} - {formatTime(application.job.shift_end_time)}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Pay Info */}
+                    <div className="pt-4 border-t border-slate-100">
+                        <div className="flex items-center justify-between">
+                            <span className="text-slate-600">Lương/giờ</span>
+                            <span className="font-bold text-orange-600">
+                                {application.job.hourly_rate_vnd.toLocaleString('vi-VN')}đ
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Instructions */}
+                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                    <h4 className="font-medium text-yellow-800 mb-2">📋 Hướng dẫn</h4>
+                    <ul className="text-sm text-yellow-700 space-y-1">
+                        <li>1. Đến đúng giờ tại địa chỉ nhà hàng</li>
+                        <li>2. Tìm owner/quản lý và cho họ quét mã QR</li>
+                        <li>3. Hoàn thành ca làm việc</li>
+                        <li>4. Quét lại mã QR khi check-out</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    );
+}
