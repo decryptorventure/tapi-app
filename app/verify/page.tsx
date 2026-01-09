@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createUntypedClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Loader2, ShieldCheck, Smartphone, RefreshCcw } from 'lucide-react';
 
-export default function VerifyPage() {
+function VerifyContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const phone = searchParams.get('phone');
@@ -155,5 +155,17 @@ export default function VerifyPage() {
                 </form>
             </div>
         </div>
+    );
+}
+
+export default function VerifyPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-slate-50">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            </div>
+        }>
+            <VerifyContent />
+        </Suspense>
     );
 }
