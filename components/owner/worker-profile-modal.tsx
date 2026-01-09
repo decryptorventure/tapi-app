@@ -82,7 +82,7 @@ export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: 
                                 </p>
                             </div>
                             <p className="text-slate-600 text-sm italic leading-relaxed bg-slate-50 p-3 rounded-lg border-l-4 border-slate-200">
-                                "{worker.bio || 'Chưa có giới thiệu bản thân.'}"
+                                &quot;{worker.bio || 'Chưa có giới thiệu bản thân.'}&quot;
                             </p>
                         </div>
                     </div>

@@ -22,14 +22,20 @@ import {
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { vi, enUS } from 'date-fns/locale';
+import { useTranslation } from '@/lib/i18n';
+import { LanguageSwitcher } from '@/components/shared/language-switcher';
+
+
 
 export default function WorkerDashboardPage() {
     const router = useRouter();
+    const { t, locale } = useTranslation();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<any>(null);
     const [recommendedJobs, setRecommendedJobs] = useState<any[]>([]);
     const supabase = createUntypedClient();
+    const dateLocale = locale === 'vi' ? vi : enUS;
 
     useEffect(() => {
         fetchDashboardData();
@@ -109,7 +115,7 @@ export default function WorkerDashboardPage() {
                         <div className="w-12 h-12 border-4 border-blue-100 rounded-full animate-spin border-t-blue-600"></div>
                         <Zap className="absolute inset-0 m-auto w-5 h-5 text-blue-600 animate-pulse" />
                     </div>
-                    <p className="text-sm font-medium text-slate-500 animate-pulse">Đang tải bảng điều khiển...</p>
+                    <p className="text-sm font-medium text-slate-500 animate-pulse">{t('dashboard.loadingDashboard')}</p>
                 </div>
             </div>
         );
@@ -156,11 +162,11 @@ export default function WorkerDashboardPage() {
 
                 <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
                     <div className="text-white">
-                        <p className="text-blue-100 text-sm font-medium mb-1 opacity-80 uppercase tracking-widest">Chào mừng trở lại</p>
+                        <p className="text-blue-100 text-sm font-medium mb-1 opacity-80 uppercase tracking-widest">{t('dashboard.welcomeBack')}</p>
                         <h2 className="text-3xl font-black mb-2">{profile?.full_name} ✨</h2>
                         <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
                             <TrendingUp className="w-3.5 h-3.5 text-green-300" />
-                            <span className="text-xs font-bold text-blue-50 tracking-wide uppercase italic">Level: Chuyên nghiệp</span>
+                            <span className="text-xs font-bold text-blue-50 tracking-wide uppercase italic">{t('dashboard.level')}</span>
                         </div>
                     </div>
 
@@ -171,7 +177,7 @@ export default function WorkerDashboardPage() {
                             </div>
                         </div>
                         <div>
-                            <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mb-1">Điểm tin cậy</p>
+                            <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mb-1">{t('dashboard.reliabilityScore')}</p>
                             <div className="flex items-baseline gap-1">
                                 <span className="text-4xl font-black text-white">{profile?.reliability_score || 100}</span>
                                 <span className="text-white/40 text-sm font-bold">/100</span>
@@ -181,7 +187,7 @@ export default function WorkerDashboardPage() {
                             <p className="text-green-400 text-sm font-black flex items-center gap-1">
                                 <TrendingUp className="w-4 h-4" /> +2.4
                             </p>
-                            <p className="text-white/40 text-[9px] font-bold uppercase tracking-tighter">Tuần này</p>
+                            <p className="text-white/40 text-[9px] font-bold uppercase tracking-tighter">{t('dashboard.thisWeek')}</p>
                         </div>
                     </div>
                 </div>
@@ -198,7 +204,7 @@ export default function WorkerDashboardPage() {
                                 <div className="bg-slate-900 px-6 py-4 flex justify-between items-center group">
                                     <div className="flex items-center gap-3">
                                         <div className="w-2 h-2 bg-green-500 rounded-full animate-ping"></div>
-                                        <span className="text-sm font-black text-white uppercase tracking-wider">Sắp diễn ra</span>
+                                        <span className="text-sm font-black text-white uppercase tracking-wider">{t('dashboard.upcomingShift')}</span>
                                     </div>
                                     <span className="text-[10px] font-black text-slate-400 uppercase italic opacity-60">ID #SR{nextShift.id.slice(0, 4)}</span>
                                 </div>
@@ -216,7 +222,7 @@ export default function WorkerDashboardPage() {
                                             </div>
                                         </div>
                                         <div className="bg-[#F8FAFC] p-4 rounded-3xl border border-slate-100 flex flex-col items-end shrink-0 min-w-[140px]">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{format(new Date(nextShift.shift_date), 'EEEE, dd/MM', { locale: vi })}</p>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{format(new Date(nextShift.shift_date), 'EEEE, dd/MM', { locale: dateLocale })}</p>
                                             <p className="text-2xl font-black text-blue-600 tracking-tighter">{nextShift.shift_start_time} - {nextShift.shift_end_time}</p>
                                         </div>
                                     </div>
@@ -225,11 +231,11 @@ export default function WorkerDashboardPage() {
                                         <Link href={`/worker/jobs/${data.upcomingShift.id}/qr`} className="flex-1">
                                             <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-7 rounded-2xl shadow-lg shadow-blue-200 flex items-center justify-center gap-3 active:scale-[0.98] transition-all">
                                                 <QrCode className="w-6 h-6" />
-                                                MÃ QR ĐIỂM DANH
+                                                {t('dashboard.qrCodeCheckIn')}
                                             </Button>
                                         </Link>
                                         <Button variant="outline" className="flex-1 border-2 border-slate-100 rounded-2xl font-black py-7 text-slate-600 hover:bg-slate-50">
-                                            XEM BẢN ĐỒ
+                                            {t('dashboard.viewMap')}
                                         </Button>
                                     </div>
                                 </div>
@@ -239,11 +245,11 @@ export default function WorkerDashboardPage() {
                                 <div className="w-20 h-20 bg-blue-50 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
                                     <Zap className="w-10 h-10 text-blue-600 fill-blue-600/10" />
                                 </div>
-                                <h3 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">Cơ hội mới đang chờ bạn!</h3>
-                                <p className="text-slate-500 mb-8 max-w-sm mx-auto font-medium">Bạn chưa có ca làm sắp tới. Hãy ứng tuyển ngay để tối ưu thu nhập.</p>
+                                <h3 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">{t('dashboard.newOpportunities')}</h3>
+                                <p className="text-slate-500 mb-8 max-w-sm mx-auto font-medium">{t('dashboard.noUpcomingShift')}</p>
                                 <Link href="/worker/feed">
                                     <Button className="bg-blue-600 hover:bg-blue-700 text-white font-black px-10 py-7 rounded-2xl shadow-xl shadow-blue-200/50 flex items-center gap-2 mx-auto active:scale-95 transition-all">
-                                        TÌM VIỆC NGAY <ChevronRight className="w-5 h-5" />
+                                        {t('dashboard.findJobs')} <ChevronRight className="w-5 h-5" />
                                     </Button>
                                 </Link>
                             </div>
@@ -254,10 +260,10 @@ export default function WorkerDashboardPage() {
                             <div className="flex justify-between items-center mb-8">
                                 <h3 className="text-xl font-black text-slate-900 flex items-center gap-3">
                                     <Briefcase className="w-6 h-6 text-blue-500" />
-                                    ỨNG TUYỂN GẦN ĐÂY
+                                    {t('dashboard.recentApplications')}
                                 </h3>
                                 <Link href="/worker/jobs" className="text-xs font-black text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-full flex items-center gap-1 transition-all">
-                                    XEM TẤT CẢ <ChevronRight className="w-3.5 h-3.5" />
+                                    {t('dashboard.viewAll')} <ChevronRight className="w-3.5 h-3.5" />
                                 </Link>
                             </div>
 
@@ -292,7 +298,7 @@ export default function WorkerDashboardPage() {
                                         <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center">
                                             <AlertCircle className="w-6 h-6 text-slate-300" />
                                         </div>
-                                        <p className="text-sm font-bold text-slate-400 italic">Chưa có đơn ứng tuyển nào</p>
+                                        <p className="text-sm font-bold text-slate-400 italic">{t('dashboard.noApplications')}</p>
                                     </div>
                                 )}
                             </div>
@@ -307,11 +313,11 @@ export default function WorkerDashboardPage() {
 
                             <div className="relative z-10">
                                 <h3 className="text-xs font-black text-emerald-600 uppercase tracking-[0.2em] mb-8 flex items-center gap-2">
-                                    <Wallet className="w-4 h-4" /> VÍ THU NHẬP
+                                    <Wallet className="w-4 h-4" /> {t('dashboard.wallet.title')}
                                 </h3>
 
                                 <div className="mb-10">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Số dư hiện tại</p>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{t('dashboard.wallet.currentBalance')}</p>
                                     <div className="flex items-baseline gap-2">
                                         <p className="text-4xl font-black text-slate-900 tracking-tighter">{data.earnings.total.toLocaleString()}</p>
                                         <p className="text-sm font-black text-slate-500 uppercase italic">đ</p>
@@ -320,17 +326,17 @@ export default function WorkerDashboardPage() {
 
                                 <div className="grid grid-cols-2 gap-4 mb-8">
                                     <div className="bg-[#F8FAFC] p-4 rounded-2xl border border-slate-100">
-                                        <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Tháng này</p>
+                                        <p className="text-[9px] font-black text-slate-400 uppercase mb-1">{t('dashboard.wallet.thisMonth')}</p>
                                         <p className="text-sm font-black text-slate-900">0đ</p>
                                     </div>
                                     <div className="bg-[#F8FAFC] p-4 rounded-2xl border border-slate-100">
-                                        <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Đã làm</p>
-                                        <p className="text-sm font-black text-slate-900">0 ca</p>
+                                        <p className="text-[9px] font-black text-slate-400 uppercase mb-1">{t('dashboard.wallet.shiftsCompleted')}</p>
+                                        <p className="text-sm font-black text-slate-900">0 {t('dashboard.wallet.shifts')}</p>
                                     </div>
                                 </div>
 
                                 <Button className="w-full bg-slate-900 hover:bg-black text-white font-black py-5 rounded-2xl opacity-40 cursor-not-allowed text-xs uppercase tracking-widest">
-                                    RÚT TIỀN (SỚM RA MẮT)
+                                    {t('dashboard.wallet.withdraw')}
                                 </Button>
                             </div>
                         </div>
@@ -338,7 +344,7 @@ export default function WorkerDashboardPage() {
                         {/* Top Recommendations */}
                         <div className="bg-[#F1F5F9] rounded-[2rem] p-8 border border-slate-200 shadow-inner">
                             <h4 className="text-sm font-black text-slate-900 mb-6 flex items-center gap-2 uppercase tracking-wide">
-                                <Zap className="w-4 h-4 text-orange-500 fill-orange-500" /> VIỆC HOT CHO BẠN
+                                <Zap className="w-4 h-4 text-orange-500 fill-orange-500" /> {t('dashboard.hotJobs')}
                             </h4>
 
                             <div className="space-y-4">
@@ -355,7 +361,7 @@ export default function WorkerDashboardPage() {
                                     ))
                                 ) : (
                                     <div className="text-center py-6 text-xs font-bold text-slate-400 italic">
-                                        Đang cập nhật đề xuất...
+                                        {t('dashboard.updatingRecommendations')}
                                     </div>
                                 )}
                             </div>
@@ -368,13 +374,13 @@ export default function WorkerDashboardPage() {
                                 <div className="relative z-10">
                                     <div className="flex items-center gap-2 mb-4">
                                         <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center font-black text-xs italic">80%</div>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Yêu cầu hoàn tất</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">{t('dashboard.profileCompletion.percentage')}</p>
                                     </div>
-                                    <h4 className="text-xl font-black mb-2 leading-tight">Hồ sơ 100% giúp tăng 3x tỷ lệ duyệt!</h4>
-                                    <p className="text-xs font-medium text-slate-400 mb-8 leading-relaxed">Hãy cập nhật đầy đủ chứng chỉ và video để trở thành ứng viên ưu tú.</p>
-                                    <Link href="/onboarding/worker/profile">
+                                    <h4 className="text-xl font-black mb-2 leading-tight">{t('dashboard.profileCompletion.boost')}</h4>
+                                    <p className="text-xs font-medium text-slate-400 mb-8 leading-relaxed">{t('dashboard.profileCompletion.description')}</p>
+                                    <Link href="/worker/profile">
                                         <Button className="w-full bg-white text-slate-900 hover:bg-slate-100 font-black py-5 rounded-2xl flex items-center justify-center gap-2 group shadow-lg">
-                                            CẬP NHẬT NGAY <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                            {t('dashboard.profileCompletion.updateNow')} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                         </Button>
                                     </Link>
                                 </div>

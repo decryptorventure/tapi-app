@@ -157,7 +157,7 @@ export default function WorkerReviewPage() {
                             </div>
                             <div className="mt-4 pt-4 border-t border-slate-50">
                                 <p className="text-sm text-slate-600 leading-relaxed italic">
-                                    "{profile?.bio || 'Chưa có giới thiệu'}"
+                                    &quot;{profile?.bio || 'Chưa có giới thiệu'}&quot;
                                 </p>
                             </div>
                         </div>
