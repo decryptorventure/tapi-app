@@ -6,7 +6,16 @@ import { createUntypedClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ImageUpload } from '@/components/shared/image-upload';
 import { toast } from 'sonner';
-import { Loader2, Plus, X, Languages, Award } from 'lucide-react';
+import {
+    Loader2,
+    Plus,
+    X,
+    Languages as LanguagesIcon,
+    Award,
+    ChevronRight,
+    Upload,
+    CheckCircle2
+} from 'lucide-react';
 import { LanguageType, LanguageLevel } from '@/types/database.types';
 
 interface LanguageSkill {
@@ -15,11 +24,11 @@ interface LanguageSkill {
     certificateFile: File | null;
 }
 
-const languageOptions: { value: LanguageType; label: string; flag: string }[] = [
-    { value: 'japanese', label: 'Tiếng Nhật', flag: '🇯🇵' },
-    { value: 'korean', label: 'Tiếng Hàn', flag: '🇰🇷' },
-    { value: 'english', label: 'Tiếng Anh', flag: '🇬🇧' },
-];
+const languageConfig: Record<LanguageType, { label: string; color: string; bgColor: string }> = {
+    japanese: { label: 'Tiếng Nhật', color: 'text-blue-700', bgColor: 'bg-blue-50' },
+    korean: { label: 'Tiếng Hàn', color: 'text-rose-700', bgColor: 'bg-rose-50' },
+    english: { label: 'Tiếng Anh', color: 'text-emerald-700', bgColor: 'bg-emerald-50' },
+};
 
 const levelsByLanguage: Record<LanguageType, { value: LanguageLevel; label: string }[]> = {
     japanese: [
@@ -47,79 +56,31 @@ const levelsByLanguage: Record<LanguageType, { value: LanguageLevel; label: stri
     ],
 };
 
-import { useTranslation } from '@/lib/i18n';
-
 export default function WorkerLanguagesPage() {
     const router = useRouter();
-    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
-    const [checkingAuth, setCheckingAuth] = useState(true);
     const [languageSkills, setLanguageSkills] = useState<LanguageSkill[]>([
         { language: 'japanese', level: 'n5', certificateFile: null }
     ]);
 
-    const languageOptions: { value: LanguageType; label: string; flag: string }[] = [
-        { value: 'japanese', label: t('onboarding.japanese'), flag: '🇯🇵' },
-        { value: 'korean', label: t('onboarding.korean'), flag: '🇰🇷' },
-        { value: 'english', label: t('onboarding.english'), flag: '🇬🇧' },
-    ];
-
-    const levelsByLanguage: Record<LanguageType, { value: LanguageLevel; label: string }[]> = {
-        japanese: [
-            { value: 'n5', label: t('languageLevels.japanese.n5') },
-            { value: 'n4', label: t('languageLevels.japanese.n4') },
-            { value: 'n3', label: t('languageLevels.japanese.n3') },
-            { value: 'n2', label: t('languageLevels.japanese.n2') },
-            { value: 'n1', label: t('languageLevels.japanese.n1') },
-        ],
-        korean: [
-            { value: 'topik_1', label: t('languageLevels.korean.topik_1') },
-            { value: 'topik_2', label: t('languageLevels.korean.topik_2') },
-            { value: 'topik_3', label: t('languageLevels.korean.topik_3') },
-            { value: 'topik_4', label: t('languageLevels.korean.topik_4') },
-            { value: 'topik_5', label: t('languageLevels.korean.topik_5') },
-            { value: 'topik_6', label: t('languageLevels.korean.topik_6') },
-        ],
-        english: [
-            { value: 'a1', label: t('languageLevels.english.a1') },
-            { value: 'a2', label: t('languageLevels.english.a2') },
-            { value: 'b1', label: t('languageLevels.english.b1') },
-            { value: 'b2', label: t('languageLevels.english.b2') },
-            { value: 'c1', label: t('languageLevels.english.c1') },
-            { value: 'c2', label: t('languageLevels.english.c2') },
-        ],
-    };
-
-    useEffect(() => {
-        const checkAuth = async () => {
-            const supabase = createUntypedClient();
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                router.push('/login');
-                return;
-            }
-            setCheckingAuth(false);
-        };
-        checkAuth();
-    }, [router]);
-
     const addLanguage = () => {
         if (languageSkills.length >= 3) {
-            toast.error(t('onboarding.maxLanguages'));
+            toast.error('Tối đa 3 ngôn ngữ');
             return;
         }
 
         const usedLanguages = languageSkills.map(s => s.language);
-        const availableLanguage = languageOptions.find(l => !usedLanguages.includes(l.value));
+        const availableLanguage = (Object.keys(languageConfig) as LanguageType[])
+            .find(l => !usedLanguages.includes(l));
 
         if (!availableLanguage) {
-            toast.error(t('onboarding.allLanguagesAdded'));
+            toast.error('Đã thêm tất cả ngôn ngữ');
             return;
         }
 
-        const defaultLevel = levelsByLanguage[availableLanguage.value][0].value;
+        const defaultLevel = levelsByLanguage[availableLanguage][0].value;
         setLanguageSkills([...languageSkills, {
-            language: availableLanguage.value,
+            language: availableLanguage,
             level: defaultLevel,
             certificateFile: null
         }]);
@@ -127,7 +88,7 @@ export default function WorkerLanguagesPage() {
 
     const removeLanguage = (index: number) => {
         if (languageSkills.length === 1) {
-            toast.error(t('onboarding.minOneLanguage'));
+            toast.error('Phải có ít nhất 1 ngôn ngữ');
             return;
         }
         setLanguageSkills(languageSkills.filter((_, i) => i !== index));
@@ -154,7 +115,6 @@ export default function WorkerLanguagesPage() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('Not authenticated');
 
-            // Upload certificates and create language_skills records
             for (const skill of languageSkills) {
                 let certificateUrl = null;
 
@@ -172,187 +132,182 @@ export default function WorkerLanguagesPage() {
                     }
                 }
 
-                // Insert or upsert language skill
-                const { error: skillError } = await supabase
+                await supabase
                     .from('language_skills')
                     .upsert({
                         user_id: user.id,
-                        language: skill.language,
+                        language_type: skill.language,
                         level: skill.level,
                         certificate_url: certificateUrl,
                         verification_status: 'pending',
-                    }, { onConflict: 'user_id,language' });
-
-                if (skillError) {
-                    console.error('Language skill error:', skillError);
-                }
+                    }, { onConflict: 'user_id,language_type' });
             }
 
-            toast.success(t('languageSkills.success') || 'Đã lưu kỹ năng ngôn ngữ!');
-            router.push('/onboarding/worker/video'); // Go to intro video step
+            toast.success('Đã lưu kỹ năng ngôn ngữ!');
+            router.push('/onboarding/worker/video');
         } catch (error: any) {
             console.error('Submit error:', error);
-            toast.error(error.message || t('common.error'));
+            toast.error('Lỗi lưu dữ liệu');
         } finally {
             setLoading(false);
         }
     };
 
-    if (checkingAuth) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-            </div>
-        );
-    }
-
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white p-4">
+        <div className="min-h-screen bg-background p-4">
             <div className="max-w-2xl mx-auto py-8">
-                {/* Progress */}
+                {/* Progress bar */}
                 <div className="mb-8">
-                    <div className="flex items-center gap-2 mb-4">
-                        <div className="flex gap-1">
-                            <div className="w-8 h-2 bg-blue-600 rounded-full" />
-                            <div className="w-8 h-2 bg-blue-600 rounded-full" />
-                            <div className="w-8 h-2 bg-slate-200 rounded-full" />
-                        </div>
-                        <span className="text-sm text-slate-500">{t('onboarding.step')} 2/3</span>
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-foreground">Bước 2/4</span>
+                        <span className="text-sm text-muted-foreground">Kỹ năng ngôn ngữ</span>
                     </div>
-
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                            <Languages className="w-6 h-6 text-blue-600" />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold text-slate-900">
-                                {t('onboarding.languageStep')}
-                            </h1>
-                            <p className="text-slate-600">
-                                {t('onboarding.languageStepDesc')}
-                            </p>
-                        </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-primary w-1/2 transition-all duration-300"></div>
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    {languageSkills.map((skill, index) => (
-                        <div key={index} className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-2">
-                                    <Award className="w-5 h-5 text-blue-600" />
-                                    <span className="font-medium text-slate-900">
-                                        {t('onboarding.languageN')} {index + 1}
-                                    </span>
-                                </div>
-                                {languageSkills.length > 1 && (
-                                    <button
-                                        type="button"
-                                        onClick={() => removeLanguage(index)}
-                                        className="p-1 hover:bg-slate-100 rounded-full transition-colors"
-                                    >
-                                        <X className="w-5 h-5 text-slate-400" />
-                                    </button>
-                                )}
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                                        {t('onboarding.languageN')} <span className="text-red-500">*</span>
-                                    </label>
-                                    <select
-                                        required
-                                        value={skill.language}
-                                        onChange={(e) => updateLanguage(index, 'language', e.target.value)}
-                                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                    >
-                                        {languageOptions.map((lang) => (
-                                            <option
-                                                key={lang.value}
-                                                value={lang.value}
-                                                disabled={languageSkills.some((s, i) => i !== index && s.language === lang.value)}
-                                            >
-                                                {lang.flag} {lang.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                                        {t('onboarding.levelRequired')} <span className="text-red-500">*</span>
-                                    </label>
-                                    <select
-                                        required
-                                        value={skill.level}
-                                        onChange={(e) => updateLanguage(index, 'level', e.target.value)}
-                                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                    >
-                                        {levelsByLanguage[skill.language].map((level) => (
-                                            <option key={level.value} value={level.value}>
-                                                {level.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <ImageUpload
-                                    label={t('onboarding.certOptional')}
-                                    helperText={t('onboarding.certHelper')}
-                                    onFileSelect={(file) => updateLanguage(index, 'certificateFile', file)}
-                                    onFileRemove={() => updateLanguage(index, 'certificateFile', null)}
-                                    accept="image/*,.pdf"
-                                    maxSize={10}
-                                />
-                            </div>
+                {/* Header */}
+                <div className="mb-8">
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="p-3 bg-primary/10 rounded-xl">
+                            <LanguagesIcon className="w-6 h-6 text-primary" />
                         </div>
-                    ))}
+                        <h1 className="text-3xl font-bold text-foreground">
+                            Ngôn ngữ của bạn
+                        </h1>
+                    </div>
+                    <p className="text-muted-foreground">
+                        Thêm kỹ năng ngôn ngữ để tăng cơ hội tìm việc phù hợp
+                    </p>
+                </div>
 
-                    {/* Add Language Button */}
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {languageSkills.map((skill, index) => {
+                        const config = languageConfig[skill.language];
+                        return (
+                            <div key={index} className="bg-card rounded-2xl border border-border p-6 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${config.bgColor}`}>
+                                        <LanguagesIcon className={`w-4 h-4 ${config.color}`} />
+                                        <span className={`text-sm font-semibold ${config.color}`}>
+                                            Ngôn ngữ {index + 1}
+                                        </span>
+                                    </div>
+                                    {languageSkills.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => removeLanguage(index)}
+                                            className="p-2 hover:bg-destructive/10 rounded-lg transition-colors text-destructive"
+                                        >
+                                            <X className="w-5 h-5" />
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-foreground mb-2">
+                                            Ngôn ngữ <span className="text-destructive">*</span>
+                                        </label>
+                                        <select
+                                            required
+                                            value={skill.language}
+                                            onChange={(e) => updateLanguage(index, 'language', e.target.value)}
+                                            className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground"
+                                        >
+                                            {(Object.keys(languageConfig) as LanguageType[]).map((lang) => (
+                                                <option
+                                                    key={lang}
+                                                    value={lang}
+                                                    disabled={languageSkills.some((s, i) => i !== index && s.language === lang)}
+                                                >
+                                                    {languageConfig[lang].label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-foreground mb-2">
+                                            Trình độ <span className="text-destructive">*</span>
+                                        </label>
+                                        <select
+                                            required
+                                            value={skill.level}
+                                            onChange={(e) => updateLanguage(index, 'level', e.target.value)}
+                                            className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground"
+                                        >
+                                            {levelsByLanguage[skill.language].map((level) => (
+                                                <option key={level.value} value={level.value}>
+                                                    {level.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-foreground mb-2">
+                                        Chứng chỉ (không bắt buộc)
+                                    </label>
+                                    <ImageUpload
+                                        label=""
+                                        helperText="Upload ảnh/PDF chứng chỉ để được xác minh nhanh hơn"
+                                        onFileSelect={(file) => updateLanguage(index, 'certificateFile', file)}
+                                        onFileRemove={() => updateLanguage(index, 'certificateFile', null)}
+                                        accept="image/*,.pdf"
+                                        maxSize={10}
+                                    />
+                                </div>
+                            </div>
+                        );
+                    })}
+
                     {languageSkills.length < 3 && (
                         <button
                             type="button"
                             onClick={addLanguage}
-                            className="w-full py-3 border-2 border-dashed border-slate-300 rounded-xl text-slate-600 hover:border-blue-500 hover:text-blue-600 transition-colors flex items-center justify-center gap-2"
+                            className="w-full py-4 border-2 border-dashed border-border rounded-2xl text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5 transition-all flex items-center justify-center gap-2 font-semibold"
                         >
                             <Plus className="w-5 h-5" />
-                            {t('onboarding.addLanguage')}
+                            Thêm ngôn ngữ
                         </button>
                     )}
 
-                    {/* Info Box */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                        <p className="text-sm text-blue-800">
-                            💡 {t('onboarding.certNote')}
+                    <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                        <p className="text-sm text-foreground">
+                            <strong>Mẹo:</strong> Upload chứng chỉ để được xác minh và tăng độ tin cậy của bạn lên đến 100%
                         </p>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex flex-col sm:flex-row gap-4 sticky bottom-4 pt-4">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={() => router.push('/onboarding/worker/profile')}
-                            className="flex-1"
+                            className="flex-1 h-12"
                         >
-                            {t('onboarding.goBack')}
+                            Quay lại
                         </Button>
 
                         <Button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
+                            variant="default"
+                            className="flex-1 h-12 bg-primary hover:bg-primary/90"
                         >
                             {loading ? (
                                 <>
-                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                    {t('onboarding.saving')}
+                                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                                    Đang lưu...
                                 </>
                             ) : (
-                                t('onboarding.continue')
+                                <>
+                                    Tiếp tục
+                                    <ChevronRight className="h-5 w-5 ml-2" />
+                                </>
                             )}
                         </Button>
                     </div>
