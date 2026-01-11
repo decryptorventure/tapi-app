@@ -6,6 +6,7 @@ import { createUntypedClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
     ArrowLeft,
     Users,
@@ -15,7 +16,11 @@ import {
     Clock,
     Star,
     MessageSquare,
-    Sparkles
+    Sparkles,
+    Languages,
+    Eye,
+    UserCircle2,
+    TrendingUp
 } from 'lucide-react';
 import { Job, JobApplication, Profile } from '@/types/database.types';
 import { approveApplication } from '@/lib/services/job-application.service';
@@ -119,8 +124,6 @@ export default function JobApplicationsPage() {
         }
     };
 
-    // ... handleApprove, handleReject remain the same ...
-
     const handleApprove = async (applicationId: string) => {
         setProcessing(applicationId);
         const supabase = createUntypedClient();
@@ -183,37 +186,46 @@ export default function JobApplicationsPage() {
         }
     };
 
-    const getLanguageLabel = (lang: string) => {
-        const labels: Record<string, string> = {
-            japanese: '🇯🇵 Nhật',
-            korean: '🇰🇷 Hàn',
-            english: '🇬🇧 Anh',
+    const getLanguageConfig = (lang: string) => {
+        const configs: Record<string, { label: string; color: string; bgColor: string }> = {
+            japanese: { label: 'Tiếng Nhật', color: 'text-blue-700', bgColor: 'bg-blue-50' },
+            korean: { label: 'Tiếng Hàn', color: 'text-rose-700', bgColor: 'bg-rose-50' },
+            english: { label: 'Tiếng Anh', color: 'text-emerald-700', bgColor: 'bg-emerald-50' },
         };
-        return labels[lang] || lang;
+        return configs[lang] || { label: lang, color: 'text-muted-foreground', bgColor: 'bg-muted' };
     };
 
     const getStatusBadge = (status: string, isInstantBook: boolean) => {
         if (status === 'pending') {
-            return <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Chờ duyệt</span>;
+            return <span className="px-3 py-1 text-xs font-semibold rounded-full bg-warning/10 text-warning inline-flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                Chờ duyệt
+            </span>;
         } else if (status === 'approved') {
             return (
-                <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 flex items-center gap-1">
+                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-success/10 text-success inline-flex items-center gap-1">
                     {isInstantBook && <Sparkles className="w-3 h-3" />}
                     {isInstantBook ? 'Instant Book' : 'Đã duyệt'}
                 </span>
             );
         } else if (status === 'rejected') {
-            return <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Từ chối</span>;
+            return <span className="px-3 py-1 text-xs font-semibold rounded-full bg-destructive/10 text-destructive inline-flex items-center gap-1">
+                <X className="w-3 h-3" />
+                Từ chối
+            </span>;
         } else if (status === 'completed') {
-            return <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">Hoàn thành</span>;
+            return <span className="px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary inline-flex items-center gap-1">
+                <Check className="w-3 h-3" />
+                Hoàn thành
+            </span>;
         }
         return null;
     };
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white">
-                <Loader2 className="h-8 w-8 animate-spin text-orange-600" />
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <Loader2 className="h-8 w-8 animate-spin text-cta" />
             </div>
         );
     }
@@ -223,7 +235,7 @@ export default function JobApplicationsPage() {
     const rejectedApps = applications.filter(a => a.status === 'rejected');
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+        <div className="min-h-screen bg-background">
             <WorkerProfileModal
                 worker={selectedWorker}
                 isOpen={isModalOpen}
@@ -231,20 +243,25 @@ export default function JobApplicationsPage() {
                 languageSkills={selectedWorker?.skills || []}
             />
             {/* Header */}
-            <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+            <div className="bg-card border-b border-border sticky top-0 z-10 backdrop-blur-sm bg-card/80">
                 <div className="container mx-auto px-4 py-4 max-w-4xl">
                     <div className="flex items-center gap-4">
-                        <Link href="/owner/jobs" className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-                            <ArrowLeft className="w-5 h-5 text-slate-600" />
+                        <Link href="/owner/jobs" className="p-2 hover:bg-muted rounded-lg transition-colors">
+                            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
                         </Link>
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-orange-100 rounded-lg">
-                                <Users className="w-5 h-5 text-orange-600" />
+                        <div className="flex items-center gap-3 flex-1">
+                            <div className="p-2 bg-cta/10 rounded-lg">
+                                <Users className="w-5 h-5 text-cta" />
                             </div>
                             <div>
-                                <h1 className="text-lg font-bold text-slate-900">Đơn ứng tuyển</h1>
-                                <p className="text-sm text-slate-600">{job?.title}</p>
+                                <h1 className="text-lg font-bold text-foreground">Đơn ứng tuyển</h1>
+                                <p className="text-sm text-muted-foreground">{job?.title}</p>
                             </div>
+                        </div>
+                        {/* Total count */}
+                        <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-muted/50 rounded-full">
+                            <TrendingUp className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-sm font-semibold text-foreground">{applications.length} đơn</span>
                         </div>
                     </div>
                 </div>
@@ -253,28 +270,45 @@ export default function JobApplicationsPage() {
             <div className="container mx-auto px-4 py-6 max-w-4xl">
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
-                        <p className="text-2xl font-bold text-yellow-700">{pendingApps.length}</p>
-                        <p className="text-sm text-yellow-600">Chờ duyệt</p>
+                    <div className="bg-card rounded-2xl border border-border p-6 card-hover">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-2 bg-warning/10 rounded-xl">
+                                <Clock className="w-5 h-5 text-warning" />
+                            </div>
+                        </div>
+                        <p className="text-2xl font-bold text-warning">{pendingApps.length}</p>
+                        <p className="text-sm text-muted-foreground">Chờ duyệt</p>
                     </div>
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                        <p className="text-2xl font-bold text-green-700">{approvedApps.length}</p>
-                        <p className="text-sm text-green-600">Đã duyệt</p>
+                    <div className="bg-card rounded-2xl border border-border p-6 card-hover">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-2 bg-success/10 rounded-xl">
+                                <Check className="w-5 h-5 text-success" />
+                            </div>
+                        </div>
+                        <p className="text-2xl font-bold text-success">{approvedApps.length}</p>
+                        <p className="text-sm text-muted-foreground">Đã duyệt</p>
                     </div>
-                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 text-center">
-                        <p className="text-2xl font-bold text-slate-700">{rejectedApps.length}</p>
-                        <p className="text-sm text-slate-600">Từ chối</p>
+                    <div className="bg-card rounded-2xl border border-border p-6 card-hover">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="p-2 bg-muted rounded-xl">
+                                <X className="w-5 h-5 text-muted-foreground" />
+                            </div>
+                        </div>
+                        <p className="text-2xl font-bold text-muted-foreground">{rejectedApps.length}</p>
+                        <p className="text-sm text-muted-foreground">Từ chối</p>
                     </div>
                 </div>
 
                 {/* Applications List */}
                 {applications.length === 0 ? (
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
-                        <Users className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-                        <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                    <div className="bg-card rounded-2xl shadow-sm border border-border p-12 text-center">
+                        <div className="w-16 h-16 mx-auto mb-4 bg-muted/30 rounded-2xl flex items-center justify-center">
+                            <Users className="w-8 h-8 text-muted-foreground/50" />
+                        </div>
+                        <h3 className="text-lg font-bold text-foreground mb-2">
                             Chưa có đơn ứng tuyển
                         </h3>
-                        <p className="text-slate-500">
+                        <p className="text-muted-foreground">
                             Đơn ứng tuyển sẽ hiển thị ở đây khi có người apply
                         </p>
                     </div>
@@ -283,54 +317,76 @@ export default function JobApplicationsPage() {
                         {applications.map((app) => (
                             <div
                                 key={app.id}
-                                className="bg-white rounded-xl shadow-sm border border-slate-200 p-6"
+                                className="bg-card rounded-2xl shadow-sm border border-border p-6 card-hover"
                             >
-                                <div className="flex items-start justify-between">
-                                    <div className="flex items-start gap-4">
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="flex items-start gap-4 flex-1">
                                         {/* Avatar */}
-                                        <div
-                                            className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold cursor-pointer hover:opacity-80 transition-opacity"
+                                        <button
                                             onClick={() => viewWorkerProfile(app.worker, app.language_skills)}
+                                            className="flex-shrink-0 group"
                                         >
-                                            {app.worker.full_name?.charAt(0) || '?'}
-                                        </div>
+                                            {app.worker.avatar_url ? (
+                                                <div className="relative w-14 h-14 rounded-2xl overflow-hidden ring-2 ring-border group-hover:ring-primary transition-all">
+                                                    <Image
+                                                        src={app.worker.avatar_url}
+                                                        alt={app.worker.full_name || 'Worker'}
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center text-primary font-bold text-lg ring-2 ring-border group-hover:ring-primary transition-all">
+                                                    {app.worker.full_name?.charAt(0) || <UserCircle2 className="w-7 h-7" />}
+                                                </div>
+                                            )}
+                                        </button>
 
                                         {/* Worker Info */}
-                                        <div>
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <h3
-                                                    className="font-semibold text-slate-900 cursor-pointer hover:underline"
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                                <button
                                                     onClick={() => viewWorkerProfile(app.worker, app.language_skills)}
+                                                    className="font-bold text-foreground hover:text-primary transition-colors"
                                                 >
                                                     {app.worker.full_name}
-                                                </h3>
+                                                </button>
                                                 {getStatusBadge(app.status, app.is_instant_book)}
                                             </div>
 
                                             {/* Reliability Score */}
-                                            <div className="flex items-center gap-1 text-sm text-slate-600 mb-2">
-                                                <Star className="w-4 h-4 text-yellow-500" />
-                                                <span>Điểm tin cậy: <strong>{app.worker.reliability_score}</strong></span>
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <div className="flex items-center gap-1 px-2.5 py-1 bg-warning/10 rounded-lg">
+                                                    <Star className="w-4 h-4 text-warning fill-warning" />
+                                                    <span className="text-sm font-semibold text-warning">{app.worker.reliability_score}</span>
+                                                </div>
+                                                <span className="text-xs text-muted-foreground">điểm tin cậy</span>
                                             </div>
 
                                             {/* Language Skills */}
-                                            <div className="flex flex-wrap gap-2 mb-2">
-                                                {app.language_skills.map((skill: any, i: number) => (
-                                                    <span
-                                                        key={i}
-                                                        className={`px-2 py-1 text-xs rounded-full ${skill.verification_status === 'verified'
-                                                            ? 'bg-green-100 text-green-800'
-                                                            : 'bg-slate-100 text-slate-600'
-                                                            }`}
-                                                    >
-                                                        {getLanguageLabel(skill.language_type || skill.language)} - {skill.level.toUpperCase()}
-                                                    </span>
-                                                ))}
+                                            <div className="flex flex-wrap gap-2 mb-3">
+                                                {app.language_skills.map((skill: any, i: number) => {
+                                                    const langConfig = getLanguageConfig(skill.language_type || skill.language);
+                                                    return (
+                                                        <div
+                                                            key={i}
+                                                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${langConfig.bgColor} ${skill.verification_status === 'verified' ? 'ring-2 ring-success/20' : ''}`}
+                                                        >
+                                                            <Languages className={`w-3.5 h-3.5 ${langConfig.color}`} />
+                                                            <span className={`text-xs font-medium ${langConfig.color}`}>
+                                                                {langConfig.label} - {skill.level.toUpperCase()}
+                                                            </span>
+                                                            {skill.verification_status === 'verified' && (
+                                                                <Check className="w-3 h-3 text-success" />
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
 
                                             {/* Applied Time */}
-                                            <div className="flex items-center gap-1 text-xs text-slate-400">
-                                                <Clock className="w-3 h-3" />
+                                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                                <Clock className="w-3.5 h-3.5" />
                                                 <span>
                                                     Ứng tuyển {new Date(app.applied_at).toLocaleString('vi-VN')}
                                                 </span>
@@ -339,13 +395,14 @@ export default function JobApplicationsPage() {
                                     </div>
 
                                     {/* Actions */}
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-col gap-2 flex-shrink-0">
                                         <Button
                                             size="sm"
-                                            variant="ghost"
-                                            className="text-blue-600 text-xs"
+                                            variant="outline"
                                             onClick={() => viewWorkerProfile(app.worker, app.language_skills)}
+                                            className="min-w-[100px]"
                                         >
+                                            <Eye className="w-4 h-4 mr-1.5" />
                                             Xem hồ sơ
                                         </Button>
 
@@ -356,7 +413,7 @@ export default function JobApplicationsPage() {
                                                     variant="outline"
                                                     onClick={() => handleReject(app.id)}
                                                     disabled={processing === app.id}
-                                                    className="text-red-600 border-red-200 hover:bg-red-50"
+                                                    className="flex-1 text-destructive border-destructive/20 hover:bg-destructive/10"
                                                 >
                                                     {processing === app.id ? (
                                                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -369,9 +426,10 @@ export default function JobApplicationsPage() {
                                                 </Button>
                                                 <Button
                                                     size="sm"
+                                                    variant="default"
                                                     onClick={() => handleApprove(app.id)}
                                                     disabled={processing === app.id}
-                                                    className="bg-green-600 hover:bg-green-700"
+                                                    className="flex-1 bg-success hover:bg-success/90 text-success-foreground"
                                                 >
                                                     {processing === app.id ? (
                                                         <Loader2 className="w-4 h-4 animate-spin" />
