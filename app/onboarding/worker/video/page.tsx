@@ -1,45 +1,37 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createUntypedClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Loader2, Video, X, Upload, Play, CheckCircle2 } from 'lucide-react';
-
-import { useTranslation } from '@/lib/i18n';
+import {
+    Loader2,
+    Video as VideoIcon,
+    X,
+    Upload,
+    Play,
+    CheckCircle2,
+    ChevronRight,
+    Sparkles
+} from 'lucide-react';
 
 export default function WorkerVideoPage() {
     const router = useRouter();
-    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
-    const [checkingAuth, setCheckingAuth] = useState(true);
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            const supabase = createUntypedClient();
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                router.push('/login');
-                return;
-            }
-            setCheckingAuth(false);
-        };
-        checkAuth();
-    }, [router]);
-
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            if (file.size > 50 * 1024 * 1024) { // 50MB limit
-                toast.error(t('introVideo.tooLarge'));
+            if (file.size > 50 * 1024 * 1024) {
+                toast.error('Video quá lớn (tối đa 50MB)');
                 return;
             }
             if (!file.type.startsWith('video/')) {
-                toast.error(t('introVideo.invalidType'));
+                toast.error('Vui lòng chọn file video');
                 return;
             }
             setVideoFile(file);
@@ -56,11 +48,8 @@ export default function WorkerVideoPage() {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
         if (!videoFile) {
-            // Optional in some cases, but roadmap says Step 3 is Intro Video
-            // Let's make it optional for now to not block flow, but show warning
             router.push('/onboarding/worker/review');
             return;
         }
@@ -85,68 +74,55 @@ export default function WorkerVideoPage() {
                 .from('videos')
                 .getPublicUrl(filePath);
 
-            const { error: updateError } = await supabase
+            await supabase
                 .from('profiles')
-                .update({
-                    intro_video_url: data.publicUrl,
-                })
+                .update({ intro_video_url: data.publicUrl })
                 .eq('id', user.id);
 
-            if (updateError) throw updateError;
-
-            toast.success(t('introVideo.success'));
+            toast.success('Video đã được tải lên!');
             router.push('/onboarding/worker/review');
         } catch (error: any) {
             console.error('Video upload error:', error);
-            toast.error(error.message || t('introVideo.error'));
+            toast.error('Lỗi upload video');
         } finally {
             setLoading(false);
         }
     };
 
-    if (checkingAuth) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-            </div>
-        );
-    }
-
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white p-4">
+        <div className="min-h-screen bg-background p-4">
             <div className="max-w-2xl mx-auto py-8">
-                {/* Progress */}
+                {/* Progress bar */}
                 <div className="mb-8">
-                    <div className="flex items-center gap-2 mb-4">
-                        <div className="flex gap-1">
-                            <div className="w-8 h-2 bg-blue-600 rounded-full" />
-                            <div className="w-8 h-2 bg-blue-600 rounded-full" />
-                            <div className="w-8 h-2 bg-blue-600 rounded-full" />
-                            <div className="w-8 h-2 bg-slate-200 rounded-full" />
-                        </div>
-                        <span className="text-sm text-slate-500">{t('onboarding.step')} 3/4</span>
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-foreground">Bước 3/4</span>
+                        <span className="text-sm text-muted-foreground">Video giới thiệu</span>
                     </div>
-
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                            <Video className="w-6 h-6 text-blue-600" />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold text-slate-900">
-                                {t('introVideo.title')}
-                            </h1>
-                            <p className="text-slate-600">
-                                {t('introVideo.description')}
-                            </p>
-                        </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-primary w-3/4 transition-all duration-300"></div>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
+                {/* Header */}
+                <div className="mb-8">
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="p-3 bg-primary/10 rounded-xl">
+                            <VideoIcon className="w-6 h-6 text-primary" />
+                        </div>
+                        <h1 className="text-3xl font-bold text-foreground">
+                            Giới thiệu bản thân
+                        </h1>
+                    </div>
+                    <p className="text-muted-foreground">
+                        Một video ngắn giúp nhà tuyển dụng hiểu hơn về bạn (không bắt buộc)
+                    </p>
+                </div>
+
+                <div className="bg-card rounded-2xl border border-border p-6 space-y-6">
                     {!previewUrl ? (
                         <div
                             onClick={() => fileInputRef.current?.click()}
-                            className="border-2 border-dashed border-slate-300 rounded-xl p-12 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all group"
+                            className="border-2 border-dashed border-border rounded-2xl p-16 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all group"
                         >
                             <input
                                 type="file"
@@ -155,42 +131,54 @@ export default function WorkerVideoPage() {
                                 accept="video/*"
                                 className="hidden"
                             />
-                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                                <Upload className="w-8 h-8 text-blue-600" />
+                            <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                                <Upload className="w-10 h-10 text-primary" />
                             </div>
-                            <h3 className="text-lg font-medium text-slate-900 mb-2">
-                                {t('introVideo.uploadTitle')}
+                            <h3 className="text-lg font-bold text-foreground mb-2">
+                                Click để upload video
                             </h3>
-                            <p className="text-slate-500 text-sm max-w-sm mx-auto">
-                                {t('introVideo.uploadHelper')}
+                            <p className="text-muted-foreground text-sm max-w-sm mx-auto">
+                                MP4, MOV, AVI • Tối đa 50MB • Thời lượng 30-60 giây
                             </p>
                         </div>
                     ) : (
-                        <div className="relative rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center shadow-lg">
+                        <div className="relative rounded-2xl overflow-hidden bg-black aspect-video shadow-xl">
                             <video
                                 src={previewUrl}
                                 controls
-                                className="max-h-full max-w-full"
+                                className="w-full h-full object-contain"
                             />
                             <button
                                 onClick={removeVideo}
-                                className="absolute top-4 right-4 bg-white/90 hover:bg-white p-2 rounded-full shadow-md transition-colors z-10"
+                                className="absolute top-4 right-4 bg-card hover:bg-destructive/90 p-2.5 rounded-xl shadow-lg transition-all text-foreground hover:text-destructive-foreground"
                             >
-                                <X className="w-5 h-5 text-slate-700" />
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
                     )}
 
-                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
-                        <h4 className="flex items-center gap-2 font-medium text-blue-900 mb-2">
-                            <Play className="w-4 h-4" />
-                            {t('introVideo.tipsTitle')}
+                    <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6">
+                        <h4 className="flex items-center gap-2 font-bold text-foreground mb-3">
+                            <Sparkles className="w-5 h-5 text-primary" />
+                            Mẹo để video tốt hơn
                         </h4>
-                        <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-                            <li>{t('introVideo.tip1')}</li>
-                            <li>{t('introVideo.tip2')}</li>
-                            <li>{t('introVideo.tip3')}</li>
-                            <li>{t('introVideo.tip4')}</li>
+                        <ul className="text-sm text-muted-foreground space-y-2">
+                            <li className="flex items-start gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
+                                <span>Nói rõ tên, trường, và ngôn ngữ bạn biết</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
+                                <span>Ghi hình nơi sáng sủa, âm thanh rõ ràng</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
+                                <span>Chia sẻ kinh nghiệm làm việc nếu có</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
+                                <span>Mỉm cười và tự tin!</span>
+                            </li>
                         </ul>
                     </div>
 
@@ -199,25 +187,32 @@ export default function WorkerVideoPage() {
                             type="button"
                             variant="outline"
                             onClick={() => router.push('/onboarding/worker/languages')}
-                            className="flex-1"
+                            className="flex-1 h-12"
                         >
-                            {t('onboarding.goBack')}
+                            Quay lại
                         </Button>
 
                         <Button
                             onClick={handleSubmit}
                             disabled={loading}
-                            className="flex-1 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600"
+                            variant="default"
+                            className="flex-1 h-12 bg-primary hover:bg-primary/90"
                         >
                             {loading ? (
                                 <>
-                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                    {t('introVideo.submitting')}
+                                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                                    Đang tải lên...
                                 </>
                             ) : videoFile ? (
-                                t('onboarding.continue')
+                                <>
+                                    Tiếp tục
+                                    <ChevronRight className="h-5 w-5 ml-2" />
+                                </>
                             ) : (
-                                t('introVideo.skipStep')
+                                <>
+                                    Bỏ qua bước này
+                                    <ChevronRight className="h-5 w-5 ml-2" />
+                                </>
                             )}
                         </Button>
                     </div>
