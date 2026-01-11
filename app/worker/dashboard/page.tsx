@@ -21,10 +21,12 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import Image from 'next/image';
 import { format } from 'date-fns';
 import { vi, enUS } from 'date-fns/locale';
 import { useTranslation } from '@/lib/i18n';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
+import { DashboardSkeleton } from '@/components/skeletons/dashboard-skeleton';
 
 
 
@@ -120,17 +122,7 @@ export default function WorkerDashboardPage() {
     };
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="relative">
-                        <div className="w-12 h-12 border-4 border-muted rounded-full animate-spin border-t-primary"></div>
-                        <Zap className="absolute inset-0 m-auto w-5 h-5 text-primary animate-pulse" />
-                    </div>
-                    <p className="text-sm font-semibold text-muted-foreground animate-pulse">{t('dashboard.loadingDashboard')}</p>
-                </div>
-            </div>
-        );
+        return <DashboardSkeleton />;
     }
 
     const profile = data?.profile;
@@ -155,7 +147,14 @@ export default function WorkerDashboardPage() {
                         <Link href="/worker/profile" className="cursor-pointer">
                             <div className="w-9 h-9 rounded-full bg-muted border-2 border-border overflow-hidden hover:border-primary transition-colors">
                                 {profile?.avatar_url ? (
-                                    <img src={profile.avatar_url} className="w-full h-full object-cover" alt="" />
+                                    <Image
+                                        src={profile.avatar_url}
+                                        alt={profile.full_name || 'User avatar'}
+                                        width={36}
+                                        height={36}
+                                        className="w-full h-full object-cover"
+                                        priority
+                                    />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary font-semibold text-xs">
                                         {profile?.full_name?.split(' ').pop()?.charAt(0)}
