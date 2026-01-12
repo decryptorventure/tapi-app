@@ -20,10 +20,13 @@ import {
     Languages,
     Eye,
     UserCircle2,
-    TrendingUp
+    TrendingUp,
+    CheckCircle2,
+    UserX
 } from 'lucide-react';
 import { Job, JobApplication, Profile } from '@/types/database.types';
 import { approveApplication } from '@/lib/services/job-application.service';
+import { CheckinService } from '@/lib/services/checkin.service';
 
 interface ApplicationWithWorker extends JobApplication {
     worker: Profile;
@@ -186,6 +189,77 @@ export default function JobApplicationsPage() {
         }
     };
 
+    const handleMarkComplete = async (applicationId: string, workerId: string) => {
+        setProcessing(applicationId);
+        const supabase = createUntypedClient();
+
+        try {
+            // Update application status
+            const { error } = await supabase
+                .from('job_applications')
+                .update({
+                    status: 'completed',
+                    completed_at: new Date().toISOString()
+                })
+                .eq('id', applicationId);
+
+            if (error) throw error;
+
+            // Update worker reliability score (+1 for completion)
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('reliability_score')
+                .eq('id', workerId)
+                .single();
+
+            if (profile) {
+                const newScore = Math.min(100, profile.reliability_score + 1);
+                await supabase
+                    .from('profiles')
+                    .update({ reliability_score: newScore })
+                    .eq('id', workerId);
+
+                // Log to reliability_history
+                await supabase
+                    .from('reliability_history')
+                    .insert({
+                        worker_id: workerId,
+                        score_change: 1,
+                        reason: 'job_completed',
+                        new_score: newScore,
+                    });
+            }
+
+            toast.success('Đã đánh dấu hoàn thành!');
+            fetchData();
+        } catch (error: any) {
+            console.error('Complete error:', error);
+            toast.error('Lỗi đánh dấu hoàn thành');
+        } finally {
+            setProcessing(null);
+        }
+    };
+
+    const handleNoShow = async (applicationId: string) => {
+        setProcessing(applicationId);
+
+        try {
+            const result = await CheckinService.processNoShow(applicationId);
+
+            if (!result.success) {
+                throw new Error(result.message);
+            }
+
+            toast.success('Đã ghi nhận vắng mặt');
+            fetchData();
+        } catch (error: any) {
+            console.error('No-show error:', error);
+            toast.error(error.message || 'Lỗi ghi nhận vắng mặt');
+        } finally {
+            setProcessing(null);
+        }
+    };
+
     const getLanguageConfig = (lang: string) => {
         const configs: Record<string, { label: string; color: string; bgColor: string }> = {
             japanese: { label: 'Tiếng Nhật', color: 'text-blue-700', bgColor: 'bg-blue-50' },
@@ -217,6 +291,11 @@ export default function JobApplicationsPage() {
             return <span className="px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary inline-flex items-center gap-1">
                 <Check className="w-3 h-3" />
                 Hoàn thành
+            </span>;
+        } else if (status === 'no_show') {
+            return <span className="px-3 py-1 text-xs font-semibold rounded-full bg-destructive/10 text-destructive inline-flex items-center gap-1">
+                <UserX className="w-3 h-3" />
+                Vắng mặt
             </span>;
         }
         return null;
@@ -437,6 +516,43 @@ export default function JobApplicationsPage() {
                                                         <>
                                                             <Check className="w-4 h-4 mr-1" />
                                                             Duyệt
+                                                        </>
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        )}
+
+                                        {app.status === 'approved' && (
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => handleNoShow(app.id)}
+                                                    disabled={processing === app.id}
+                                                    className="flex-1 text-destructive border-destructive/20 hover:bg-destructive/10"
+                                                >
+                                                    {processing === app.id ? (
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                    ) : (
+                                                        <>
+                                                            <UserX className="w-4 h-4 mr-1" />
+                                                            Vắng mặt
+                                                        </>
+                                                    )}
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="default"
+                                                    onClick={() => handleMarkComplete(app.id, app.worker_id)}
+                                                    disabled={processing === app.id}
+                                                    className="flex-1 bg-primary hover:bg-primary/90"
+                                                >
+                                                    {processing === app.id ? (
+                                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                                    ) : (
+                                                        <>
+                                                            <CheckCircle2 className="w-4 h-4 mr-1" />
+                                                            Hoàn thành
                                                         </>
                                                     )}
                                                 </Button>

@@ -188,7 +188,7 @@ export async function applyToJob(
       application,
       isInstantBook,
       message: isInstantBook
-        ? 'Bạn đã đặt chỗ thành công!'
+        ? 'Bạn đã nhận job thành công!'
         : 'Đơn ứng tuyển đã được gửi. Chủ nhà hàng sẽ xem xét.',
     };
 
@@ -222,8 +222,20 @@ export async function getWorkerQualificationForJob(
   qualification: ReturnType<typeof evaluateWorkerQualification>;
   feedback: string | string[];
   canApply: boolean;
+  hasApplied: boolean;
+  applicationStatus?: string;
 }> {
   const supabase = createUntypedClient();
+
+  // Check if already applied
+  const { data: existingApps } = await supabase
+    .from('job_applications')
+    .select('status')
+    .eq('job_id', jobId)
+    .eq('worker_id', workerId)
+    .limit(1);
+
+  const existingApp = existingApps?.[0];
 
   const { data: jobs } = await supabase
     .from('jobs')
@@ -276,7 +288,9 @@ export async function getWorkerQualificationForJob(
   return {
     qualification,
     feedback: getQualificationFeedback(qualification),
-    canApply: job.status === 'open' && !workerProfile.is_account_frozen,
+    canApply: job.status === 'open' && !workerProfile.is_account_frozen && !existingApp,
+    hasApplied: !!existingApp,
+    applicationStatus: existingApp?.status,
   };
 }
 

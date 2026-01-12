@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createUntypedClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,10 @@ import {
     Languages,
     Users,
     Shirt,
-    AlertCircle
+    AlertCircle,
+    ImageIcon,
+    Upload,
+    X
 } from 'lucide-react';
 import Link from 'next/link';
 import { LanguageType, LanguageLevel } from '@/types/database.types';
@@ -50,8 +53,11 @@ const languageLevels: Record<LanguageType, { value: LanguageLevel; label: string
 
 export default function NewJobPage() {
     const router = useRouter();
+    const thumbnailInputRef = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [isAuthed, setIsAuthed] = useState(false);
+    const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -65,6 +71,48 @@ export default function NewJobPage() {
         dressCode: '',
         maxWorkers: 1,
     });
+
+    const uploadThumbnail = async (file: File): Promise<string | null> => {
+        const supabase = createUntypedClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return null;
+
+        const fileExt = file.name.split('.').pop();
+        const fileName = `jobs/${user.id}/${Date.now()}.${fileExt}`;
+
+        const { error } = await supabase.storage
+            .from('restaurants')
+            .upload(fileName, file);
+
+        if (error) {
+            console.error('Upload error:', error);
+            return null;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+            .from('restaurants')
+            .getPublicUrl(fileName);
+
+        return publicUrl;
+    };
+
+    const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploading(true);
+        try {
+            const url = await uploadThumbnail(file);
+            if (url) {
+                setThumbnailUrl(url);
+                toast.success('Đã tải ảnh lên');
+            }
+        } catch (error) {
+            toast.error('Lỗi khi upload ảnh');
+        } finally {
+            setUploading(false);
+        }
+    };
 
     // Auth check on mount
     useEffect(() => {
@@ -125,6 +173,7 @@ export default function NewJobPage() {
                     min_reliability_score: formData.minReliabilityScore,
                     dress_code: formData.dressCode || null,
                     max_workers: formData.maxWorkers,
+                    thumbnail_url: thumbnailUrl,
                     status: 'open',
                     current_workers: 0,
                 })
@@ -244,6 +293,64 @@ export default function NewJobPage() {
                             <p className="text-xs text-muted-foreground mt-1.5">
                                 Gợi ý: Mô tả nhiệm vụ, môi trường làm việc, quyền lợi...
                             </p>
+                        </div>
+
+                        {/* Thumbnail Upload */}
+                        <div>
+                            <label className="block text-sm font-semibold text-foreground mb-2">
+                                Ảnh thumbnail công việc
+                            </label>
+                            <div className="flex items-start gap-4">
+                                <div className="relative">
+                                    <div className="w-32 h-24 rounded-xl bg-muted flex items-center justify-center overflow-hidden border-2 border-dashed border-border">
+                                        {thumbnailUrl ? (
+                                            <img
+                                                src={thumbnailUrl}
+                                                alt="Thumbnail"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                                        )}
+                                    </div>
+                                    {uploading && (
+                                        <div className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
+                                            <Loader2 className="w-6 h-6 text-white animate-spin" />
+                                        </div>
+                                    )}
+                                    {thumbnailUrl && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setThumbnailUrl(null)}
+                                            className="absolute -top-2 -right-2 p-1 bg-destructive rounded-full text-white"
+                                        >
+                                            <X className="w-3 h-3" />
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="flex-1">
+                                    <input
+                                        ref={thumbnailInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleThumbnailUpload}
+                                        className="hidden"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => thumbnailInputRef.current?.click()}
+                                        disabled={uploading}
+                                        className="mb-2"
+                                    >
+                                        <Upload className="w-4 h-4 mr-2" />
+                                        Tải ảnh lên
+                                    </Button>
+                                    <p className="text-xs text-muted-foreground">
+                                        Ảnh sẽ hiển thị trong danh sách công việc (16:9 khuyến nghị)
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

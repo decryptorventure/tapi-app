@@ -21,6 +21,31 @@ export class QRCodeService {
   private static readonly SECRET = process.env.QR_SECRET || 'default-secret-change-in-production';
 
   /**
+   * Validate QR_SECRET is properly configured
+   * Logs warning in dev, throws error in production
+   */
+  private static validateSecret(): void {
+    const secret = process.env.QR_SECRET;
+    if (!secret || secret === 'default-secret-change-in-production') {
+      const message = '[QR] CRITICAL: QR_SECRET not set or using default value';
+      console.error(message);
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('QR_SECRET must be configured in production');
+      }
+    }
+  }
+
+  // Validate secret on first use (server-side only)
+  private static secretValidated = false;
+  private static ensureSecretValidated(): void {
+    if (!this.secretValidated && typeof window === 'undefined') {
+      this.validateSecret();
+      this.secretValidated = true;
+    }
+  }
+
+
+  /**
    * Generate QR code for job check-in
    * @param applicationId - Job application ID
    * @param workerId - Worker user ID
@@ -105,6 +130,7 @@ export class QRCodeService {
   private static generateSignature(
     data: Omit<QRCodeData, 'signature'>
   ): string {
+    this.ensureSecretValidated();
     const dataString = JSON.stringify(data);
     return crypto
       .createHmac('sha256', this.SECRET)

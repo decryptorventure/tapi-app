@@ -195,30 +195,22 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ---
 
-## Implementation Status
+## Implementation Status (MVP 1.0)
 
 ### ✅ Completed
-- Supabase auth & database setup
-- Job matching algorithm (5-criteria evaluation)
-- Language level comparison system
-- Reliability scoring rules
-- Job feed UI with React Query
-- Job card component
-- Application workflow
-- Toast notifications
+- **Core Engine:** Supabase auth, DB schema, Job matching algorithm (5-criteria), Language level comparison.
+- **Worker Experience:** High-performance Job Feed, Advanced Job Search/Filters, Job Details with Swipeable Image Carousel, Instant Book / Request-to-Book flow.
+- **Owner Dashboard:** Statistics summary, Job management (Create/Edit/Cancel), Application management (Approve/Reject), QR scanning for check-in.
+- **Profile & Branding:** Multi-image upload for restaurants (Logo, Cover photos), Job thumbnails, profile completion tracking.
+- **Security:** Full RLS implementation for Database and Storage buckets.
+- **Internationalization:** Multi-language support (Vietnamese, English, Japanese, Korean).
 
-### ⚠️ In Progress
-- Job discovery filters/search
-- Pagination for listings
-- Owner dashboard
-- QR code generation (mock → real)
-
-### ❌ Planned
+### 🚀 Future Roadmap
 - E-contract signing
 - Wallet & payment integration
 - Push notifications
-- Admin dashboard
-- Advanced analytics
+- Advanced analytics & reporting
+- Identity verification (e-KYC)
 
 ---
 

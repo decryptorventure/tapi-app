@@ -36,6 +36,8 @@ export default function OwnerScanQRPage() {
     const [cameraError, setCameraError] = useState<string | null>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const scannerRef = useRef<any>(null);
+    const [lastScanTime, setLastScanTime] = useState<number>(0);
+    const SCAN_COOLDOWN_MS = 2000; // 2 second cooldown
 
     useEffect(() => {
         checkAuth();
@@ -115,12 +117,21 @@ export default function OwnerScanQRPage() {
     };
 
     const handleQRCode = async (qrText: string) => {
+        // Rate limiting
+        const now = Date.now();
+        if (now - lastScanTime < SCAN_COOLDOWN_MS) {
+            toast.error('Vui lòng chờ 2 giây trước khi quét tiếp');
+            return;
+        }
+        setLastScanTime(now);
+
         setProcessing(true);
 
         try {
             const supabase = createUntypedClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('Not authenticated');
+
 
             // Validate QR code
             const validation = QRCodeService.validateQRCode(qrText);

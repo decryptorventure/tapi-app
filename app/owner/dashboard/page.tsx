@@ -502,12 +502,12 @@ export default function OwnerDashboardPage() {
                                     </span>
                                 </Link>
                                 <Link
-                                    href="/owner/dashboard"
+                                    href="/owner/settings"
                                     className="bg-muted/50 p-4 rounded-xl hover:bg-warning/10 hover:border-warning/20 border border-border group transition-all flex flex-col items-center gap-2"
                                 >
-                                    <BarChart3 className="w-5 h-5 text-muted-foreground group-hover:text-warning" />
+                                    <Store className="w-5 h-5 text-muted-foreground group-hover:text-warning" />
                                     <span className="text-xs font-semibold text-muted-foreground group-hover:text-warning">
-                                        Báo cáo
+                                        Cài đặt
                                     </span>
                                 </Link>
                             </div>

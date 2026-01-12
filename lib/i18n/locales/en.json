@@ -453,6 +453,7 @@
     },
     "matching": {
         "instantBookSuccess": "You qualify for instant booking!",
+        "requestBookRequired": "Request approval from owner",
         "missingLanguage": "You don't have the required language skills",
         "lowLanguageLevel": "Your language level does not meet the requirement",
         "lowReliability": "Your reliability score does not meet the requirement",

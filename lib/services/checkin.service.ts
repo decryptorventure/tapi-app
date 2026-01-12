@@ -52,7 +52,20 @@ export const CheckinService = {
             const isLate = diffMinutes > 15; // More than 15 minutes late
             const minutesLate = isLate ? diffMinutes : 0;
 
-            // Check if already checked in
+            // Check if QR already used (one-time enforcement)
+            const { data: existingScanned } = await supabase
+                .from('checkins')
+                .select('id, scanned_at')
+                .eq('application_id', data.applicationId)
+                .eq('checkin_type', 'check_in')
+                .not('scanned_at', 'is', null)
+                .single();
+
+            if (existingScanned) {
+                return { success: false, message: 'Mã QR đã được sử dụng' };
+            }
+
+            // Check if already checked in (legacy support)
             const { data: existingCheckin } = await supabase
                 .from('checkins')
                 .select('id')
@@ -83,6 +96,12 @@ export const CheckinService = {
                 console.error('Check-in error:', checkinError);
                 return { success: false, message: 'Lỗi ghi nhận check-in' };
             }
+
+            // Mark QR as used (one-time enforcement)
+            await supabase
+                .from('checkins')
+                .update({ scanned_at: new Date().toISOString() })
+                .eq('id', checkin.id);
 
             // Update reliability score based on punctuality
             if (isLate && minutesLate > 30) {

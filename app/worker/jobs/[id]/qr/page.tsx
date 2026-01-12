@@ -167,20 +167,20 @@ export default function WorkerQRPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
     }
 
     if (!application) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white p-4">
+            <div className="min-h-screen flex items-center justify-center bg-background p-4">
                 <div className="text-center">
-                    <AlertCircle className="w-12 h-12 mx-auto text-red-500 mb-4" />
-                    <h2 className="text-xl font-bold text-slate-900 mb-2">Không tìm thấy</h2>
-                    <p className="text-slate-600 mb-4">Không tìm thấy đơn ứng tuyển này</p>
-                    <Link href="/worker/jobs" className="text-blue-600 hover:underline">
+                    <AlertCircle className="w-12 h-12 mx-auto text-destructive mb-4" />
+                    <h2 className="text-xl font-bold text-foreground mb-2">Không tìm thấy</h2>
+                    <p className="text-muted-foreground mb-4">Không tìm thấy đơn ứng tuyển này</p>
+                    <Link href="/worker/jobs" className="text-primary hover:underline">
                         Quay lại danh sách
                     </Link>
                 </div>
@@ -189,19 +189,19 @@ export default function WorkerQRPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+        <div className="min-h-screen bg-background">
             {/* Header */}
-            <div className="bg-white border-b border-slate-200 sticky top-0 z-10">
+            <div className="bg-card border-b border-border sticky top-0 z-10">
                 <div className="container mx-auto px-4 py-4 max-w-lg">
                     <div className="flex items-center gap-4">
-                        <Link href="/worker/jobs" className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-                            <ArrowLeft className="w-5 h-5 text-slate-600" />
+                        <Link href="/worker/jobs" className="p-2 hover:bg-muted rounded-lg transition-colors">
+                            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
                         </Link>
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-blue-100 rounded-lg">
-                                <QrCode className="w-5 h-5 text-blue-600" />
+                            <div className="p-2 bg-primary/10 rounded-lg">
+                                <QrCode className="w-5 h-5 text-primary" />
                             </div>
-                            <h1 className="text-lg font-bold text-slate-900">Mã QR Check-in</h1>
+                            <h1 className="text-lg font-bold text-foreground">Mã QR Check-in</h1>
                         </div>
                     </div>
                 </div>
@@ -209,18 +209,18 @@ export default function WorkerQRPage() {
 
             <div className="container mx-auto px-4 py-6 max-w-lg space-y-6">
                 {/* Status Banner */}
-                <div className="bg-green-100 border border-green-200 rounded-xl p-4 flex items-center gap-3">
-                    <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />
+                <div className="bg-success/10 border border-success/20 rounded-xl p-4 flex items-center gap-3">
+                    <CheckCircle2 className="w-6 h-6 text-success flex-shrink-0" />
                     <div>
-                        <p className="font-medium text-green-800">Đơn đã được duyệt</p>
-                        <p className="text-sm text-green-700">Đến địa điểm và cho owner quét mã này</p>
+                        <p className="font-medium text-success">Đơn đã được duyệt</p>
+                        <p className="text-sm text-success/80">Đến địa điểm và cho owner quét mã này</p>
                     </div>
                 </div>
 
                 {/* QR Code Card */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 text-center">
+                <div className="bg-card rounded-xl shadow-sm border border-border p-6 text-center">
                     {qrCodeData ? (
-                        <div className="bg-white p-4 rounded-lg inline-block border-2 border-slate-200">
+                        <div className="bg-card p-4 rounded-lg inline-block border-2 border-border">
                             {/* Display QR code as image if it's base64, otherwise show text */}
                             {qrCodeData.startsWith('data:') ? (
                                 <img
@@ -229,59 +229,59 @@ export default function WorkerQRPage() {
                                     className="w-48 h-48 mx-auto"
                                 />
                             ) : (
-                                <div className="w-48 h-48 flex items-center justify-center bg-slate-100 rounded-lg">
-                                    <QrCode className="w-24 h-24 text-slate-400" />
+                                <div className="w-48 h-48 flex items-center justify-center bg-muted rounded-lg">
+                                    <QrCode className="w-24 h-24 text-muted-foreground" />
                                 </div>
                             )}
                         </div>
                     ) : (
-                        <div className="w-48 h-48 mx-auto flex items-center justify-center bg-slate-100 rounded-lg">
-                            <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+                        <div className="w-48 h-48 mx-auto flex items-center justify-center bg-muted rounded-lg">
+                            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
                         </div>
                     )}
 
-                    <p className="mt-4 text-sm text-slate-500">
+                    <p className="mt-4 text-sm text-muted-foreground">
                         Cho owner quét mã này khi check-in
                     </p>
                 </div>
 
                 {/* Countdown Timer */}
-                <div className="bg-blue-600 text-white rounded-xl p-4 text-center">
+                <div className="bg-primary text-primary-foreground rounded-xl p-4 text-center">
                     <p className="text-sm opacity-80 mb-1">Ca làm bắt đầu</p>
                     <p className="text-2xl font-bold">{timeUntilShift}</p>
                 </div>
 
                 {/* Job Details */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
-                    <h3 className="font-semibold text-slate-900">{application.job.title}</h3>
+                <div className="bg-card rounded-xl shadow-sm border border-border p-6 space-y-4">
+                    <h3 className="font-semibold text-foreground">{application.job.title}</h3>
 
                     <div className="space-y-3 text-sm">
                         <div className="flex items-start gap-3">
-                            <Building2 className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                            <Building2 className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                             <div>
-                                <p className="font-medium text-slate-900">{application.job.owner.restaurant_name}</p>
-                                <p className="text-slate-600">{application.job.owner.restaurant_address}</p>
+                                <p className="font-medium text-foreground">{application.job.owner.restaurant_name}</p>
+                                <p className="text-muted-foreground">{application.job.owner.restaurant_address}</p>
                             </div>
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <Calendar className="w-5 h-5 text-slate-400" />
-                            <span className="text-slate-700">{formatDate(application.job.shift_date)}</span>
+                            <Calendar className="w-5 h-5 text-muted-foreground" />
+                            <span className="text-foreground">{formatDate(application.job.shift_date)}</span>
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <Clock className="w-5 h-5 text-slate-400" />
-                            <span className="text-slate-700">
+                            <Clock className="w-5 h-5 text-muted-foreground" />
+                            <span className="text-foreground">
                                 {formatTime(application.job.shift_start_time)} - {formatTime(application.job.shift_end_time)}
                             </span>
                         </div>
                     </div>
 
                     {/* Pay Info */}
-                    <div className="pt-4 border-t border-slate-100">
+                    <div className="pt-4 border-t border-border">
                         <div className="flex items-center justify-between">
-                            <span className="text-slate-600">Lương/giờ</span>
-                            <span className="font-bold text-orange-600">
+                            <span className="text-muted-foreground">Lương/giờ</span>
+                            <span className="font-bold text-cta">
                                 {application.job.hourly_rate_vnd.toLocaleString('vi-VN')}đ
                             </span>
                         </div>
@@ -289,9 +289,9 @@ export default function WorkerQRPage() {
                 </div>
 
                 {/* Instructions */}
-                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                    <h4 className="font-medium text-yellow-800 mb-2">📋 Hướng dẫn</h4>
-                    <ul className="text-sm text-yellow-700 space-y-1">
+                <div className="bg-warning/10 border border-warning/20 rounded-xl p-4">
+                    <h4 className="font-medium text-warning mb-2">📋 Hướng dẫn</h4>
+                    <ul className="text-sm text-warning/80 space-y-1">
                         <li>1. Đến đúng giờ tại địa chỉ nhà hàng</li>
                         <li>2. Tìm owner/quản lý và cho họ quét mã QR</li>
                         <li>3. Hoàn thành ca làm việc</li>
