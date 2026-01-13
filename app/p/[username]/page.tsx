@@ -9,12 +9,29 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const supabase = await createServerClient();
+    const identifier = params.username;
 
-    const { data: profile } = await supabase
+    // Try to find by username first, then by ID
+    let profile = null;
+
+    // Try username first
+    const { data: byUsername } = await supabase
         .from('profiles')
         .select('full_name, bio')
-        .eq('username', params.username)
+        .eq('username', identifier)
         .single();
+
+    if (byUsername) {
+        profile = byUsername;
+    } else {
+        // Try by ID
+        const { data: byId } = await supabase
+            .from('profiles')
+            .select('full_name, bio')
+            .eq('id', identifier)
+            .single();
+        profile = byId;
+    }
 
     if (!profile) {
         return { title: 'Không tìm thấy hồ sơ' };
@@ -32,14 +49,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function WorkerProfilePage({ params }: PageProps) {
     const supabase = await createServerClient();
+    const identifier = params.username;
 
-    // Get profile by username
-    const { data: profile } = await supabase
+    // Try to find by username first, then by ID
+    let profile = null;
+
+    const { data: byUsername } = await supabase
         .from('profiles')
         .select('*')
-        .eq('username', params.username)
+        .eq('username', identifier)
         .eq('role', 'worker')
         .single();
+
+    if (byUsername) {
+        profile = byUsername;
+    } else {
+        const { data: byId } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', identifier)
+            .eq('role', 'worker')
+            .single();
+        profile = byId;
+    }
 
     if (!profile) {
         notFound();
@@ -49,29 +81,28 @@ export default async function WorkerProfilePage({ params }: PageProps) {
     const { data: languageSkills } = await supabase
         .from('language_skills')
         .select('*')
-        .eq('profile_id', profile.id);
+        .eq('user_id', profile.id);
 
     // Get work history (completed applications with ratings)
     const { data: workHistory } = await supabase
         .from('job_applications')
         .select(`
-      id,
-      status,
-      rating,
-      review,
-      jobs (
         id,
-        title,
-        owner_id,
-        profiles:owner_id (
-          restaurant_name,
-          avatar_url
+        status,
+        rating,
+        review,
+        jobs (
+          id,
+          title,
+          owner_id,
+          profiles:owner_id (
+            restaurant_name,
+            avatar_url
+          )
         )
-      )
-    `)
+      `)
         .eq('worker_id', profile.id)
         .eq('status', 'completed')
-        .not('rating', 'is', null)
         .order('created_at', { ascending: false })
         .limit(10);
 
