@@ -19,6 +19,7 @@ import {
     Clock,
     AlertCircle,
     LogOut,
+    ExternalLink,
 } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
 import { useTranslation } from '@/lib/i18n';
@@ -231,6 +232,19 @@ export default function WorkerProfilePage() {
                                 <span className="text-sm text-slate-500 font-normal"> / 100</span>
                             </p>
                         </div>
+                    </div>
+
+                    {/* View Public Profile Button */}
+                    <div className="mt-4 pt-4 border-t border-slate-100">
+                        <Link href={`/p/${profile.id}`} target="_blank">
+                            <Button variant="outline" className="w-full gap-2">
+                                <ExternalLink className="w-4 h-4" />
+                                Xem hồ sơ công khai
+                            </Button>
+                        </Link>
+                        <p className="text-xs text-slate-500 text-center mt-2">
+                            Chia sẻ link này cho nhà tuyển dụng
+                        </p>
                     </div>
                 </div>
 

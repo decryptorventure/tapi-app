@@ -17,7 +17,8 @@ import {
     MapPin,
     Phone,
     Mail,
-    ImageIcon
+    ImageIcon,
+    ExternalLink
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/lib/i18n';
@@ -258,6 +259,24 @@ export default function OwnerSettingsPage() {
                             </Button>
                             <p className="text-xs text-muted-foreground mt-2">PNG, JPG (max 2MB)</p>
                         </div>
+                    </div>
+                </div>
+
+                {/* View Landing Page */}
+                <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 rounded-xl border border-orange-200 dark:border-orange-800 p-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h3 className="font-bold text-foreground">Trang tuyển dụng</h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                                Chia sẻ link này để thu hút nhân viên
+                            </p>
+                        </div>
+                        <Link href={`/r/${profile?.id}`} target="_blank">
+                            <Button className="bg-orange-500 hover:bg-orange-600 gap-2">
+                                <ExternalLink className="w-4 h-4" />
+                                Xem trang
+                            </Button>
+                        </Link>
                     </div>
                 </div>
 
