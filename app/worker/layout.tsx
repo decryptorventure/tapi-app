@@ -1,4 +1,5 @@
 import { WorkerNav } from "@/components/layout/worker-nav";
+import { DashboardHeader } from "@/components/layout/dashboard-header";
 
 export default function WorkerLayout({
     children,
@@ -6,11 +7,12 @@ export default function WorkerLayout({
     children: React.ReactNode;
 }) {
     return (
-        <>
-            <div className="pb-20">
+        <div className="min-h-screen bg-background">
+            <DashboardHeader />
+            <main className="pb-20 pt-4">
                 {children}
-            </div>
+            </main>
             <WorkerNav />
-        </>
+        </div>
     );
 }

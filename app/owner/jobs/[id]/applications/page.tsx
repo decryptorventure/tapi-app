@@ -38,6 +38,7 @@ interface ApplicationWithWorker extends JobApplication {
 }
 
 import { WorkerProfileModal } from '@/components/owner/worker-profile-modal';
+import { ChatWindow } from '@/components/chat/chat-window';
 
 export default function JobApplicationsPage() {
     const router = useRouter();
@@ -48,6 +49,13 @@ export default function JobApplicationsPage() {
     const [processing, setProcessing] = useState<string | null>(null);
     const [job, setJob] = useState<Job | null>(null);
     const [applications, setApplications] = useState<ApplicationWithWorker[]>([]);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+    // Chat state
+    const [chatApplicationId, setChatApplicationId] = useState<string | null>(null);
+    const [chatRecipientName, setChatRecipientName] = useState('');
+    const [chatRecipientAvatar, setChatRecipientAvatar] = useState<string | null>(null);
+    const [isChatOpen, setIsChatOpen] = useState(false);
 
     // Modal state
     const [selectedWorker, setSelectedWorker] = useState<any>(null);
@@ -62,6 +70,13 @@ export default function JobApplicationsPage() {
         setIsModalOpen(true);
     };
 
+    const openChat = (applicationId: string, workerName: string, workerAvatar: string | null) => {
+        setChatApplicationId(applicationId);
+        setChatRecipientName(workerName);
+        setChatRecipientAvatar(workerAvatar);
+        setIsChatOpen(true);
+    };
+
     const fetchData = async () => {
         const supabase = createUntypedClient();
 
@@ -71,6 +86,7 @@ export default function JobApplicationsPage() {
                 router.push('/login');
                 return;
             }
+            setCurrentUserId(user.id);
 
             // Fetch job details
             const { data: jobData, error: jobError } = await supabase
@@ -485,6 +501,16 @@ export default function JobApplicationsPage() {
                                             Xem hồ sơ
                                         </Button>
 
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => openChat(app.id, app.worker.full_name, app.worker.avatar_url || null)}
+                                            className="min-w-[100px]"
+                                        >
+                                            <MessageSquare className="w-4 h-4 mr-1.5" />
+                                            Nhắn tin
+                                        </Button>
+
                                         {app.status === 'pending' && (
                                             <div className="flex gap-2">
                                                 <Button
@@ -565,6 +591,18 @@ export default function JobApplicationsPage() {
                     </div>
                 )}
             </div>
+
+            {/* Chat Window */}
+            {chatApplicationId && currentUserId && (
+                <ChatWindow
+                    isOpen={isChatOpen}
+                    onClose={() => setIsChatOpen(false)}
+                    applicationId={chatApplicationId}
+                    currentUserId={currentUserId}
+                    recipientName={chatRecipientName}
+                    recipientAvatar={chatRecipientAvatar}
+                />
+            )}
         </div>
     );
 }

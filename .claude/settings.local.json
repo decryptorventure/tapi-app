@@ -21,7 +21,9 @@
       "Skill(planning)",
       "Bash(node:*)",
       "Bash(wc:*)",
-      "Skill(plan:validate)"
+      "Skill(plan:validate)",
+      "Skill(research)",
+      "WebSearch"
     ]
   }
 }

@@ -29,6 +29,8 @@ import { cn } from '@/lib/utils';
 import { useJobQualification, useApplyToJob } from '@/hooks/use-job-matching';
 import { useAuth } from '@/hooks/use-auth';
 import { ImageCarousel } from '@/components/ui/image-carousel';
+import { ChatWindow } from '@/components/chat/chat-window';
+import { MessageCircle } from 'lucide-react';
 
 interface Job {
     id: string;
@@ -64,6 +66,7 @@ export default function JobDetailPage() {
 
     const [loading, setLoading] = useState(true);
     const [job, setJob] = useState<Job | null>(null);
+    const [isChatOpen, setIsChatOpen] = useState(false);
 
     const { data: qualification } = useJobQualification(jobId, user?.id || null);
     const applyMutation = useApplyToJob();
@@ -309,17 +312,34 @@ export default function JobDetailPage() {
             </div>
 
             {/* Floating Action Button */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-card border-t border-border shadow-lg">
-                <div className="max-w-2xl mx-auto">
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-card border-t border-border shadow-lg space-y-3">
+                <div className="max-w-2xl mx-auto flex gap-3">
+                    {/* Chat Button - Only show if applied */}
+                    {qualification?.hasApplied && qualification.applicationId && (
+                        <Button
+                            variant="outline"
+                            className="flex-1 py-6 rounded-xl border-2 hover:bg-muted/50"
+                            onClick={() => setIsChatOpen(true)}
+                        >
+                            <MessageCircle className="w-5 h-5 mr-2" />
+                            Nhắn tin
+                        </Button>
+                    )}
+
                     <Button
                         onClick={handleApply}
                         disabled={applyMutation.isPending || qualification?.hasApplied}
                         className={cn(
-                            "w-full font-bold py-6 rounded-xl flex items-center justify-center gap-2",
+                            "font-bold py-6 rounded-xl flex items-center justify-center gap-2",
                             qualification?.hasApplied
-                                ? "bg-muted text-muted-foreground"
+                                ? "flex-1 cursor-default opacity-100" // Keep full width if applied but adapt style
+                                : "w-full",
+                            qualification?.hasApplied
+                                ? "bg-muted text-muted-foreground hover:bg-muted"
                                 : isInstantBook
                                     ? "bg-success hover:bg-success/90 text-white"
+                                    // If chat button shown, this button shares width? No, handleApply is disabled/status.
+                                    // If applied, handleApply button shows status. We want Chat button + Status button side by side.
                                     : "bg-cta hover:bg-cta/90 text-white"
                         )}
                     >
@@ -353,6 +373,18 @@ export default function JobDetailPage() {
                     </Button>
                 </div>
             </div>
+
+            {/* Chat Window */}
+            {qualification?.hasApplied && qualification.applicationId && user && (
+                <ChatWindow
+                    isOpen={isChatOpen}
+                    onClose={() => setIsChatOpen(false)}
+                    applicationId={qualification.applicationId}
+                    currentUserId={user.id}
+                    recipientName={job?.owner?.restaurant_name || 'Nhà hàng'}
+                    recipientAvatar={job?.owner?.restaurant_logo_url}
+                />
+            )}
         </div>
     );
 }

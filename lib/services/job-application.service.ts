@@ -224,13 +224,14 @@ export async function getWorkerQualificationForJob(
   canApply: boolean;
   hasApplied: boolean;
   applicationStatus?: string;
+  applicationId?: string;
 }> {
   const supabase = createUntypedClient();
 
   // Check if already applied
   const { data: existingApps } = await supabase
     .from('job_applications')
-    .select('status')
+    .select('id, status')
     .eq('job_id', jobId)
     .eq('worker_id', workerId)
     .limit(1);
@@ -291,6 +292,7 @@ export async function getWorkerQualificationForJob(
     canApply: job.status === 'open' && !workerProfile.is_account_frozen && !existingApp,
     hasApplied: !!existingApp,
     applicationStatus: existingApp?.status,
+    applicationId: existingApp?.id,
   };
 }
 
@@ -302,6 +304,15 @@ export async function approveApplication(
   ownerId: string
 ): Promise<{ success: boolean; message: string }> {
   const supabase = createUntypedClient();
+
+  // Debug: Check if key is present
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  console.log('approveApplication - Debug:', {
+    hasKey: !!key,
+    keyPrefix: key?.substring(0, 5),
+    ownerId,
+    applicationId
+  });
 
   // Verify owner owns the job
   const { data: apps } = await supabase
@@ -329,9 +340,10 @@ export async function approveApplication(
     .eq('id', applicationId);
 
   if (error) {
+    console.error('approveApplication - ACTUAL Supabase Error:', JSON.stringify(error, null, 2));
     return {
       success: false,
-      message: 'Có lỗi xảy ra khi phê duyệt',
+      message: 'Có lỗi xảy ra khi phê duyệt: ' + (error.message || error.code || 'Unknown'),
     };
   }
 

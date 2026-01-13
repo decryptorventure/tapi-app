@@ -21,6 +21,12 @@ export function Header() {
                     </div>
 
                     <div className="flex items-center gap-4">
+                        <Link href="/guide" className="text-sm font-medium text-slate-600 hover:text-slate-900 hidden md:block">
+                            Hướng dẫn
+                        </Link>
+                        <Link href="/faq" className="text-sm font-medium text-slate-600 hover:text-slate-900 hidden md:block">
+                            FAQ
+                        </Link>
                         <LanguageSwitcher />
                         <Link href="/login">
                             <Button variant="ghost" className="font-semibold text-slate-600 hover:text-slate-900">

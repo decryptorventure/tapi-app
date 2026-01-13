@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { createUntypedClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { NotificationBell } from '@/components/notifications/notification-bell';
 
 export function OwnerNav() {
     const pathname = usePathname();
@@ -75,7 +76,8 @@ export function OwnerNav() {
                     <Link href="/owner/dashboard" className="font-bold text-lg text-orange-600">
                         Tapy Owner
                     </Link>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
+                        <NotificationBell />
                         <Link href="/owner/jobs/new">
                             <Button size="sm" variant="outline" className="h-8 w-8 p-0 rounded-full border-dashed border-orange-300">
                                 <Plus className="h-4 w-4 text-orange-600" />
@@ -85,8 +87,8 @@ export function OwnerNav() {
                 </div>
 
                 <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-                    <div className="w-full flex-1 md:w-auto md:flex-none">
-                        {/* Search or Actions could go here */}
+                    <div className="w-full flex-1 md:w-auto md:flex-none flex justify-end gap-2">
+                        <NotificationBell />
                     </div>
                     <Button
                         variant="ghost"
