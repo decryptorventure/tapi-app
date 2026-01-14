@@ -15,7 +15,6 @@ import {
     AlertCircle,
     CheckCircle2,
     Wallet,
-    Bell,
     MapPin,
     Zap
 } from 'lucide-react';
@@ -130,42 +129,6 @@ export default function WorkerDashboardPage() {
 
     return (
         <div className="min-h-screen bg-background pb-24">
-            {/* Elegant Header */}
-            <div className="bg-card/80 border-b border-border px-4 py-4 sticky top-0 z-20 backdrop-blur-md">
-                <div className="max-w-5xl mx-auto flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                            <Zap className="w-6 h-6 text-white" />
-                        </div>
-                        <h1 className="font-bold text-xl text-foreground">TAPY</h1>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <button className="relative p-2 text-muted-foreground hover:text-primary transition-colors cursor-pointer">
-                            <Bell className="w-5 h-5" />
-                            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full border-2 border-card"></span>
-                        </button>
-                        <Link href="/worker/profile" className="cursor-pointer">
-                            <div className="w-9 h-9 rounded-full bg-muted border-2 border-border overflow-hidden hover:border-primary transition-colors">
-                                {profile?.avatar_url ? (
-                                    <Image
-                                        src={profile.avatar_url}
-                                        alt={profile.full_name || 'User avatar'}
-                                        width={36}
-                                        height={36}
-                                        className="w-full h-full object-cover"
-                                        priority
-                                    />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary font-semibold text-xs">
-                                        {profile?.full_name?.split(' ').pop()?.charAt(0)}
-                                    </div>
-                                )}
-                            </div>
-                        </Link>
-                    </div>
-                </div>
-            </div>
-
             {/* Hero Section */}
             <div className="bg-primary pt-8 pb-20 px-4 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>

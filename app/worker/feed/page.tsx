@@ -287,7 +287,7 @@ export default function JobFeedPage() {
                             : "space-y-3"
                     )}>
                         {[...Array(4)].map((_, i) => (
-                            <JobCardSkeleton key={i} />
+                            <JobCardSkeleton key={i} variant={viewMode === 'grid' ? 'card' : 'list'} />
                         ))}
                     </div>
                 )}
@@ -295,6 +295,7 @@ export default function JobFeedPage() {
                 {/* Job Cards */}
                 {!isLoading && filteredJobs.length > 0 && (
                     <div className={cn(
+                        "animate-stagger",
                         viewMode === 'grid'
                             ? "grid grid-cols-1 md:grid-cols-2 gap-4"
                             : "space-y-3"

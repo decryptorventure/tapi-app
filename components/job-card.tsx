@@ -180,7 +180,7 @@ export const JobCard = memo(function JobCard({ job, variant = 'card', onClick }:
 
         {/* Price Badge */}
         <div className="absolute bottom-2 left-2 px-2 py-1 bg-cta text-white text-sm font-bold rounded-lg shadow-lg">
-          ¥{(job.hourly_rate_vnd / 1000).toFixed(0)}k
+          {(job.hourly_rate_vnd / 1000).toFixed(0)}k đ/h
         </div>
       </div>
 

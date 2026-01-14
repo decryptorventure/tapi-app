@@ -38,7 +38,7 @@ export function WorkerNav() {
     if (pathname.includes('/onboarding')) return null;
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-4 py-2 z-50 pb-safe">
+        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-2 z-50 pb-safe">
             <div className="flex justify-around items-center max-w-md mx-auto">
                 {navItems.map((item) => {
                     const Icon = item.icon;
@@ -51,8 +51,8 @@ export function WorkerNav() {
                             className={cn(
                                 "flex flex-col items-center gap-1 p-2 rounded-xl transition-colors min-w-[64px]",
                                 isActive
-                                    ? "text-blue-600 bg-blue-50"
-                                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+                                    ? "text-primary bg-primary/10"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                             )}
                         >
                             <Icon className={cn("w-6 h-6", isActive && "fill-current")} />

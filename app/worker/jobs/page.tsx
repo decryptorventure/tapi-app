@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { createUntypedClient } from '@/lib/supabase/client';
 import { ApplicationCard } from '@/components/worker/application-card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Briefcase, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/lib/i18n';
@@ -102,20 +103,20 @@ export default function MyJobsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white p-4">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-4xl mx-auto py-8">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">
+          <h1 className="text-2xl font-bold text-foreground mb-2">
             {t('myJobs.title')}
           </h1>
-          <p className="text-slate-600">
+          <p className="text-muted-foreground">
             {t('myJobs.desc')}
           </p>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 p-1 bg-slate-100 rounded-xl mb-6">
+        <div className="flex gap-2 p-1 bg-muted rounded-xl mb-6">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.value;
@@ -124,18 +125,18 @@ export default function MyJobsPage() {
                 key={tab.value}
                 onClick={() => setActiveTab(tab.value)}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all",
+                  "flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all cursor-pointer",
                   isActive
-                    ? "bg-white text-blue-600 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-50/50"
+                    ? "bg-card text-primary shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 )}
               >
-                <Icon className={cn("w-4 h-4", isActive ? "text-blue-600" : "text-slate-400")} />
+                <Icon className={cn("w-4 h-4", isActive ? "text-primary" : "text-muted-foreground")} />
                 {tab.label}
                 {tab.count > 0 && (
                   <span className={cn(
                     "px-2 py-0.5 rounded-full text-[10px]",
-                    isActive ? "bg-blue-100 text-blue-600" : "bg-slate-200 text-slate-500"
+                    isActive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                   )}>
                     {tab.count}
                   </span>
@@ -147,33 +148,54 @@ export default function MyJobsPage() {
 
         {/* Applications List */}
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-card rounded-xl border border-border p-5 space-y-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                  <Skeleton className="h-7 w-24 rounded-full" />
+                </div>
+                <div className="space-y-2">
+                  {[1, 2, 3, 4].map((j) => (
+                    <div key={j} className="flex items-center gap-2">
+                      <Skeleton className="w-4 h-4 rounded" />
+                      <Skeleton className="h-4 w-32" />
+                    </div>
+                  ))}
+                </div>
+                <div className="pt-4 border-t border-border">
+                  <Skeleton className="h-10 w-full rounded-lg" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : applications && applications.length > 0 ? (
-          <div className="space-y-4">
+          <div className="space-y-4 animate-stagger">
             {applications.map((app) => (
               <ApplicationCard key={app.id} application={app} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 bg-white rounded-xl border border-slate-200">
+          <div className="text-center py-16 bg-card rounded-xl border border-border">
             <div className="max-w-md mx-auto">
-              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                {activeTab === 'upcoming' && <Briefcase className="w-8 h-8 text-slate-300" />}
-                {activeTab === 'pending' && <Clock className="w-8 h-8 text-slate-300" />}
-                {activeTab === 'completed' && <CheckCircle2 className="w-8 h-8 text-slate-300" />}
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                {activeTab === 'upcoming' && <Briefcase className="w-8 h-8 text-muted-foreground" />}
+                {activeTab === 'pending' && <Clock className="w-8 h-8 text-muted-foreground" />}
+                {activeTab === 'completed' && <CheckCircle2 className="w-8 h-8 text-muted-foreground" />}
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+              <h3 className="text-lg font-semibold text-foreground mb-2">
                 {getEmptyMessage().title}
               </h3>
-              <p className="text-slate-600 mb-6">
+              <p className="text-muted-foreground mb-6">
                 {getEmptyMessage().description}
               </p>
               {activeTab !== 'completed' && (
                 <Link
                   href="/worker/feed"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-600 transition-all shadow-sm hover:shadow-md"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-all shadow-sm hover:shadow-md"
                 >
                   {t('worker.findJobs')}
                 </Link>

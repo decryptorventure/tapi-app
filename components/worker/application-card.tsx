@@ -44,35 +44,35 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
     switch (status) {
       case 'approved':
         return (
-          <div className="flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm font-medium">
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-success/10 text-success rounded-full text-sm font-medium">
             <CheckCircle2 className="h-4 w-4" />
             {t('applicationCard.approved')}
           </div>
         );
       case 'pending':
         return (
-          <div className="flex items-center gap-1.5 px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-sm font-medium">
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-warning/10 text-warning rounded-full text-sm font-medium">
             <Clock className="h-4 w-4" />
             {t('applicationCard.pending')}
           </div>
         );
       case 'rejected':
         return (
-          <div className="flex items-center gap-1.5 px-3 py-1 bg-red-50 text-red-700 rounded-full text-sm font-medium">
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-destructive/10 text-destructive rounded-full text-sm font-medium">
             <XCircle className="h-4 w-4" />
             {t('applicationCard.rejected')}
           </div>
         );
       case 'completed':
         return (
-          <div className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
             <CheckCircle2 className="h-4 w-4" />
             {t('applicationCard.completed')}
           </div>
         );
       case 'cancelled':
         return (
-          <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm font-medium">
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-muted text-muted-foreground rounded-full text-sm font-medium">
             <XCircle className="h-4 w-4" />
             {t('applicationCard.cancelled')}
           </div>
@@ -97,63 +97,63 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 hover:shadow-md transition-shadow">
+    <div className="bg-card rounded-xl shadow-sm border border-border p-5 hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-slate-900 mb-1">
+          <h3 className="text-lg font-semibold text-foreground mb-1">
             {job.title}
           </h3>
-          <p className="text-slate-600 font-medium">{job.owner?.restaurant_name || t('applicationCard.restaurant')}</p>
+          <p className="text-muted-foreground font-medium">{job.owner?.restaurant_name || t('applicationCard.restaurant')}</p>
         </div>
         {getStatusBadge()}
       </div>
 
       {/* Job Details */}
       <div className="space-y-2 mb-4">
-        <div className="flex items-center text-sm text-slate-600">
-          <MapPin className="h-4 w-4 mr-2 text-slate-400" />
+        <div className="flex items-center text-sm text-muted-foreground">
+          <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
           {job.owner?.restaurant_address || t('applicationCard.noAddress')}
         </div>
 
-        <div className="flex items-center text-sm text-slate-600">
-          <Calendar className="h-4 w-4 mr-2 text-slate-400" />
+        <div className="flex items-center text-sm text-muted-foreground">
+          <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
           {formatDate(job.shift_date)}
         </div>
 
-        <div className="flex items-center text-sm text-slate-600">
-          <Clock className="h-4 w-4 mr-2 text-slate-400" />
+        <div className="flex items-center text-sm text-muted-foreground">
+          <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
           {formatTime(job.shift_start_time)} - {formatTime(job.shift_end_time)}
         </div>
 
-        <div className="flex items-center text-sm font-semibold text-slate-900">
-          <DollarSign className="h-4 w-4 mr-2 text-green-600" />
+        <div className="flex items-center text-sm font-semibold text-foreground">
+          <DollarSign className="h-4 w-4 mr-2 text-success" />
           {job.hourly_rate_vnd.toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US')}{locale === 'vi' ? 'đ/giờ' : 'VND/hour'}
         </div>
       </div>
 
       {/* Instant Book Badge */}
       {is_instant_book && (
-        <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
+        <div className="mb-4 inline-flex items-center gap-1.5 px-3 py-1.5 bg-success/10 border border-success/20 rounded-lg">
           <svg
-            className="h-4 w-4 text-green-600"
+            className="h-4 w-4 text-success"
             viewBox="0 0 24 24"
             fill="currentColor"
           >
             <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
           </svg>
-          <span className="text-sm font-medium text-green-700">
+          <span className="text-sm font-medium text-success">
             {t('applicationCard.instantBook')}
           </span>
         </div>
       )}
 
       {/* Actions */}
-      <div className="flex gap-3 mt-4 pt-4 border-t border-slate-100">
+      <div className="flex gap-3 mt-4 pt-4 border-t border-border">
         {status === 'approved' && (
           <>
             <Link href={`/worker/jobs/${application.id}/qr`} className="flex-1">
-              <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600">
+              <Button className="w-full bg-primary hover:bg-primary/90">
                 <QrCode className="h-4 w-4 mr-2" />
                 {t('applicationCard.viewQr')}
               </Button>
