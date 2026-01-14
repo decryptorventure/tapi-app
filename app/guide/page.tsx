@@ -46,7 +46,7 @@ export default function GuidePage() {
                         <h4 className="font-semibold text-lg mb-3">1. Đăng ký tài khoản</h4>
                         <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
                             <li>Truy cập <strong>tapy.vn</strong> hoặc cài đặt ứng dụng</li>
-                            <li>Nhấn <strong>"Tìm việc"</strong> trên trang chủ</li>
+                            <li>Nhấn <strong>&quot;Tìm việc&quot;</strong> trên trang chủ</li>
                             <li>Nhập email, số điện thoại và tạo mật khẩu</li>
                             <li>Xác nhận qua mã OTP gửi về email</li>
                         </ol>
@@ -93,7 +93,7 @@ export default function GuidePage() {
                             <li>Ngôn ngữ yêu cầu (VD: Tiếng Nhật N4)</li>
                             <li>Thời gian ca làm</li>
                             <li>Mức lương theo giờ</li>
-                            <li>Badge <span className="text-primary font-medium">"Nhận ngay"</span> nếu bạn đủ điều kiện Instant Book</li>
+                            <li>Badge <span className="text-primary font-medium">&quot;Nhận ngay&quot;</span> nếu bạn đủ điều kiện Instant Book</li>
                         </ul>
                     </div>
 
@@ -113,7 +113,7 @@ export default function GuidePage() {
                                 Instant Book
                             </h5>
                             <p className="text-sm text-muted-foreground">
-                                Nếu bạn đủ điều kiện, nhấn <strong>"Nhận ngay"</strong> để được
+                                Nếu bạn đủ điều kiện, nhấn <strong>&quot;Nhận ngay&quot;</strong> để được
                                 duyệt tự động và nhận QR code ngay lập tức!
                             </p>
                         </div>
@@ -123,7 +123,7 @@ export default function GuidePage() {
                                 Request to Book
                             </h5>
                             <p className="text-sm text-muted-foreground">
-                                Nếu chưa đủ điều kiện Instant Book, nhấn <strong>"Gửi đơn"</strong>
+                                Nếu chưa đủ điều kiện Instant Book, nhấn <strong>&quot;Gửi đơn&quot;</strong>
                                 và chờ chủ nhà hàng duyệt.
                             </p>
                         </div>
@@ -262,7 +262,7 @@ export default function GuidePage() {
                                     <td className="p-3 text-right text-yellow-600 font-medium">-5 điểm</td>
                                 </tr>
                                 <tr>
-                                    <td className="p-3">1h trước - 15' sau ca bắt đầu</td>
+                                    <td className="p-3">1h trước - 15&apos; sau ca bắt đầu</td>
                                     <td className="p-3 text-right text-orange-600 font-medium">-15 điểm</td>
                                 </tr>
                                 <tr className="bg-red-50 dark:bg-red-950/30">
@@ -288,7 +288,7 @@ export default function GuidePage() {
                         <h4 className="font-semibold text-lg mb-3">1. Đăng ký tài khoản</h4>
                         <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
                             <li>Truy cập <strong>tapy.vn</strong></li>
-                            <li>Nhấn <strong>"Tuyển dụng"</strong></li>
+                            <li>Nhấn <strong>&quot;Tuyển dụng&quot;</strong></li>
                             <li>Nhập email, số điện thoại, tên nhà hàng</li>
                             <li>Xác nhận qua mã OTP</li>
                         </ol>
@@ -480,8 +480,8 @@ export default function GuidePage() {
                         <button
                             onClick={() => setActiveTab('worker')}
                             className={`px-6 py-2 rounded-md font-medium transition-all ${activeTab === 'worker'
-                                    ? 'bg-background text-foreground shadow-sm'
-                                    : 'text-muted-foreground hover:text-foreground'
+                                ? 'bg-background text-foreground shadow-sm'
+                                : 'text-muted-foreground hover:text-foreground'
                                 }`}
                         >
                             <Users className="w-4 h-4 inline-block mr-2" />
@@ -490,8 +490,8 @@ export default function GuidePage() {
                         <button
                             onClick={() => setActiveTab('owner')}
                             className={`px-6 py-2 rounded-md font-medium transition-all ${activeTab === 'owner'
-                                    ? 'bg-background text-foreground shadow-sm'
-                                    : 'text-muted-foreground hover:text-foreground'
+                                ? 'bg-background text-foreground shadow-sm'
+                                : 'text-muted-foreground hover:text-foreground'
                                 }`}
                         >
                             <Briefcase className="w-4 h-4 inline-block mr-2" />

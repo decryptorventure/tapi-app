@@ -30,7 +30,7 @@ const LANGUAGE_LEVEL_WEIGHT: Record<LanguageLevel, number> = {
   c2: 6,
 };
 
-interface WorkerQualification {
+export interface WorkerQualification {
   hasRequiredLanguage: boolean;
   meetsLanguageLevel: boolean;
   meetsReliabilityScore: boolean;
@@ -39,7 +39,7 @@ interface WorkerQualification {
   qualifiesForInstantBook: boolean;
 }
 
-interface WorkerProfile {
+export interface WorkerProfile {
   reliability_score: number;
   is_account_frozen: boolean;
   frozen_until?: string | null;
@@ -51,7 +51,7 @@ interface WorkerProfile {
   }>;
 }
 
-interface JobRequirements {
+export interface JobRequirements {
   required_language: LanguageType;
   required_language_level: LanguageLevel;
   min_reliability_score: number;

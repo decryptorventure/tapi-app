@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { JobCard } from '@/components/job-card';
-import { JobCardSkeleton } from '@/components/job-card-skeleton';
+import { JobCardSkeleton } from '@/components/skeletons/job-card-skeleton';
 import { ProfileCompletionBanner } from '@/components/shared/profile-completion-banner';
 import { ViewModeToggle } from '@/components/shared/view-mode-toggle';
 import { DatePickerHorizontal } from '@/components/shared/date-picker-horizontal';

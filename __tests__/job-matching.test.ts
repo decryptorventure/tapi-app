@@ -3,26 +3,32 @@
  * Tests evaluateWorkerQualification() for edge cases
  */
 
-import { evaluateWorkerQualification, getQualificationFeedback } from '../lib/job-matching';
+import { evaluateWorkerQualification, getQualificationFeedback, WorkerProfile, JobRequirements } from '../lib/job-matching';
+import { LanguageType, LanguageLevel } from '../types/database.types';
 
-// Mock worker profiles
-const createWorkerProfile = (overrides: Partial<any> = {}) => ({
+// Helper to create properly typed language skill
+const createLanguageSkill = (
+    language: LanguageType,
+    level: LanguageLevel,
+    verification_status: 'verified' | 'pending' | 'rejected' = 'verified'
+) => ({
+    language,
+    level,
+    verification_status,
+});
+
+// Mock worker profiles with proper types
+const createWorkerProfile = (overrides: Partial<WorkerProfile> = {}): WorkerProfile => ({
     reliability_score: 95,
     is_account_frozen: false,
     frozen_until: null,
     is_verified: true,
-    language_skills: [
-        {
-            language: 'japanese',
-            level: 'n3',
-            verification_status: 'verified',
-        },
-    ],
+    language_skills: [createLanguageSkill('japanese', 'n3', 'verified')],
     ...overrides,
 });
 
-// Mock job requirements
-const createJobRequirements = (overrides: Partial<any> = {}) => ({
+// Mock job requirements with proper types
+const createJobRequirements = (overrides: Partial<JobRequirements> = {}): JobRequirements => ({
     required_language: 'japanese',
     required_language_level: 'n4',
     min_reliability_score: 90,
@@ -33,7 +39,7 @@ describe('evaluateWorkerQualification', () => {
     describe('Language Level Comparison', () => {
         test('JLPT N3 applying for N4 job - should qualify', () => {
             const worker = createWorkerProfile({
-                language_skills: [{ language: 'japanese', level: 'n3', verification_status: 'verified' }],
+                language_skills: [createLanguageSkill('japanese', 'n3', 'verified')],
             });
             const job = createJobRequirements({ required_language_level: 'n4' });
 
@@ -46,7 +52,7 @@ describe('evaluateWorkerQualification', () => {
 
         test('JLPT N4 applying for N3 job - should NOT qualify', () => {
             const worker = createWorkerProfile({
-                language_skills: [{ language: 'japanese', level: 'n4', verification_status: 'verified' }],
+                language_skills: [createLanguageSkill('japanese', 'n4', 'verified')],
             });
             const job = createJobRequirements({ required_language_level: 'n3' });
 
@@ -58,7 +64,7 @@ describe('evaluateWorkerQualification', () => {
 
         test('TOPIK 3 applying for TOPIK 4 job - should NOT qualify', () => {
             const worker = createWorkerProfile({
-                language_skills: [{ language: 'korean', level: 'topik_3', verification_status: 'verified' }],
+                language_skills: [createLanguageSkill('korean', 'topik_3', 'verified')],
             });
             const job = createJobRequirements({
                 required_language: 'korean',
@@ -73,7 +79,7 @@ describe('evaluateWorkerQualification', () => {
 
         test('TOPIK 5 applying for TOPIK 4 job - should qualify', () => {
             const worker = createWorkerProfile({
-                language_skills: [{ language: 'korean', level: 'topik_5', verification_status: 'verified' }],
+                language_skills: [createLanguageSkill('korean', 'topik_5', 'verified')],
             });
             const job = createJobRequirements({
                 required_language: 'korean',
@@ -88,7 +94,7 @@ describe('evaluateWorkerQualification', () => {
 
         test('English C1 applying for B2 job - should qualify', () => {
             const worker = createWorkerProfile({
-                language_skills: [{ language: 'english', level: 'c1', verification_status: 'verified' }],
+                language_skills: [createLanguageSkill('english', 'c1', 'verified')],
             });
             const job = createJobRequirements({
                 required_language: 'english',
@@ -181,7 +187,7 @@ describe('evaluateWorkerQualification', () => {
     describe('Verification Status', () => {
         test('Verified language skill - should qualify', () => {
             const worker = createWorkerProfile({
-                language_skills: [{ language: 'japanese', level: 'n3', verification_status: 'verified' }],
+                language_skills: [createLanguageSkill('japanese', 'n3', 'verified')],
             });
             const job = createJobRequirements();
 
@@ -192,7 +198,7 @@ describe('evaluateWorkerQualification', () => {
 
         test('Pending verification - should qualify (lenient policy)', () => {
             const worker = createWorkerProfile({
-                language_skills: [{ language: 'japanese', level: 'n3', verification_status: 'pending' }],
+                language_skills: [createLanguageSkill('japanese', 'n3', 'pending')],
             });
             const job = createJobRequirements();
 
@@ -203,7 +209,7 @@ describe('evaluateWorkerQualification', () => {
 
         test('Rejected verification - should NOT qualify', () => {
             const worker = createWorkerProfile({
-                language_skills: [{ language: 'japanese', level: 'n3', verification_status: 'rejected' }],
+                language_skills: [createLanguageSkill('japanese', 'n3', 'rejected')],
             });
             const job = createJobRequirements();
 
@@ -227,7 +233,7 @@ describe('evaluateWorkerQualification', () => {
     describe('Language Skill Matching', () => {
         test('Worker has no matching language - should NOT qualify', () => {
             const worker = createWorkerProfile({
-                language_skills: [{ language: 'korean', level: 'topik_5', verification_status: 'verified' }],
+                language_skills: [createLanguageSkill('korean', 'topik_5', 'verified')],
             });
             const job = createJobRequirements({ required_language: 'japanese' });
 
@@ -240,9 +246,9 @@ describe('evaluateWorkerQualification', () => {
         test('Worker has multiple skills - picks correct language', () => {
             const worker = createWorkerProfile({
                 language_skills: [
-                    { language: 'korean', level: 'topik_3', verification_status: 'verified' },
-                    { language: 'japanese', level: 'n2', verification_status: 'verified' },
-                    { language: 'english', level: 'b1', verification_status: 'pending' },
+                    createLanguageSkill('korean', 'topik_3', 'verified'),
+                    createLanguageSkill('japanese', 'n2', 'verified'),
+                    createLanguageSkill('english', 'b1', 'pending'),
                 ],
             });
             const job = createJobRequirements({
@@ -274,7 +280,7 @@ describe('evaluateWorkerQualification', () => {
                 reliability_score: 100,
                 is_verified: true,
                 is_account_frozen: false,
-                language_skills: [{ language: 'japanese', level: 'n1', verification_status: 'verified' }],
+                language_skills: [createLanguageSkill('japanese', 'n1', 'verified')],
             });
             const job = createJobRequirements({
                 required_language_level: 'n5',
@@ -295,7 +301,7 @@ describe('evaluateWorkerQualification', () => {
                 is_verified: false,
                 is_account_frozen: true,
                 frozen_until: futureFreeze.toISOString(),
-                language_skills: [{ language: 'korean', level: 'topik_1', verification_status: 'rejected' }],
+                language_skills: [createLanguageSkill('korean', 'topik_1', 'rejected')],
             });
             const job = createJobRequirements({
                 required_language: 'japanese',

@@ -23,7 +23,9 @@
       "Bash(wc:*)",
       "Skill(plan:validate)",
       "Skill(research)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(npm run lint)",
+      "Bash(npx tsc:*)"
     ]
   }
 }
