@@ -86,7 +86,8 @@ export function OwnerNav() {
                     </div>
                 </div>
 
-                <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+
+                <div className="hidden md:flex flex-1 items-center justify-between space-x-2 md:justify-end">
                     <div className="w-full flex-1 md:w-auto md:flex-none flex justify-end gap-2">
                         <NotificationBell />
                     </div>
@@ -122,6 +123,14 @@ export function OwnerNav() {
                             </Link>
                         );
                     })}
+                    {/* Logout button for mobile */}
+                    <button
+                        onClick={handleLogout}
+                        className="flex flex-col items-center gap-1 p-2 rounded-xl transition-colors text-slate-500 hover:text-red-600"
+                    >
+                        <LogOut className="w-5 h-5" />
+                        <span className="text-[10px] font-medium">Thoát</span>
+                    </button>
                 </div>
             </div>
         </header>

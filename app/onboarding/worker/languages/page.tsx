@@ -136,11 +136,11 @@ export default function WorkerLanguagesPage() {
                     .from('language_skills')
                     .upsert({
                         user_id: user.id,
-                        language_type: skill.language,
+                        language: skill.language,
                         level: skill.level,
                         certificate_url: certificateUrl,
                         verification_status: 'pending',
-                    }, { onConflict: 'user_id,language_type' });
+                    }, { onConflict: 'user_id,language' });
             }
 
             toast.success('Đã lưu kỹ năng ngôn ngữ!');

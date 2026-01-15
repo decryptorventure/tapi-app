@@ -212,7 +212,7 @@ export default function WorkerReviewPage() {
                             {languages.length > 0 ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     {languages.map((skill, i) => {
-                                        const config = languageConfig[skill.language_type || skill.language] || languageConfig.japanese;
+                                        const config = languageConfig[skill.language] || languageConfig.japanese;
                                         return (
                                             <div key={i} className={`flex items-center justify-between p-4 rounded-xl ${config.bgColor} border border-${config.color.replace('text-', '')}/20`}>
                                                 <div className="flex items-center gap-3">
@@ -259,13 +259,15 @@ export default function WorkerReviewPage() {
                         </div>
                         <div className="p-6">
                             {profile?.intro_video_url ? (
-                                <div className="relative rounded-2xl overflow-hidden bg-black aspect-video group cursor-pointer">
-                                    <video src={profile.intro_video_url} className="w-full h-full object-contain" />
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all">
-                                        <div className="w-16 h-16 bg-primary/80 backdrop-blur-sm rounded-full flex items-center justify-center">
-                                            <Eye className="w-8 h-8 text-primary-foreground" />
-                                        </div>
-                                    </div>
+                                <div className="relative rounded-2xl overflow-hidden bg-black aspect-video">
+                                    <video
+                                        src={profile.intro_video_url}
+                                        controls
+                                        className="w-full h-full object-contain"
+                                        preload="metadata"
+                                    >
+                                        Trình duyệt của bạn không hỗ trợ video.
+                                    </video>
                                 </div>
                             ) : (
                                 <div className="text-center py-8 border-2 border-dashed border-border rounded-2xl">

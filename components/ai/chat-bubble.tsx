@@ -193,7 +193,7 @@ export function AIChatBubble({ userId, role }: AIChatBubbleProps) {
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full shadow-lg shadow-blue-200 hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center group"
+                    className="fixed bottom-20 md:bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full shadow-lg shadow-blue-200 hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center group"
                     aria-label="Open AI Assistant"
                 >
                     <Bot className="w-7 h-7 text-white group-hover:scale-110 transition-transform" />

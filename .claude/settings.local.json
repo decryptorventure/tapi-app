@@ -25,7 +25,8 @@
       "Skill(research)",
       "WebSearch",
       "Bash(npm run lint)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "WebFetch(domain:timee.co.jp)"
     ]
   }
 }

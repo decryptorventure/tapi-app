@@ -14,27 +14,25 @@ import {
     ChevronRight,
     AlertCircle,
     CheckCircle2,
-    Wallet,
     MapPin,
-    Zap
+    Zap,
+    Search,
+    FileText,
+    User,
+    Award
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import Image from 'next/image';
 import { format } from 'date-fns';
 import { vi, enUS } from 'date-fns/locale';
 import { useTranslation } from '@/lib/i18n';
-import { LanguageSwitcher } from '@/components/shared/language-switcher';
 import { DashboardSkeleton } from '@/components/skeletons/dashboard-skeleton';
-
-
 
 export default function WorkerDashboardPage() {
     const router = useRouter();
     const { t, locale } = useTranslation();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<any>(null);
-    const [recommendedJobs, setRecommendedJobs] = useState<any[]>([]);
     const supabase = createUntypedClient();
     const dateLocale = locale === 'vi' ? vi : enUS;
 
@@ -50,21 +48,18 @@ export default function WorkerDashboardPage() {
                 return;
             }
 
-            // PERFORMANCE FIX: Parallelize all data fetching
             const [
                 { data: profile },
                 { data: upcomingShifts },
-                { data: recentApps },
-                { data: recommendations }
+                { data: allApplications },
+                { data: completedJobs }
             ] = await Promise.all([
-                // Fetch profile with only needed fields
                 supabase
                     .from('profiles')
                     .select('id, full_name, avatar_url, reliability_score, profile_completion_percentage, onboarding_completed')
                     .eq('id', user.id)
                     .single(),
 
-                // Fetch next upcoming shift
                 supabase
                     .from('job_applications')
                     .select(`
@@ -75,43 +70,35 @@ export default function WorkerDashboardPage() {
                     .eq('status', 'approved')
                     .gte('job.shift_date', new Date().toISOString().split('T')[0])
                     .order('job.shift_date', { ascending: true })
-                    .limit(1),
-
-                // Fetch recent application statuses
-                supabase
-                    .from('job_applications')
-                    .select(`
-                      id, status, created_at,
-                      job:jobs(title, restaurant_name, hourly_rate)
-                    `)
-                    .eq('worker_id', user.id)
-                    .order('created_at', { ascending: false })
                     .limit(3),
 
-                // Fetch recommended jobs
                 supabase
-                    .from('jobs')
-                    .select('id, title, restaurant_name, hourly_rate, created_at')
-                    .eq('status', 'open')
-                    .order('created_at', { ascending: false })
-                    .limit(2)
+                    .from('job_applications')
+                    .select('id, status, created_at')
+                    .eq('worker_id', user.id)
+                    .order('created_at', { ascending: false }),
+
+                supabase
+                    .from('job_applications')
+                    .select('id')
+                    .eq('worker_id', user.id)
+                    .eq('status', 'completed')
             ]);
 
-            // Mock earnings data
-            const earnings = {
-                total: profile?.reliability_score ? profile.reliability_score * 50000 : 0,
-                thisMonth: 0
+            // Calculate stats
+            const stats = {
+                total: allApplications?.length || 0,
+                pending: allApplications?.filter(a => a.status === 'pending').length || 0,
+                approved: allApplications?.filter(a => a.status === 'approved').length || 0,
+                completed: completedJobs?.length || 0
             };
 
             setData({
                 profile,
-                upcomingShift: upcomingShifts?.[0],
-                recentApps,
-                earnings
+                upcomingShifts: upcomingShifts || [],
+                stats
             });
-            setRecommendedJobs(recommendations || []);
         } catch (error) {
-            // Remove console.error in production
             if (process.env.NODE_ENV === 'development') {
                 console.error('Dashboard fetch error:', error);
             }
@@ -125,7 +112,7 @@ export default function WorkerDashboardPage() {
     }
 
     const profile = data?.profile;
-    const nextShift = data?.upcomingShift?.job;
+    const nextShift = data?.upcomingShifts?.[0]?.job;
 
     return (
         <div className="min-h-screen bg-background pb-24">
@@ -134,255 +121,215 @@ export default function WorkerDashboardPage() {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-10 -mb-10 blur-2xl"></div>
 
-                <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
-                    <div className="text-white">
-                        <p className="text-blue-100 text-sm font-medium mb-1">{t('dashboard.welcomeBack')}</p>
-                        <h2 className="text-3xl font-bold mb-3">{profile?.full_name}</h2>
-                        <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20">
-                            <TrendingUp className="w-4 h-4 text-green-300" />
-                            <span className="text-xs font-semibold text-blue-50">{t('dashboard.level')}</span>
-                        </div>
-                    </div>
+                <div className="max-w-5xl mx-auto relative z-10">
+                    <p className="text-blue-100 text-sm font-medium mb-1">{t('dashboard.welcomeBack')}</p>
+                    <h2 className="text-3xl font-bold text-white mb-3">{profile?.full_name}</h2>
 
-                    <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 flex items-center gap-4">
-                        <div className="w-12 h-12 bg-warning/90 rounded-xl flex items-center justify-center">
-                            <Star className="w-7 h-7 text-white fill-white" />
-                        </div>
-                        <div>
-                            <p className="text-white/70 text-xs font-semibold mb-1">{t('dashboard.reliabilityScore')}</p>
-                            <div className="flex items-baseline gap-1">
-                                <span className="text-3xl font-bold text-white">{profile?.reliability_score || 100}</span>
-                                <span className="text-white/50 text-sm font-medium">/100</span>
+                    {/* Reliability Score Card */}
+                    <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-warning/90 rounded-xl flex items-center justify-center">
+                                    <Star className="w-7 h-7 text-white fill-white" />
+                                </div>
+                                <div>
+                                    <p className="text-white/70 text-xs font-semibold mb-1">{t('dashboard.reliabilityScore')}</p>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-3xl font-bold text-white">{profile?.reliability_score || 100}</span>
+                                        <span className="text-white/50 text-sm font-medium">/100</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div className="ml-2 pl-4 border-l border-white/20">
-                            <p className="text-success text-sm font-bold flex items-center gap-1">
-                                <TrendingUp className="w-4 h-4" /> +2.4
-                            </p>
-                            <p className="text-white/50 text-xs font-medium">{t('dashboard.thisWeek')}</p>
+                            <div className="text-right">
+                                <div className="flex items-center gap-1 text-success mb-1">
+                                    <TrendingUp className="w-4 h-4" />
+                                    <span className="text-sm font-bold">+2.4</span>
+                                </div>
+                                <p className="text-white/50 text-xs font-medium">{t('dashboard.thisWeek')}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div className="max-w-5xl mx-auto px-4 -mt-10 space-y-6 pb-12 relative z-10">
-                {/* Main Action Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Left & Middle Column */}
-                    <div className="lg:col-span-2 space-y-6">
-                        {/* Status Card / Next Shift */}
-                        {nextShift ? (
-                            <div className="bg-card rounded-2xl border border-border overflow-hidden card-hover">
-                                <div className="bg-foreground px-6 py-4 flex justify-between items-center">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-2 h-2 bg-success rounded-full animate-ping"></div>
-                                        <span className="text-sm font-semibold text-white">{t('dashboard.upcomingShift')}</span>
-                                    </div>
-                                    <span className="text-xs font-medium text-muted opacity-60">ID #SR{nextShift.id.slice(0, 4)}</span>
-                                </div>
-                                <div className="p-6">
-                                    <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
-                                        <div>
-                                            <h3 className="text-xl font-bold text-foreground mb-3 leading-tight">{nextShift.title}</h3>
-                                            <div className="flex flex-wrap gap-2">
-                                                <span className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-lg">
-                                                    <Building2 className="w-4 h-4 text-primary" /> {nextShift.restaurant_name}
-                                                </span>
-                                                <span className="flex items-center gap-1.5 text-sm font-medium text-primary bg-primary/10 px-3 py-1.5 rounded-lg">
-                                                    <MapPin className="w-4 h-4" /> {nextShift.location_name || t('dashboard.defaultLocation')}
-                                                </span>
+                {/* Quick Actions */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <Link href="/worker/feed">
+                        <div className="bg-card rounded-xl border border-border p-4 hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group">
+                            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
+                                <Search className="w-5 h-5 text-primary" />
+                            </div>
+                            <p className="font-semibold text-sm text-foreground">Tìm việc</p>
+                            <p className="text-xs text-muted-foreground mt-1">Khám phá jobs mới</p>
+                        </div>
+                    </Link>
+
+                    <Link href="/worker/jobs">
+                        <div className="bg-card rounded-xl border border-border p-4 hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group">
+                            <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-500/20 transition-colors">
+                                <Briefcase className="w-5 h-5 text-blue-500" />
+                            </div>
+                            <p className="font-semibold text-sm text-foreground">Đơn của tôi</p>
+                            <p className="text-xs text-muted-foreground mt-1">{data?.stats?.total || 0} đơn</p>
+                        </div>
+                    </Link>
+
+                    <Link href="/worker/profile">
+                        <div className="bg-card rounded-xl border border-border p-4 hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group">
+                            <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-purple-500/20 transition-colors">
+                                <User className="w-5 h-5 text-purple-500" />
+                            </div>
+                            <p className="font-semibold text-sm text-foreground">Hồ sơ</p>
+                            <p className="text-xs text-muted-foreground mt-1">{profile?.profile_completion_percentage || 0}% hoàn thành</p>
+                        </div>
+                    </Link>
+
+                    <Link href="/guide">
+                        <div className="bg-card rounded-xl border border-border p-4 hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group">
+                            <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-green-500/20 transition-colors">
+                                <FileText className="w-5 h-5 text-green-500" />
+                            </div>
+                            <p className="font-semibold text-sm text-foreground">Hướng dẫn</p>
+                            <p className="text-xs text-muted-foreground mt-1">Cách sử dụng</p>
+                        </div>
+                    </Link>
+                </div>
+
+                {/* Stats Overview */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="bg-card rounded-xl border border-border p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                            <FileText className="w-4 h-4 text-muted-foreground" />
+                            <p className="text-xs font-medium text-muted-foreground">Tổng đơn</p>
+                        </div>
+                        <p className="text-2xl font-bold text-foreground">{data?.stats?.total || 0}</p>
+                    </div>
+
+                    <div className="bg-card rounded-xl border border-border p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Clock className="w-4 h-4 text-warning" />
+                            <p className="text-xs font-medium text-muted-foreground">Chờ duyệt</p>
+                        </div>
+                        <p className="text-2xl font-bold text-warning">{data?.stats?.pending || 0}</p>
+                    </div>
+
+                    <div className="bg-card rounded-xl border border-border p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                            <CheckCircle2 className="w-4 h-4 text-success" />
+                            <p className="text-xs font-medium text-muted-foreground">Đã duyệt</p>
+                        </div>
+                        <p className="text-2xl font-bold text-success">{data?.stats?.approved || 0}</p>
+                    </div>
+
+                    <div className="bg-card rounded-xl border border-border p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Award className="w-4 h-4 text-primary" />
+                            <p className="text-xs font-medium text-muted-foreground">Hoàn thành</p>
+                        </div>
+                        <p className="text-2xl font-bold text-primary">{data?.stats?.completed || 0}</p>
+                    </div>
+                </div>
+
+                {/* Upcoming Shifts */}
+                <div className="bg-card rounded-2xl border border-border overflow-hidden">
+                    <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-muted/30">
+                        <h3 className="font-bold text-foreground flex items-center gap-2">
+                            <Calendar className="w-5 h-5 text-primary" />
+                            Ca làm sắp tới
+                        </h3>
+                        <Link href="/worker/jobs" className="text-xs font-semibold text-primary hover:text-primary/80 flex items-center gap-1">
+                            Xem tất cả <ChevronRight className="w-3.5 h-3.5" />
+                        </Link>
+                    </div>
+
+                    <div className="p-6">
+                        {data?.upcomingShifts?.length > 0 ? (
+                            <div className="space-y-3">
+                                {data.upcomingShifts.map((shift: any) => (
+                                    <Link
+                                        key={shift.id}
+                                        href={`/worker/jobs/${shift.id}`}
+                                        className="flex items-center justify-between p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors border border-transparent hover:border-border"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-11 h-11 bg-primary/10 rounded-lg flex items-center justify-center">
+                                                <Briefcase className="w-5 h-5 text-primary" />
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-foreground leading-none mb-1">{shift.job.title}</p>
+                                                <p className="text-xs text-muted-foreground">{shift.job.restaurant_name}</p>
                                             </div>
                                         </div>
-                                        <div className="bg-muted p-4 rounded-xl flex flex-col items-end shrink-0 min-w-[140px]">
-                                            <p className="text-xs font-semibold text-muted-foreground mb-1">{format(new Date(nextShift.shift_date), 'EEEE, dd/MM', { locale: dateLocale })}</p>
-                                            <p className="text-xl font-bold text-primary">{nextShift.shift_start_time} - {nextShift.shift_end_time}</p>
+                                        <div className="text-right">
+                                            <p className="text-xs font-semibold text-primary mb-1">
+                                                {format(new Date(shift.job.shift_date), 'dd/MM', { locale: dateLocale })}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {shift.job.shift_start_time} - {shift.job.shift_end_time}
+                                            </p>
                                         </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <Link href={`/worker/jobs/${data.upcomingShift.id}/qr`} className="flex-1">
-                                            <Button size="lg" variant="cta" className="w-full">
-                                                <QrCode className="w-5 h-5" />
-                                                {t('dashboard.qrCodeCheckIn')}
-                                            </Button>
-                                        </Link>
-                                        <Button size="lg" variant="outline" className="flex-1">
-                                            {t('dashboard.viewMap')}
-                                        </Button>
-                                    </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        ) : nextShift ? (
+                            <div className="bg-primary/5 rounded-xl p-6 border border-primary/20">
+                                <h4 className="font-bold text-foreground mb-3">{nextShift.title}</h4>
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                    <span className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-lg">
+                                        <MapPin className="w-4 h-4 text-primary" /> {nextShift.restaurant_name}
+                                    </span>
+                                    <span className="flex items-center gap-1.5 text-sm font-medium text-primary bg-primary/10 px-3 py-1.5 rounded-lg">
+                                        <Calendar className="w-4 h-4" /> {format(new Date(nextShift.shift_date), 'EEEE, dd/MM', { locale: dateLocale })}
+                                    </span>
                                 </div>
+                                <Link href={`/worker/jobs/${data.upcomingShifts[0].id}/qr`}>
+                                    <Button size="lg" variant="default" className="w-full">
+                                        Xem QR Check-in <ChevronRight className="w-5 h-5 ml-1" />
+                                    </Button>
+                                </Link>
                             </div>
                         ) : (
-                            <div className="bg-card rounded-2xl border border-border p-10 text-center group card-hover">
-                                <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-6 transition-colors group-hover:bg-primary/20">
+                            <div className="text-center py-12">
+                                <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
                                     <Zap className="w-8 h-8 text-primary" />
                                 </div>
-                                <h3 className="text-xl font-bold text-foreground mb-2">{t('dashboard.newOpportunities')}</h3>
-                                <p className="text-muted-foreground mb-6 max-w-sm mx-auto">{t('dashboard.noUpcomingShift')}</p>
+                                <h3 className="text-xl font-bold text-foreground mb-2">Chưa có ca làm nào</h3>
+                                <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                                    Khám phá các công việc phù hợp với kỹ năng của bạn ngay!
+                                </p>
                                 <Link href="/worker/feed">
-                                    <Button size="lg" variant="cta" className="mx-auto">
-                                        {t('dashboard.findJobs')} <ChevronRight className="w-5 h-5" />
+                                    <Button size="lg" variant="default">
+                                        Tìm việc ngay <ChevronRight className="w-5 h-5 ml-1" />
                                     </Button>
                                 </Link>
                             </div>
                         )}
-
-                        {/* Recent History */}
-                        <div className="bg-card rounded-2xl border border-border p-6">
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
-                                    <Briefcase className="w-5 h-5 text-primary" />
-                                    {t('dashboard.recentApplications')}
-                                </h3>
-                                <Link href="/worker/jobs" className="text-xs font-semibold text-primary hover:text-primary/80 bg-primary/10 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors cursor-pointer">
-                                    {t('dashboard.viewAll')} <ChevronRight className="w-3.5 h-3.5" />
-                                </Link>
-                            </div>
-
-                            <div className="space-y-3">
-                                {data.recentApps?.length > 0 ? (
-                                    data.recentApps.map((app: any) => (
-                                        <div key={app.id} className="flex justify-between items-center p-4 rounded-xl interactive-hover border border-transparent hover:border-border cursor-pointer">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-11 h-11 bg-muted rounded-lg flex items-center justify-center font-bold text-muted-foreground text-base">
-                                                    {app.job.restaurant_name?.charAt(0)}
-                                                </div>
-                                                <div>
-                                                    <p className="font-semibold text-foreground leading-none mb-1">{app.job.title}</p>
-                                                    <p className="text-xs font-medium text-muted-foreground">{app.job.restaurant_name}</p>
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <span className={cn(
-                                                    "text-xs font-semibold px-2.5 py-1 rounded-md",
-                                                    app.status === 'pending' ? "bg-warning/10 text-warning" :
-                                                        app.status === 'approved' ? "bg-success/10 text-success" :
-                                                            "bg-muted text-muted-foreground"
-                                                )}>
-                                                    {app.status === 'pending' ? t('common.status.pending') :
-                                                        app.status === 'approved' ? t('common.status.approved') :
-                                                            t(`common.status.${app.status}`) || app.status}
-                                                </span>
-                                                <p className="text-xs font-medium text-muted-foreground mt-1.5">{format(new Date(app.created_at || new Date()), 'dd/MM/yyyy')}</p>
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="text-center py-12 flex flex-col items-center gap-3">
-                                        <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
-                                            <AlertCircle className="w-6 h-6 text-muted-foreground" />
-                                        </div>
-                                        <p className="text-sm font-medium text-muted-foreground">{t('dashboard.noApplications')}</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right Side Info */}
-                    <div className="space-y-6">
-                        {/* Wallet Card */}
-                        <div className="bg-card rounded-2xl border border-border p-6 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-success/5 rounded-full -mr-16 -mt-16"></div>
-
-                            <div className="relative z-10">
-                                <h3 className="text-sm font-bold text-success mb-6 flex items-center gap-2">
-                                    <Wallet className="w-4 h-4" /> {t('dashboard.wallet.title')}
-                                </h3>
-
-                                <div className="mb-6">
-                                    <p className="text-xs font-semibold text-muted-foreground mb-2">{t('dashboard.wallet.currentBalance')}</p>
-                                    <div className="flex items-baseline gap-2">
-                                        <p className="text-3xl font-bold text-foreground">{data.earnings.total.toLocaleString()}</p>
-                                        <p className="text-sm font-medium text-muted-foreground">đ</p>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-3 mb-6">
-                                    <div className="bg-muted p-3 rounded-lg">
-                                        <p className="text-xs font-semibold text-muted-foreground mb-1">{t('dashboard.wallet.thisMonth')}</p>
-                                        <p className="text-sm font-bold text-foreground">0đ</p>
-                                    </div>
-                                    <div className="bg-muted p-3 rounded-lg">
-                                        <p className="text-xs font-semibold text-muted-foreground mb-1">{t('dashboard.wallet.shiftsCompleted')}</p>
-                                        <p className="text-sm font-bold text-foreground">0 {t('dashboard.wallet.shifts')}</p>
-                                    </div>
-                                </div>
-
-                                <Button disabled className="w-full">
-                                    {t('dashboard.wallet.withdraw')}
-                                </Button>
-                            </div>
-                        </div>
-
-                        {/* Top Recommendations */}
-                        <div className="bg-muted/50 rounded-2xl p-6 border border-border">
-                            <h4 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
-                                <Zap className="w-4 h-4 text-cta" /> {t('dashboard.hotJobs')}
-                            </h4>
-
-                            <div className="space-y-3">
-                                {recommendedJobs.length > 0 ? (
-                                    recommendedJobs.map((job) => (
-                                        <div key={job.id} className="bg-card p-4 rounded-xl border border-border card-hover">
-                                            <p className="text-xs font-semibold text-primary mb-1">{job.restaurant_name}</p>
-                                            <h5 className="font-semibold text-foreground text-sm mb-3">{job.title}</h5>
-                                            <div className="flex justify-between items-center">
-                                                <p className="text-sm font-bold text-foreground">{job.hourly_rate?.toLocaleString()}đ/h</p>
-                                                <Link href="/worker/feed" className="text-xs font-semibold bg-primary text-white px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors cursor-pointer">{t('common.details')}</Link>
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="text-center py-6 text-sm font-medium text-muted-foreground">
-                                        {t('dashboard.updatingRecommendations')}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Profile Completion Card */}
-                        {profile?.profile_completion_percentage < 100 && !profile?.onboarding_completed && (
-                            <div className="bg-primary rounded-2xl p-6 text-white relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-2xl"></div>
-                                <div className="relative z-10">
-                                    <div className="flex items-center gap-2 mb-4">
-                                        <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center font-bold text-sm">
-                                            {profile?.profile_completion_percentage || 0}%
-                                        </div>
-                                        <p className="text-xs font-semibold text-blue-100">{t('dashboard.profileCompletion.percentage')}</p>
-                                    </div>
-                                    <h4 className="text-lg font-bold mb-2 leading-tight">{t('dashboard.profileCompletion.boost')}</h4>
-                                    <p className="text-sm font-medium text-blue-100 mb-6 leading-relaxed">{t('dashboard.profileCompletion.description')}</p>
-                                    <Link href="/worker/profile">
-                                        <Button size="lg" className="w-full bg-white text-primary hover:bg-blue-50 group">
-                                            {t('dashboard.profileCompletion.updateNow')} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                        </Button>
-                                    </Link>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
+
+                {/* Profile Completion */}
+                {profile?.profile_completion_percentage < 100 && !profile?.onboarding_completed && (
+                    <div className="bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20 rounded-2xl p-6">
+                        <div className="flex items-start gap-4">
+                            <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center font-bold text-primary">
+                                {profile?.profile_completion_percentage || 0}%
+                            </div>
+                            <div className="flex-1">
+                                <h4 className="font-bold text-foreground mb-1">Hoàn thiện hồ sơ</h4>
+                                <p className="text-sm text-muted-foreground mb-4">
+                                    Hồ sơ đầy đủ giúp bạn có nhiều cơ hội được nhận việc hơn!
+                                </p>
+                                <Link href="/worker/profile">
+                                    <Button size="sm" variant="default">
+                                        Cập nhật ngay <ChevronRight className="w-4 h-4 ml-1" />
+                                    </Button>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
 }
-
-const Building2 = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" /><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" /><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" /><path d="M10 6h4" /><path d="M10 10h4" /><path d="M10 14h4" /><path d="M10 18h4" />
-    </svg>
-);
-
-const QrCode = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <rect width="5" height="5" x="3" y="3" rx="1" /><rect width="5" height="5" x="16" y="3" rx="1" /><rect width="5" height="5" x="3" y="16" rx="1" /><path d="M21 16h-3a2 2 0 0 0-2 2v3" /><path d="M21 21v.01" /><path d="M12 7v3a2 2 0 0 1-2 2H7" /><path d="M3 12h.01" /><path d="M12 3h.01" /><path d="M12 16h.01" /><path d="M16 12h1" /><path d="M21 12v.01" /><path d="M12 21v-1" />
-    </svg>
-);
-
-const ArrowRight = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
-    </svg>
-);
