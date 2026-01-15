@@ -3,11 +3,12 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createUntypedClient } from '@/lib/supabase/client';
-import { Zap } from 'lucide-react';
 import { Header } from '@/components/landing/header';
 import { Hero } from '@/components/landing/hero';
+import { JobCategories } from '@/components/landing/job-categories';
 import { Features } from '@/components/landing/features';
 import { HowItWorks } from '@/components/landing/how-it-works';
+import { StatsSection } from '@/components/landing/stats-section';
 import { CTA } from '@/components/landing/cta';
 import { Footer } from '@/components/landing/footer';
 
@@ -48,8 +49,10 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background">
       <Header />
       <Hero />
+      <JobCategories />
       <Features />
       <HowItWorks />
+      <StatsSection />
       <CTA />
       <Footer />
     </div>
