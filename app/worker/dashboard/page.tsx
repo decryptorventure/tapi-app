@@ -19,7 +19,8 @@ import {
     Search,
     FileText,
     User,
-    Award
+    Award,
+    QrCode
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -153,8 +154,36 @@ export default function WorkerDashboardPage() {
             </div>
 
             <div className="max-w-5xl mx-auto px-4 -mt-10 space-y-6 pb-12 relative z-10">
+                {/* Scan QR CTA - Only show if has approved jobs */}
+                {data?.stats?.approved > 0 && (
+                    <Link href="/worker/scan-qr">
+                        <div className="bg-gradient-to-r from-success to-emerald-500 rounded-2xl p-5 text-white shadow-lg hover:shadow-xl transition-all cursor-pointer group">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                    <QrCode className="w-8 h-8 text-white" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="font-bold text-lg">Scan QR Check-in</p>
+                                    <p className="text-white/80 text-sm">Quét mã QR tại cửa hàng để check-in</p>
+                                </div>
+                                <ChevronRight className="w-6 h-6 text-white/80" />
+                            </div>
+                        </div>
+                    </Link>
+                )}
+
                 {/* Quick Actions */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <Link href="/worker/scan-qr">
+                        <div className="bg-card rounded-xl border border-border p-4 hover:border-success/50 hover:shadow-md transition-all cursor-pointer group">
+                            <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-success/20 transition-colors">
+                                <QrCode className="w-5 h-5 text-success" />
+                            </div>
+                            <p className="font-semibold text-sm text-foreground">Scan QR</p>
+                            <p className="text-xs text-muted-foreground mt-1">Check-in/out</p>
+                        </div>
+                    </Link>
+
                     <Link href="/worker/feed">
                         <div className="bg-card rounded-xl border border-border p-4 hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group">
                             <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">

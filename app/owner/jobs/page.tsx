@@ -22,7 +22,8 @@ import {
     TrendingUp,
     CheckCircle2,
     AlertCircle,
-    FileText
+    FileText,
+    QrCode
 } from 'lucide-react';
 import { Job, JobStatus } from '@/types/database.types';
 
@@ -209,8 +210,8 @@ export default function OwnerJobsPage() {
                             key={status}
                             onClick={() => setFilter(status)}
                             className={`px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 ${filter === status
-                                    ? 'bg-cta text-cta-foreground shadow-md hover:shadow-lg scale-105'
-                                    : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border'
+                                ? 'bg-cta text-cta-foreground shadow-md hover:shadow-lg scale-105'
+                                : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border'
                                 }`}
                         >
                             {status === 'all' ? 'Tất cả' : statusLabels[status].label}
@@ -311,6 +312,14 @@ export default function OwnerJobsPage() {
                                                     <Eye className="w-4 h-4" />
                                                     Xem đơn ứng tuyển
                                                 </Link>
+                                                <Link
+                                                    href={`/owner/jobs/${job.id}/qr`}
+                                                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-success hover:bg-success/10 transition-colors"
+                                                    onClick={() => setOpenMenu(null)}
+                                                >
+                                                    <QrCode className="w-4 h-4" />
+                                                    Xem QR Check-in
+                                                </Link>
                                                 {job.status === 'open' && (
                                                     <>
                                                         <Link
@@ -335,13 +344,19 @@ export default function OwnerJobsPage() {
                                     </div>
                                 </div>
 
-                                {/* Quick Action */}
-                                {job.status === 'open' && (
-                                    <div className="mt-4 pt-4 border-t border-border">
+                                {/* Quick Actions */}
+                                {(job.status === 'open' || job.status === 'filled') && (
+                                    <div className="mt-4 pt-4 border-t border-border flex flex-wrap gap-2">
+                                        <Link href={`/owner/jobs/${job.id}/qr`}>
+                                            <Button variant="default" size="sm" className="bg-success hover:bg-success/90">
+                                                <QrCode className="w-4 h-4 mr-2" />
+                                                QR Check-in
+                                            </Button>
+                                        </Link>
                                         <Link href={`/owner/jobs/${job.id}/applications`}>
-                                            <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                                            <Button variant="outline" size="sm">
                                                 <Eye className="w-4 h-4 mr-2" />
-                                                Xem đơn ứng tuyển
+                                                Xem đơn
                                             </Button>
                                         </Link>
                                     </div>
