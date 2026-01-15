@@ -60,6 +60,8 @@ export default function OwnerDashboardPage() {
         totalWorkers: 0,
     });
     const [recentApplications, setRecentApplications] = useState<any[]>([]);
+    const [todayShifts, setTodayShifts] = useState<any[]>([]);
+    const [workersOnDuty, setWorkersOnDuty] = useState<any[]>([]);
 
     // Modal state
     const [selectedWorker, setSelectedWorker] = useState<any>(null);
@@ -201,6 +203,56 @@ export default function OwnerDashboardPage() {
                     }));
 
                     setRecentApplications(formattedApps);
+                }
+
+                // Fetch today's shifts
+                const today = new Date().toISOString().split('T')[0];
+                const { data: todayJobsData } = await supabase
+                    .from('jobs')
+                    .select(`
+                        id, title, shift_date, shift_start_time, shift_end_time, 
+                        current_workers, max_workers, restaurant_name
+                    `)
+                    .in('id', ids)
+                    .eq('shift_date', today)
+                    .order('shift_start_time', { ascending: true });
+
+                if (todayJobsData) {
+                    setTodayShifts(todayJobsData);
+                }
+
+                // Fetch workers on duty (checked-in today)
+                const { data: checkinsToday } = await supabase
+                    .from('checkins')
+                    .select(`
+                        id, type, checkin_time,
+                        application:job_applications(
+                            id, job_id,
+                            worker:profiles(id, full_name, avatar_url),
+                            job:jobs(id, title)
+                        )
+                    `)
+                    .gte('checkin_time', `${today}T00:00:00`)
+                    .eq('type', 'checkin')
+                    .order('checkin_time', { ascending: false });
+
+                if (checkinsToday) {
+                    // Filter to only jobs owned by this user
+                    const ownerJobIds = new Set(ids);
+                    const filteredCheckins = checkinsToday.filter((c: any) =>
+                        c.application?.job_id && ownerJobIds.has(c.application.job_id)
+                    );
+
+                    const workersData = filteredCheckins.map((c: any) => ({
+                        id: c.id,
+                        worker_id: c.application?.worker?.id,
+                        worker_name: c.application?.worker?.full_name || 'Worker',
+                        worker_avatar: c.application?.worker?.avatar_url,
+                        job_title: c.application?.job?.title || 'Unknown',
+                        checkin_time: c.checkin_time,
+                    }));
+
+                    setWorkersOnDuty(workersData);
                 }
             }
         } catch (error: any) {
@@ -344,6 +396,96 @@ export default function OwnerDashboardPage() {
                         </div>
                     </div>
                 </div>
+
+                {/* Workers On Duty Card */}
+                {workersOnDuty.length > 0 && (
+                    <div className="bg-gradient-to-r from-success/10 to-emerald-500/10 border border-success/30 rounded-2xl p-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-success/20 rounded-xl">
+                                    <Users className="w-5 h-5 text-success" />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-foreground">Workers đang làm</h3>
+                                    <p className="text-xs text-muted-foreground">{workersOnDuty.length} người đã check-in hôm nay</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                                <span className="text-xs text-success font-semibold">Live</span>
+                            </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {workersOnDuty.slice(0, 5).map((worker) => (
+                                <div
+                                    key={worker.id}
+                                    className="flex items-center gap-2 bg-card/80 px-3 py-2 rounded-lg cursor-pointer hover:bg-card transition-colors"
+                                    onClick={() => viewWorkerProfile(worker.worker_id)}
+                                >
+                                    {worker.worker_avatar ? (
+                                        <Image
+                                            src={worker.worker_avatar}
+                                            alt={worker.worker_name}
+                                            width={24}
+                                            height={24}
+                                            className="rounded-full"
+                                        />
+                                    ) : (
+                                        <div className="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center text-xs font-bold text-success">
+                                            {worker.worker_name.charAt(0)}
+                                        </div>
+                                    )}
+                                    <span className="text-sm font-medium text-foreground">{worker.worker_name}</span>
+                                    <span className="text-xs text-muted-foreground">• {worker.job_title}</span>
+                                </div>
+                            ))}
+                            {workersOnDuty.length > 5 && (
+                                <div className="flex items-center gap-1 px-3 py-2 text-sm text-success">
+                                    +{workersOnDuty.length - 5} khác
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Today's Shifts */}
+                {todayShifts.length > 0 && (
+                    <div className="bg-card rounded-2xl border border-border p-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-bold text-foreground flex items-center gap-2">
+                                <Clock className="w-5 h-5 text-primary" />
+                                Ca làm hôm nay
+                            </h3>
+                            <Link href="/owner/shifts" className="text-xs text-primary hover:underline">
+                                Xem tất cả
+                            </Link>
+                        </div>
+                        <div className="space-y-3">
+                            {todayShifts.map((shift) => (
+                                <div key={shift.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
+                                    <div className="flex items-center gap-3">
+                                        <div className="text-center min-w-[50px]">
+                                            <p className="text-lg font-bold text-foreground">{shift.shift_start_time?.slice(0, 5)}</p>
+                                            <p className="text-xs text-muted-foreground">{shift.shift_end_time?.slice(0, 5)}</p>
+                                        </div>
+                                        <div className="border-l border-border pl-3">
+                                            <p className="font-medium text-foreground">{shift.title}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {shift.current_workers || 0}/{shift.max_workers} workers
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <Link href={`/owner/jobs/${shift.id}/qr`}>
+                                        <Button variant="outline" size="sm" className="gap-1.5">
+                                            <QrCode className="w-4 h-4" />
+                                            QR
+                                        </Button>
+                                    </Link>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Recent Applications */}
