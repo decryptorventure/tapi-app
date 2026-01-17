@@ -235,14 +235,24 @@ export default function WorkerProfilePage() {
             return;
         }
 
+        // Convert YYYY-MM format to YYYY-MM-01 for PostgreSQL DATE type
+        const formatDateForDB = (dateStr: string) => {
+            if (!dateStr) return null;
+            // If already in YYYY-MM-DD format, return as is
+            if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) return dateStr;
+            // If in YYYY-MM format, add -01 to make it a valid date
+            if (dateStr.match(/^\d{4}-\d{2}$/)) return `${dateStr}-01`;
+            return null;
+        };
+
         const { error } = await supabase
             .from('work_experiences')
             .insert({
                 user_id: user.id,
                 company_name: data.company_name,
                 job_title: data.job_title,
-                start_date: data.start_date || null,
-                end_date: data.end_date || null,
+                start_date: formatDateForDB(data.start_date),
+                end_date: formatDateForDB(data.end_date),
                 is_current: data.is_current,
                 description: data.description || null,
             });
