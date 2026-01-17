@@ -13,7 +13,6 @@ import {
     Users,
     Clock,
     Plus,
-    QrCode,
     ChevronRight,
     Building2,
     Loader2,
@@ -32,7 +31,10 @@ import {
     TrendingUp,
     BarChart3,
     CheckCircle2,
-    XCircle
+    XCircle,
+    Phone,
+    Mail,
+    QrCode
 } from 'lucide-react';
 import { WorkerProfileModal } from '@/components/owner/worker-profile-modal';
 import { AnimatedCounter } from '@/components/shared/animated-counter';
@@ -47,6 +49,10 @@ interface OwnerProfile {
     id: string;
     full_name: string;
     restaurant_name: string | null;
+    restaurant_logo_url: string | null;
+    restaurant_cover_urls: string[];
+    phone_number: string | null;
+    email: string | null;
     profile_completion_percentage: number;
     can_post_jobs: boolean;
     role: string;
@@ -350,87 +356,114 @@ export default function OwnerDashboardPage() {
                 languageSkills={selectedWorker?.skills || []}
             />
 
-            {/* Header Area */}
-            <div className="bg-card border-b border-border sticky top-0 z-30 backdrop-blur-sm bg-card/80">
-                <div className="container mx-auto px-4 py-4 max-w-5xl flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-cta to-cta/80 rounded-2xl flex items-center justify-center shadow-md">
-                            <Store className="w-6 h-6 text-cta-foreground" />
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-bold text-foreground">
-                                {profile?.restaurant_name || 'Nhà hàng của tôi'}
-                            </h1>
-                            <p className="text-xs text-muted-foreground">
-                                Bảng điều khiển quản lý
-                            </p>
-                        </div>
+            {/* Header Area with Cover Image */}
+            <div className="relative">
+                {/* Cover Image */}
+                {profile?.restaurant_cover_urls && profile.restaurant_cover_urls.length > 0 ? (
+                    <div className="h-32 md:h-40 w-full relative">
+                        <Image
+                            src={profile.restaurant_cover_urls[0]}
+                            alt="Cover"
+                            fill
+                            className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/90" />
                     </div>
+                ) : (
+                    <div className="h-20 md:h-24 w-full bg-gradient-to-r from-orange-500 to-orange-400" />
+                )}
 
-                    <div className="flex items-center gap-3">
-                        <button className="p-2.5 bg-muted text-muted-foreground rounded-xl hover:text-cta hover:bg-cta/10 transition-all">
-                            <Bell className="w-5 h-5" />
-                        </button>
-                        <Link href="/owner/jobs/new">
-                            <Button variant="cta" className="shadow-md hover:shadow-lg transition-shadow">
-                                <Plus className="w-4 h-4 mr-2" />
-                                Đăng tin
-                            </Button>
-                        </Link>
+                {/* Restaurant Info Card */}
+                <div className="container mx-auto px-4 max-w-5xl">
+                    <div className="relative -mt-12 md:-mt-16">
+                        <div className="bg-card rounded-2xl border border-border p-4 shadow-lg">
+                            <div className="flex flex-col md:flex-row md:items-center gap-4">
+                                {/* Logo */}
+                                <div className="flex-shrink-0">
+                                    {profile?.restaurant_logo_url ? (
+                                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 border-white shadow-md">
+                                            <Image
+                                                src={profile.restaurant_logo_url}
+                                                alt={profile.restaurant_name || 'Logo'}
+                                                width={80}
+                                                height={80}
+                                                className="object-cover w-full h-full"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-orange-500 to-orange-400 rounded-xl flex items-center justify-center shadow-md">
+                                            <Store className="w-8 h-8 text-white" />
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Info */}
+                                <div className="flex-1 min-w-0">
+                                    <h1 className="text-xl font-bold text-foreground truncate">
+                                        {profile?.restaurant_name || 'Nhà hàng của tôi'}
+                                    </h1>
+                                    <div className="flex flex-wrap gap-3 mt-2 text-sm text-muted-foreground">
+                                        {profile?.phone_number && (
+                                            <span className="flex items-center gap-1">
+                                                <Phone className="w-3.5 h-3.5" />
+                                                {profile.phone_number}
+                                            </span>
+                                        )}
+                                        {profile?.email && (
+                                            <span className="flex items-center gap-1">
+                                                <Mail className="w-3.5 h-3.5" />
+                                                {profile.email}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex items-center gap-2">
+                                    <Link href="/owner/jobs/new">
+                                        <Button variant="cta" size="sm" className="shadow-md">
+                                            <Plus className="w-4 h-4 mr-1" />
+                                            Đăng tin
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="container mx-auto px-4 py-8 max-w-5xl space-y-8">
+            <div className="container mx-auto px-4 py-6 max-w-5xl space-y-6">
                 {/* Statistics Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-card rounded-[2rem] border border-border p-6 card-hover">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="p-3 bg-primary/10 rounded-xl">
-                                <Briefcase className="w-6 h-6 text-primary" />
+                <div className="grid grid-cols-3 gap-3 md:gap-6">
+                    <div className="bg-card rounded-2xl border border-border p-3 md:p-6 card-hover">
+                        <div className="flex items-center justify-between mb-2 md:mb-4">
+                            <div className="p-2 md:p-3 bg-primary/10 rounded-xl">
+                                <Briefcase className="w-4 h-4 md:w-6 md:h-6 text-primary" />
                             </div>
-                            <TrendingUp className="w-4 h-4 text-muted-foreground" />
                         </div>
-                        <p className="text-sm text-muted-foreground mb-1">Tin đang tuyển</p>
-                        <AnimatedCounter value={stats.activeJobs} className="text-4xl font-bold text-foreground mb-4 block" />
-                        <Link
-                            href="/owner/jobs"
-                            className="inline-flex items-center gap-2 text-xs font-semibold text-primary hover:gap-3 transition-all"
-                        >
-                            Xem danh sách
-                            <ArrowUpRight className="w-3.5 h-3.5" />
-                        </Link>
+                        <p className="text-[10px] md:text-sm text-muted-foreground mb-1">Đang tuyển</p>
+                        <AnimatedCounter value={stats.activeJobs} className="text-xl md:text-4xl font-bold text-foreground block" />
                     </div>
 
-                    <div className="bg-gradient-to-br from-warning/10 to-warning/5 border border-warning/20 rounded-[2rem] p-6 card-hover">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="p-3 bg-warning/20 rounded-xl">
-                                <Clock className="w-6 h-6 text-warning" />
+                    <div className="bg-card rounded-2xl border border-border p-3 md:p-6 card-hover">
+                        <div className="flex items-center justify-between mb-2 md:mb-4">
+                            <div className="p-2 md:p-3 bg-warning/10 rounded-xl">
+                                <Clock className="w-4 h-4 md:w-6 md:h-6 text-warning" />
                             </div>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-1">Chờ duyệt</p>
-                        <AnimatedCounter value={stats.pendingApplications} className="text-4xl font-bold text-warning mb-4 block" />
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full border-warning/20 text-warning hover:bg-warning/10"
-                        >
-                            Xử lý ngay
-                        </Button>
+                        <p className="text-[10px] md:text-sm text-muted-foreground mb-1">Chờ duyệt</p>
+                        <AnimatedCounter value={stats.pendingApplications} className="text-xl md:text-4xl font-bold text-warning block" />
                     </div>
 
-                    <div className="bg-card rounded-[2rem] border border-border p-6 card-hover">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="p-3 bg-success/10 rounded-xl">
-                                <Users className="w-6 h-6 text-success" />
+                    <div className="bg-card rounded-2xl border border-border p-3 md:p-6 card-hover">
+                        <div className="flex items-center justify-between mb-2 md:mb-4">
+                            <div className="p-2 md:p-3 bg-success/10 rounded-xl">
+                                <Users className="w-4 h-4 md:w-6 md:h-6 text-success" />
                             </div>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-1">Nhân viên</p>
-                        <AnimatedCounter value={stats.totalWorkers} className="text-4xl font-bold text-success mb-4 block" />
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <div className="w-1.5 h-1.5 rounded-full bg-success"></div>
-                            <span>Đã hoàn thành ca làm</span>
-                        </div>
+                        <p className="text-[10px] md:text-sm text-muted-foreground mb-1">Nhân viên</p>
+                        <AnimatedCounter value={stats.totalWorkers} className="text-xl md:text-4xl font-bold text-success block" />
                     </div>
                 </div>
 
@@ -487,28 +520,28 @@ export default function OwnerDashboardPage() {
 
                 {/* Today's Shifts */}
                 {todayShifts.length > 0 && (
-                    <div className="bg-card rounded-2xl border border-border p-6">
-                        <div className="flex items-center justify-between mb-4">
+                    <div className="bg-card rounded-2xl border border-border p-4">
+                        <div className="flex items-center justify-between mb-3">
                             <h3 className="font-bold text-foreground flex items-center gap-2">
-                                <Clock className="w-5 h-5 text-primary" />
+                                <Clock className="w-4 h-4 text-primary" />
                                 Ca làm hôm nay
                             </h3>
                             <Link href="/owner/shifts" className="text-xs text-primary hover:underline">
                                 Xem tất cả
                             </Link>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                             {todayShifts.map((shift) => (
-                                <div key={shift.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
+                                <div key={shift.id} className="flex items-center justify-between p-2.5 bg-muted/50 rounded-xl">
                                     <div className="flex items-center gap-3">
                                         <div className="text-center min-w-[50px]">
-                                            <p className="text-lg font-bold text-foreground">{shift.shift_start_time?.slice(0, 5)}</p>
-                                            <p className="text-xs text-muted-foreground">{shift.shift_end_time?.slice(0, 5)}</p>
+                                            <p className="text-base font-bold text-foreground">{shift.shift_start_time?.slice(0, 5)}</p>
+                                            <p className="text-[10px] text-muted-foreground">{shift.shift_end_time?.slice(0, 5)}</p>
                                         </div>
                                         <div className="border-l border-border pl-3">
-                                            <p className="font-medium text-foreground">{shift.title}</p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {shift.current_workers || 0}/{shift.max_workers} workers
+                                            <p className="text-sm font-medium text-foreground">{shift.title}</p>
+                                            <p className="text-[11px] text-muted-foreground">
+                                                {shift.current_workers || 0}/{shift.max_workers} nhân viên
                                             </p>
                                         </div>
                                     </div>
@@ -526,18 +559,18 @@ export default function OwnerDashboardPage() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Recent Applications */}
-                    <div className="lg:col-span-8 space-y-6">
+                    <div className="lg:col-span-8 space-y-4">
                         <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
-                            <div className="px-6 py-4 border-b border-border flex items-center justify-between">
-                                <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                                    <Clock className="w-5 h-5 text-cta" />
+                            <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                                <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+                                    <Clock className="w-4 h-4 text-cta" />
                                     Ứng tuyển gần đây
                                 </h2>
                                 <Link
                                     href="/owner/jobs"
-                                    className="text-xs font-semibold text-muted-foreground hover:text-cta transition-colors"
+                                    className="text-[10px] font-semibold text-muted-foreground hover:text-cta transition-colors"
                                 >
-                                    Xem tất cả
+                                    TẤT CẢ
                                 </Link>
                             </div>
 
@@ -679,15 +712,6 @@ export default function OwnerDashboardPage() {
                                     <Plus className="w-5 h-5 text-muted-foreground group-hover:text-cta" />
                                     <span className="text-xs font-semibold text-muted-foreground group-hover:text-cta">
                                         Đăng việc
-                                    </span>
-                                </Link>
-                                <Link
-                                    href="/owner/scan-qr"
-                                    className="bg-muted/50 p-4 rounded-xl hover:bg-primary/10 hover:border-primary/20 border border-border group transition-all flex flex-col items-center gap-2"
-                                >
-                                    <QrCode className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
-                                    <span className="text-xs font-semibold text-muted-foreground group-hover:text-primary">
-                                        Quét mã
                                     </span>
                                 </Link>
                                 <Link

@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Briefcase, QrCode, Settings, LogOut, Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { LayoutDashboard, Briefcase, QrCode, Settings, LogOut, Plus, Store } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { createUntypedClient } from '@/lib/supabase/client';
@@ -12,6 +14,23 @@ import { NotificationBell } from '@/components/notifications/notification-bell';
 export function OwnerNav() {
     const pathname = usePathname();
     const router = useRouter();
+    const [profile, setProfile] = useState<any>(null);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            const supabase = createUntypedClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('restaurant_name, restaurant_logo_url')
+                    .eq('id', user.id)
+                    .single();
+                setProfile(data);
+            }
+        };
+        fetchProfile();
+    }, []);
 
     const handleLogout = async () => {
         const supabase = createUntypedClient();
@@ -31,11 +50,6 @@ export function OwnerNav() {
             icon: Briefcase,
         },
         {
-            href: '/owner/scan-qr',
-            label: 'Quét QR',
-            icon: QrCode,
-        },
-        {
             href: '/owner/settings',
             label: 'Cài đặt',
             icon: Settings,
@@ -48,9 +62,23 @@ export function OwnerNav() {
         <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
             <div className="container flex h-16 items-center px-4">
                 <div className="mr-8 hidden md:flex">
-                    <Link href="/owner/dashboard" className="mr-6 flex items-center space-x-2">
-                        <span className="hidden font-bold sm:inline-block text-xl text-orange-600">
-                            Tapy Owner
+                    <Link href="/owner/dashboard" className="mr-6 flex items-center space-x-3">
+                        {profile?.restaurant_logo_url ? (
+                            <div className="w-8 h-8 rounded-lg overflow-hidden border border-slate-200 shadow-sm relative">
+                                <Image
+                                    src={profile.restaurant_logo_url}
+                                    alt={profile.restaurant_name || 'Logo'}
+                                    fill
+                                    className="object-cover"
+                                />
+                            </div>
+                        ) : (
+                            <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <Store className="w-4 h-4 text-orange-600" />
+                            </div>
+                        )}
+                        <span className="hidden font-bold sm:inline-block text-lg text-slate-800 truncate max-w-[150px]">
+                            {profile?.restaurant_name || 'Tapy Owner'}
                         </span>
                     </Link>
                     <nav className="flex items-center space-x-6 text-sm font-medium">
@@ -73,8 +101,25 @@ export function OwnerNav() {
 
                 {/* Mobile View - Simplified */}
                 <div className="md:hidden w-full flex justify-between items-center">
-                    <Link href="/owner/dashboard" className="font-bold text-lg text-orange-600">
-                        Tapy Owner
+                    <Link href="/owner/dashboard" className="flex items-center gap-2">
+                        {profile?.restaurant_logo_url ? (
+                            <div className="w-8 h-8 rounded-lg overflow-hidden border border-slate-200">
+                                <Image
+                                    src={profile.restaurant_logo_url}
+                                    alt={profile.restaurant_name || 'Logo'}
+                                    width={32}
+                                    height={32}
+                                    className="object-cover"
+                                />
+                            </div>
+                        ) : (
+                            <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <Store className="w-4 h-4 text-orange-600" />
+                            </div>
+                        )}
+                        <span className="font-bold text-lg text-slate-800 truncate max-w-[120px]">
+                            {profile?.restaurant_name || 'Tapy Owner'}
+                        </span>
                     </Link>
                     <div className="flex gap-2 items-center">
                         <NotificationBell />

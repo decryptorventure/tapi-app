@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createUntypedClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -11,13 +11,44 @@ import { Loader2, Building2, MapPin, FileText } from 'lucide-react';
 export default function OwnerProfilePage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [coverFile, setCoverFile] = useState<File | null>(null);
     const [licenseFile, setLicenseFile] = useState<File | null>(null);
     const [formData, setFormData] = useState({
         restaurantName: '',
         cuisineType: '',
         restaurantAddress: '',
         businessLicenseNumber: '',
+        phone: '',
+        email: '',
     });
+
+    // Fetch existing data if any
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            const supabase = createUntypedClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('phone_number, email, restaurant_name, cuisine_type, restaurant_address, business_license_number')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profile) {
+                    setFormData({
+                        restaurantName: profile.restaurant_name || '',
+                        cuisineType: profile.cuisine_type || '',
+                        restaurantAddress: profile.restaurant_address || '',
+                        businessLicenseNumber: profile.business_license_number || '',
+                        phone: profile.phone_number || '',
+                        email: profile.email || '',
+                    });
+                }
+            }
+        };
+        fetchInitialData();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -28,6 +59,40 @@ export default function OwnerProfilePage() {
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('Not authenticated');
+
+            // Upload restaurant logo
+            let logoUrl = null;
+            if (logoFile) {
+                const ext = logoFile.name.split('.').pop();
+                const logoPath = `${user.id}/logo-${Date.now()}.${ext}`;
+                const { error: uploadError } = await supabase.storage
+                    .from('restaurants')
+                    .upload(logoPath, logoFile);
+
+                if (!uploadError) {
+                    const { data } = supabase.storage
+                        .from('restaurants')
+                        .getPublicUrl(logoPath);
+                    logoUrl = data.publicUrl;
+                }
+            }
+
+            // Upload restaurant cover
+            let coverUrl = null;
+            if (coverFile) {
+                const ext = coverFile.name.split('.').pop();
+                const coverPath = `${user.id}/cover-${Date.now()}.${ext}`;
+                const { error: uploadError } = await supabase.storage
+                    .from('restaurants')
+                    .upload(coverPath, coverFile);
+
+                if (!uploadError) {
+                    const { data } = supabase.storage
+                        .from('restaurants')
+                        .getPublicUrl(coverPath);
+                    coverUrl = data.publicUrl;
+                }
+            }
 
             // Upload business license if provided
             let licenseUrl = null;
@@ -48,14 +113,21 @@ export default function OwnerProfilePage() {
             }
 
             // Update profile with restaurant info
+            const updateData: any = {
+                restaurant_name: formData.restaurantName,
+                cuisine_type: formData.cuisineType,
+                restaurant_address: formData.restaurantAddress,
+                business_license_number: formData.businessLicenseNumber,
+                phone_number: formData.phone,
+                email: formData.email,
+            };
+
+            if (logoUrl) updateData.restaurant_logo_url = logoUrl;
+            if (coverUrl) updateData.restaurant_cover_urls = [coverUrl];
+
             const { error: profileError } = await supabase
                 .from('profiles')
-                .update({
-                    restaurant_name: formData.restaurantName,
-                    cuisine_type: formData.cuisineType,
-                    restaurant_address: formData.restaurantAddress,
-                    business_license_number: formData.businessLicenseNumber,
-                } as any)
+                .update(updateData)
                 .eq('id', user.id);
 
             if (profileError) throw profileError;
@@ -137,7 +209,39 @@ export default function OwnerProfilePage() {
                             <option value="">Chọn loại ẩm thực</option>
                             <option value="japanese">🇯🇵 Nhật Bản</option>
                             <option value="korean">🇰🇷 Hàn Quốc</option>
+                            <option value="vietnamese">🇻🇳 Việt Nam</option>
+                            <option value="western">🍔 Âu Mỹ</option>
                         </select>
+                    </div>
+
+                    {/* Contact Info */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                Số điện thoại liên hệ <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="tel"
+                                required
+                                value={formData.phone}
+                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                                placeholder="0901234567"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                Email liên hệ <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="email"
+                                required
+                                value={formData.email}
+                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                                placeholder="restaurant@example.com"
+                            />
+                        </div>
                     </div>
 
                     {/* Address */}
@@ -154,9 +258,24 @@ export default function OwnerProfilePage() {
                             className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                             placeholder="Số nhà, đường, phường/xã, quận/huyện, TP.HCM"
                         />
-                        <p className="text-xs text-slate-500 mt-1">
-                            Địa chỉ sẽ được hiển thị cho ứng viên
-                        </p>
+                    </div>
+
+                    {/* Logo & Cover */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <ImageUpload
+                            label="Logo nhà hàng"
+                            helperText="Ảnh vuông, tối đa 5MB"
+                            onFileSelect={(file) => setLogoFile(file)}
+                            onFileRemove={() => setLogoFile(null)}
+                            accept="image/*"
+                        />
+                        <ImageUpload
+                            label="Ảnh bìa nhà hàng"
+                            helperText="Khổ ngang, tối đa 5MB"
+                            onFileSelect={(file) => setCoverFile(file)}
+                            onFileRemove={() => setCoverFile(null)}
+                            accept="image/*"
+                        />
                     </div>
 
                     {/* Business License */}

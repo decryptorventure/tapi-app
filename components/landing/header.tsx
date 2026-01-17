@@ -5,12 +5,31 @@ import { Button } from '@/components/ui/button';
 import { Zap, Menu, X } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
 import { useTranslation } from '@/lib/i18n';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { createUntypedClient } from '@/lib/supabase/client';
+import Image from 'next/image';
 
 export function Header() {
     const { t, locale } = useTranslation();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [userProfile, setUserProfile] = useState<any>(null);
+
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            const supabase = createUntypedClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('role, restaurant_name, restaurant_logo_url, onboarding_completed')
+                    .eq('id', user.id)
+                    .single();
+                setUserProfile(data);
+            }
+        };
+        fetchUserProfile();
+    }, []);
 
     const navLinks = [
         { href: '/guide', label: locale === 'vi' ? 'Hướng dẫn' : 'Guide' },
@@ -23,11 +42,24 @@ export function Header() {
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2 group">
-                        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
-                            <Zap className="w-6 h-6 text-primary-foreground" />
-                        </div>
-                        <span className="font-black text-2xl tracking-tight text-foreground">
-                            TAPY
+                        {userProfile?.role === 'owner' && userProfile?.restaurant_logo_url ? (
+                            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform flex-shrink-0 relative">
+                                <Image
+                                    src={userProfile.restaurant_logo_url}
+                                    alt={userProfile.restaurant_name || 'Logo'}
+                                    fill
+                                    className="object-cover"
+                                />
+                            </div>
+                        ) : (
+                            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
+                                <Zap className="w-6 h-6 text-primary-foreground" />
+                            </div>
+                        )}
+                        <span className="font-black text-2xl tracking-tight text-foreground truncate max-w-[150px]">
+                            {(userProfile?.role === 'owner' && userProfile?.restaurant_name)
+                                ? userProfile.restaurant_name.toUpperCase()
+                                : 'TAPY'}
                         </span>
                     </Link>
 
@@ -47,16 +79,26 @@ export function Header() {
                     {/* Desktop Actions */}
                     <div className="hidden md:flex items-center gap-3">
                         <LanguageSwitcher />
-                        <Link href="/login">
-                            <Button variant="ghost" size="sm" className="font-semibold">
-                                {t('landing.login')}
-                            </Button>
-                        </Link>
-                        <Link href="/signup">
-                            <Button size="sm" variant="cta" className="font-bold shadow-lg shadow-cta/20">
-                                {t('landing.getStarted')}
-                            </Button>
-                        </Link>
+                        {userProfile ? (
+                            <Link href={userProfile.role === 'owner' ? '/owner/dashboard' : '/worker/dashboard'}>
+                                <Button size="sm" variant="cta" className="font-bold shadow-lg shadow-cta/20">
+                                    Dashboard
+                                </Button>
+                            </Link>
+                        ) : (
+                            <>
+                                <Link href="/login">
+                                    <Button variant="ghost" size="sm" className="font-semibold">
+                                        {t('landing.login')}
+                                    </Button>
+                                </Link>
+                                <Link href="/signup">
+                                    <Button size="sm" variant="cta" className="font-bold shadow-lg shadow-cta/20">
+                                        {t('landing.getStarted')}
+                                    </Button>
+                                </Link>
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -89,16 +131,26 @@ export function Header() {
                         </Link>
                     ))}
                     <div className="pt-4 border-t border-border space-y-3">
-                        <Link href="/login" className="block">
-                            <Button variant="outline" className="w-full">
-                                {t('landing.login')}
-                            </Button>
-                        </Link>
-                        <Link href="/signup" className="block">
-                            <Button variant="cta" className="w-full">
-                                {t('landing.getStarted')}
-                            </Button>
-                        </Link>
+                        {userProfile ? (
+                            <Link href={userProfile.role === 'owner' ? '/owner/dashboard' : '/worker/dashboard'} className="block">
+                                <Button variant="cta" className="w-full">
+                                    Dashboard
+                                </Button>
+                            </Link>
+                        ) : (
+                            <>
+                                <Link href="/login" className="block">
+                                    <Button variant="outline" className="w-full">
+                                        {t('landing.login')}
+                                    </Button>
+                                </Link>
+                                <Link href="/signup" className="block">
+                                    <Button variant="cta" className="w-full">
+                                        {t('landing.getStarted')}
+                                    </Button>
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
