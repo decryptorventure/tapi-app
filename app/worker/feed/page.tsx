@@ -9,11 +9,12 @@ import { DatePickerHorizontal } from '@/components/shared/date-picker-horizontal
 import { createUntypedClient } from '@/lib/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { Job } from '@/types/database.types';
-import { Briefcase, Search, X, SlidersHorizontal, Filter } from 'lucide-react';
+import { Briefcase, Search, X, SlidersHorizontal, Filter, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/lib/i18n';
 import { isSameDay, format } from 'date-fns';
+import { toast } from 'sonner';
 
 type ViewMode = 'grid' | 'list';
 
@@ -47,7 +48,7 @@ export default function JobFeedPage() {
         },
     });
 
-    const { data: jobs, isLoading } = useQuery({
+    const { data: jobs, isLoading, isFetching, refetch } = useQuery({
         queryKey: ['jobs'],
         queryFn: async () => {
             const { data, error } = await supabase
@@ -70,6 +71,11 @@ export default function JobFeedPage() {
             })) as (Job & { restaurant_name: string })[];
         },
     });
+
+    const handleRefresh = async () => {
+        await refetch();
+        toast.success(t('common.refreshed') || 'Đã cập nhật danh sách');
+    };
 
     // Client-side filtering and sorting
     const filteredJobs = useMemo(() => {
@@ -144,6 +150,18 @@ export default function JobFeedPage() {
                             </div>
 
                             <div className="flex items-center gap-2">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={handleRefresh}
+                                    disabled={isFetching}
+                                    className="p-2"
+                                >
+                                    <RefreshCw className={cn(
+                                        "w-4 h-4",
+                                        isFetching && "animate-spin"
+                                    )} />
+                                </Button>
                                 <ViewModeToggle
                                     mode={viewMode}
                                     onChange={setViewMode}
