@@ -30,9 +30,12 @@ import {
     X,
     Sparkles,
     TrendingUp,
-    BarChart3
+    BarChart3,
+    CheckCircle2,
+    XCircle
 } from 'lucide-react';
 import { WorkerProfileModal } from '@/components/owner/worker-profile-modal';
+import { AnimatedCounter } from '@/components/shared/animated-counter';
 
 interface DashboardStats {
     activeJobs: number;
@@ -263,6 +266,40 @@ export default function OwnerDashboardPage() {
         }
     };
 
+    const handleApproveApplication = async (applicationId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        const supabase = createUntypedClient();
+        try {
+            const { error } = await supabase
+                .from('job_applications')
+                .update({ status: 'approved' })
+                .eq('id', applicationId);
+
+            if (error) throw error;
+            toast.success('Đã duyệt ứng viên');
+            fetchDashboardData();
+        } catch (error) {
+            toast.error('Lỗi duyệt ứng viên');
+        }
+    };
+
+    const handleRejectApplication = async (applicationId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        const supabase = createUntypedClient();
+        try {
+            const { error } = await supabase
+                .from('job_applications')
+                .update({ status: 'rejected' })
+                .eq('id', applicationId);
+
+            if (error) throw error;
+            toast.success('Đã từ chối ứng viên');
+            fetchDashboardData();
+        } catch (error) {
+            toast.error('Lỗi từ chối ứng viên');
+        }
+    };
+
     const getStatusBadge = (status: string, isInstantBook: boolean) => {
         if (status === 'pending') {
             return (
@@ -355,7 +392,7 @@ export default function OwnerDashboardPage() {
                             <TrendingUp className="w-4 h-4 text-muted-foreground" />
                         </div>
                         <p className="text-sm text-muted-foreground mb-1">Tin đang tuyển</p>
-                        <p className="text-4xl font-bold text-foreground mb-4">{stats.activeJobs}</p>
+                        <AnimatedCounter value={stats.activeJobs} className="text-4xl font-bold text-foreground mb-4 block" />
                         <Link
                             href="/owner/jobs"
                             className="inline-flex items-center gap-2 text-xs font-semibold text-primary hover:gap-3 transition-all"
@@ -372,7 +409,7 @@ export default function OwnerDashboardPage() {
                             </div>
                         </div>
                         <p className="text-sm text-muted-foreground mb-1">Chờ duyệt</p>
-                        <p className="text-4xl font-bold text-warning mb-4">{stats.pendingApplications}</p>
+                        <AnimatedCounter value={stats.pendingApplications} className="text-4xl font-bold text-warning mb-4 block" />
                         <Button
                             variant="outline"
                             size="sm"
@@ -389,7 +426,7 @@ export default function OwnerDashboardPage() {
                             </div>
                         </div>
                         <p className="text-sm text-muted-foreground mb-1">Nhân viên</p>
-                        <p className="text-4xl font-bold text-success mb-4">{stats.totalWorkers}</p>
+                        <AnimatedCounter value={stats.totalWorkers} className="text-4xl font-bold text-success mb-4 block" />
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <div className="w-1.5 h-1.5 rounded-full bg-success"></div>
                             <span>Đã hoàn thành ca làm</span>
@@ -562,7 +599,26 @@ export default function OwnerDashboardPage() {
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col items-end gap-2">
-                                                    {getStatusBadge(app.status, app.is_instant_book)}
+                                                    {app.status === 'pending' ? (
+                                                        <div className="flex items-center gap-2">
+                                                            <button
+                                                                onClick={(e) => handleApproveApplication(app.id, e)}
+                                                                className="p-2 bg-success/10 text-success hover:bg-success/20 rounded-lg transition-colors"
+                                                                title="Duyệt"
+                                                            >
+                                                                <CheckCircle2 className="w-4 h-4" />
+                                                            </button>
+                                                            <button
+                                                                onClick={(e) => handleRejectApplication(app.id, e)}
+                                                                className="p-2 bg-destructive/10 text-destructive hover:bg-destructive/20 rounded-lg transition-colors"
+                                                                title="Từ chối"
+                                                            >
+                                                                <XCircle className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        getStatusBadge(app.status, app.is_instant_book)
+                                                    )}
                                                     <p className="text-xs text-muted-foreground">
                                                         {new Date(app.applied_at).toLocaleDateString('vi-VN')}
                                                     </p>
