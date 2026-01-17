@@ -21,8 +21,12 @@ import {
     LogOut,
     ExternalLink,
     ChevronRight,
+    Plus,
+    Trash2,
+    Building2,
 } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
+import { WorkExperienceForm } from '@/components/profile/work-experience-form';
 import { useTranslation } from '@/lib/i18n';
 import { format } from 'date-fns';
 import { vi, enUS } from 'date-fns/locale';
@@ -57,6 +61,16 @@ interface CompletedJob {
     hourly_rate_vnd: number;
 }
 
+interface WorkExperience {
+    id: string;
+    company_name: string;
+    job_title: string;
+    start_date: string | null;
+    end_date: string | null;
+    is_current: boolean;
+    description: string | null;
+}
+
 export default function WorkerProfilePage() {
     const router = useRouter();
     const { t, locale } = useTranslation();
@@ -64,6 +78,8 @@ export default function WorkerProfilePage() {
     const [profile, setProfile] = useState<Profile | null>(null);
     const [languageSkills, setLanguageSkills] = useState<LanguageSkill[]>([]);
     const [completedJobs, setCompletedJobs] = useState<CompletedJob[]>([]);
+    const [workExperiences, setWorkExperiences] = useState<WorkExperience[]>([]);
+    const [showWorkExpForm, setShowWorkExpForm] = useState(false);
 
     useEffect(() => {
         fetchProfileData();
@@ -117,6 +133,15 @@ export default function WorkerProfilePage() {
                     hourly_rate_vnd: item.job.hourly_rate_vnd,
                 })));
             }
+
+            // Fetch work experiences
+            const { data: workExpData } = await supabase
+                .from('work_experiences')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('start_date', { ascending: false });
+
+            setWorkExperiences(workExpData || []);
         } catch (error: any) {
             console.error('Fetch error:', error);
             toast.error(t('common.error') || 'Lỗi tải thông tin');
@@ -148,6 +173,70 @@ export default function WorkerProfilePage() {
         return format(new Date(date), 'dd MMM yyyy', {
             locale: locale === 'vi' ? vi : enUS
         });
+    };
+
+    const formatMonthYear = (date: string | null) => {
+        if (!date) return '';
+        return format(new Date(date), 'MMM yyyy', {
+            locale: locale === 'vi' ? vi : enUS
+        });
+    };
+
+    const handleSaveWorkExperience = async (data: {
+        company_name: string;
+        job_title: string;
+        start_date: string;
+        end_date: string;
+        is_current: boolean;
+        description: string;
+    }) => {
+        const supabase = createUntypedClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            toast.error(t('common.error'));
+            return;
+        }
+
+        const { error } = await supabase
+            .from('work_experiences')
+            .insert({
+                user_id: user.id,
+                company_name: data.company_name,
+                job_title: data.job_title,
+                start_date: data.start_date || null,
+                end_date: data.end_date || null,
+                is_current: data.is_current,
+                description: data.description || null,
+            });
+
+        if (error) {
+            console.error('Save work experience error:', error);
+            toast.error(locale === 'vi' ? 'Lỗi lưu kinh nghiệm' : 'Error saving experience');
+            return;
+        }
+
+        toast.success(locale === 'vi' ? 'Đã thêm kinh nghiệm' : 'Experience added');
+        setShowWorkExpForm(false);
+        fetchProfileData(); // Refresh data
+    };
+
+    const handleDeleteWorkExperience = async (id: string) => {
+        const supabase = createUntypedClient();
+
+        const { error } = await supabase
+            .from('work_experiences')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Delete work experience error:', error);
+            toast.error(locale === 'vi' ? 'Lỗi xóa kinh nghiệm' : 'Error deleting experience');
+            return;
+        }
+
+        toast.success(locale === 'vi' ? 'Đã xóa kinh nghiệm' : 'Experience deleted');
+        setWorkExperiences(workExperiences.filter(exp => exp.id !== id));
     };
 
     if (loading) {
@@ -354,6 +443,87 @@ export default function WorkerProfilePage() {
                             </span>
                         )}
                     </div>
+                </div>
+
+                {/* Work Experience Section */}
+                <div className="bg-card rounded-xl shadow-sm border border-border p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <Building2 className="w-5 h-5 text-primary" />
+                            <h3 className="font-semibold text-foreground">
+                                {locale === 'vi' ? 'Kinh nghiệm làm việc' : 'Work Experience'}
+                            </h3>
+                        </div>
+                        {!showWorkExpForm && (
+                            <Button variant="outline" size="sm" onClick={() => setShowWorkExpForm(true)}>
+                                <Plus className="h-4 w-4 mr-1" />
+                                {locale === 'vi' ? 'Thêm' : 'Add'}
+                            </Button>
+                        )}
+                    </div>
+
+                    {showWorkExpForm && (
+                        <div className="mb-4">
+                            <WorkExperienceForm
+                                onSave={handleSaveWorkExperience}
+                                onCancel={() => setShowWorkExpForm(false)}
+                            />
+                        </div>
+                    )}
+
+                    {workExperiences.length > 0 ? (
+                        <div className="space-y-3">
+                            {workExperiences.map((exp) => (
+                                <div
+                                    key={exp.id}
+                                    className="p-4 bg-muted rounded-lg group"
+                                >
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                            <p className="font-medium text-foreground">{exp.job_title}</p>
+                                            <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                                <Building2 className="w-3 h-3" />
+                                                {exp.company_name}
+                                            </p>
+                                            {(exp.start_date || exp.is_current) && (
+                                                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                                                    <Calendar className="w-3 h-3" />
+                                                    {formatMonthYear(exp.start_date)}
+                                                    {' - '}
+                                                    {exp.is_current
+                                                        ? (locale === 'vi' ? 'Hiện tại' : 'Present')
+                                                        : formatMonthYear(exp.end_date)
+                                                    }
+                                                </p>
+                                            )}
+                                            {exp.description && (
+                                                <p className="text-sm text-muted-foreground mt-2">{exp.description}</p>
+                                            )}
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+                                            onClick={() => handleDeleteWorkExperience(exp.id)}
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : !showWorkExpForm && (
+                        <div className="text-center py-6">
+                            <Building2 className="w-10 h-10 mx-auto text-muted-foreground mb-2" />
+                            <p className="text-muted-foreground text-sm mb-3">
+                                {locale === 'vi' ? 'Chưa có kinh nghiệm làm việc' : 'No work experience added'}
+                            </p>
+                            <Button size="sm" onClick={() => setShowWorkExpForm(true)}>
+                                <Plus className="w-4 h-4 mr-1" />
+                                {locale === 'vi' ? 'Thêm kinh nghiệm' : 'Add Experience'}
+                            </Button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Job History */}

@@ -83,7 +83,7 @@ export default async function WorkerProfilePage({ params }: PageProps) {
         .select('*')
         .eq('user_id', profile.id);
 
-    // Get work history (completed applications with ratings)
+    // Get work history (completed applications with ratings) - Tapy job history
     const { data: workHistory } = await supabase
         .from('job_applications')
         .select(`
@@ -105,6 +105,22 @@ export default async function WorkerProfilePage({ params }: PageProps) {
         .eq('status', 'completed')
         .order('created_at', { ascending: false })
         .limit(10);
+
+    // Get custom work experiences
+    const { data: workExperiences } = await supabase
+        .from('work_experiences')
+        .select('*')
+        .eq('user_id', profile.id)
+        .order('start_date', { ascending: false });
+
+    // Get identity verification status
+    const { data: identityVerification } = await supabase
+        .from('identity_verifications')
+        .select('status')
+        .eq('user_id', profile.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
     // Calculate stats
     const { count: totalShifts } = await supabase
@@ -130,6 +146,16 @@ export default async function WorkerProfilePage({ params }: PageProps) {
             rating: w.rating,
             review: w.review,
         })) || [],
+        work_experiences: workExperiences?.map(exp => ({
+            id: exp.id,
+            company_name: exp.company_name,
+            job_title: exp.job_title,
+            start_date: exp.start_date,
+            end_date: exp.end_date,
+            is_current: exp.is_current,
+            description: exp.description,
+        })) || [],
+        identity_verification_status: identityVerification?.status || null,
         stats: {
             total_shifts: totalShifts || 0,
             average_rating: avgRating,
@@ -139,3 +165,4 @@ export default async function WorkerProfilePage({ params }: PageProps) {
 
     return <WorkerProfileView profile={profileData} />;
 }
+

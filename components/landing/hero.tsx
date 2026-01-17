@@ -1,13 +1,42 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Smartphone, CheckCircle, Star, Users, Briefcase, Clock } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
+import { createUntypedClient } from '@/lib/supabase/client';
 
 export function Hero() {
     const { t, locale } = useTranslation();
+    const [workerJobsUrl, setWorkerJobsUrl] = useState('/signup?role=worker');
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            const supabase = createUntypedClient();
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role, onboarding_completed')
+                    .eq('id', user.id)
+                    .single();
+
+                // If logged in as worker with completed onboarding, go to feed
+                if (profile?.role === 'worker' && profile?.onboarding_completed) {
+                    setWorkerJobsUrl('/worker/feed');
+                } else if (profile?.role === 'worker') {
+                    // Worker but not completed onboarding - go to onboarding
+                    setWorkerJobsUrl('/onboarding/worker/profile');
+                }
+                // If owner or no profile, keep signup URL
+            }
+        };
+
+        checkAuth();
+    }, []);
 
     const stats = [
         {
@@ -79,7 +108,7 @@ export function Hero() {
 
                         {/* Dual CTA - Timee style */}
                         <div className="flex flex-col sm:flex-row gap-4 mb-10">
-                            <Link href="/signup?role=worker" className="flex-1 sm:flex-none">
+                            <Link href={workerJobsUrl} className="flex-1 sm:flex-none">
                                 <Button size="lg" variant="cta" className="w-full sm:w-auto text-base font-bold px-8 py-6 shadow-xl shadow-cta/30 hover:shadow-cta/40 transition-all group">
                                     {locale === 'vi' ? 'Tìm việc ngay' : 'Find Jobs Now'}
                                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
