@@ -36,7 +36,7 @@ export function OwnerNav() {
             icon: QrCode,
         },
         {
-            href: '/onboarding/owner/profile',
+            href: '/owner/settings',
             label: 'Cài đặt',
             icon: Settings,
         },
@@ -104,31 +104,49 @@ export function OwnerNav() {
             </div>
 
             {/* Mobile Bottom Nav for Owners */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-4 py-2 z-50 pb-safe">
-                <div className="flex justify-around items-center">
+            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-slate-200/80 px-2 py-1.5 z-50 pb-safe shadow-lg shadow-black/5">
+                <div className="flex justify-around items-center max-w-lg mx-auto">
                     {navItems.map((item) => {
                         const Icon = item.icon;
-                        const isActive = pathname === item.href;
+                        const isActive = pathname === item.href ||
+                            (item.href !== '/owner/dashboard' && pathname.startsWith(item.href));
                         return (
                             <Link
                                 key={item.href}
                                 href={item.href}
                                 className={cn(
-                                    "flex flex-col items-center gap-1 p-2 rounded-xl transition-colors",
-                                    isActive ? "text-orange-600 bg-orange-50" : "text-slate-500"
+                                    "flex flex-col items-center gap-0.5 p-1.5 rounded-xl transition-all min-w-[56px]",
+                                    isActive
+                                        ? "text-orange-600"
+                                        : "text-slate-400 hover:text-slate-600"
                                 )}
                             >
-                                <Icon className="w-5 h-5" />
-                                <span className="text-[10px] font-medium">{item.label}</span>
+                                <div className={cn(
+                                    "p-1.5 rounded-xl transition-all",
+                                    isActive && "bg-orange-50"
+                                )}>
+                                    <Icon className={cn(
+                                        "w-5 h-5 transition-transform",
+                                        isActive && "scale-110"
+                                    )} />
+                                </div>
+                                <span className={cn(
+                                    "text-[10px] transition-all",
+                                    isActive ? "font-bold" : "font-medium"
+                                )}>
+                                    {item.label}
+                                </span>
                             </Link>
                         );
                     })}
                     {/* Logout button for mobile */}
                     <button
                         onClick={handleLogout}
-                        className="flex flex-col items-center gap-1 p-2 rounded-xl transition-colors text-slate-500 hover:text-red-600"
+                        className="flex flex-col items-center gap-0.5 p-1.5 rounded-xl transition-all min-w-[56px] text-slate-400 hover:text-red-500"
                     >
-                        <LogOut className="w-5 h-5" />
+                        <div className="p-1.5 rounded-xl">
+                            <LogOut className="w-5 h-5" />
+                        </div>
                         <span className="text-[10px] font-medium">Thoát</span>
                     </button>
                 </div>

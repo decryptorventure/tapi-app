@@ -23,7 +23,8 @@ import {
     CheckCircle2,
     AlertCircle,
     FileText,
-    QrCode
+    QrCode,
+    RefreshCw
 } from 'lucide-react';
 import { Job, JobStatus } from '@/types/database.types';
 
@@ -44,6 +45,7 @@ const languageConfig: Record<string, { label: string; color: string; bgColor: st
 export default function OwnerJobsPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [jobs, setJobs] = useState<Job[]>([]);
     const [filter, setFilter] = useState<JobStatus | 'all'>('all');
     const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -75,7 +77,14 @@ export default function OwnerJobsPage() {
             toast.error('Lỗi tải danh sách việc làm');
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
+    };
+
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        await fetchJobs();
+        toast.success('Đã cập nhật danh sách');
     };
 
     const handleCancelJob = async (jobId: string) => {
@@ -148,12 +157,23 @@ export default function OwnerJobsPage() {
                             </div>
                         </div>
 
-                        <Link href="/owner/jobs/new">
-                            <Button variant="cta" className="shadow-md hover:shadow-lg transition-shadow">
-                                <Plus className="w-4 h-4 mr-2" />
-                                Đăng tin
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleRefresh}
+                                disabled={refreshing}
+                                className="h-9 w-9"
+                            >
+                                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                             </Button>
-                        </Link>
+                            <Link href="/owner/jobs/new">
+                                <Button variant="cta" className="shadow-md hover:shadow-lg transition-shadow">
+                                    <Plus className="w-4 h-4 mr-2" />
+                                    Đăng tin
+                                </Button>
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </div>
