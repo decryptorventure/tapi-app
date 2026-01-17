@@ -15,7 +15,9 @@ import {
     QrCode,
     CheckCircle2,
     XCircle,
-    AlertCircle
+    AlertCircle,
+    RefreshCw,
+    Briefcase
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -36,7 +38,9 @@ interface Shift {
 export default function OwnerShiftsPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [shifts, setShifts] = useState<Shift[]>([]);
+    const [weekShifts, setWeekShifts] = useState<Record<string, number>>({});
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [weekDays, setWeekDays] = useState<Date[]>([]);
 
@@ -77,7 +81,51 @@ export default function OwnerShiftsPage() {
             toast.error('Lỗi tải dữ liệu');
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
+    };
+
+    // Fetch shift counts for entire week
+    const fetchWeekShifts = async () => {
+        const supabase = createUntypedClient();
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user || weekDays.length === 0) return;
+
+            const startDate = format(weekDays[0], 'yyyy-MM-dd');
+            const endDate = format(weekDays[weekDays.length - 1], 'yyyy-MM-dd');
+
+            const { data, error } = await supabase
+                .from('jobs')
+                .select('shift_date')
+                .eq('owner_id', user.id)
+                .gte('shift_date', startDate)
+                .lte('shift_date', endDate);
+
+            if (error) throw error;
+
+            const counts: Record<string, number> = {};
+            (data || []).forEach((job: any) => {
+                const date = job.shift_date;
+                counts[date] = (counts[date] || 0) + 1;
+            });
+            setWeekShifts(counts);
+        } catch (error) {
+            console.error('Fetch week shifts error:', error);
+        }
+    };
+
+    useEffect(() => {
+        if (weekDays.length > 0) {
+            fetchWeekShifts();
+        }
+    }, [weekDays]);
+
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        await fetchShifts();
+        await fetchWeekShifts();
+        toast.success('Đã cập nhật');
     };
 
     const goToPreviousWeek = () => {
@@ -134,9 +182,20 @@ export default function OwnerShiftsPage() {
                                 <h1 className="text-xl font-bold text-foreground">Lịch ca làm</h1>
                             </div>
                         </div>
-                        <Button variant="outline" size="sm" onClick={goToToday}>
-                            Hôm nay
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleRefresh}
+                                disabled={refreshing}
+                                className="h-9 w-9"
+                            >
+                                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={goToToday}>
+                                Hôm nay
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -167,16 +226,18 @@ export default function OwnerShiftsPage() {
                         {weekDays.map((day) => {
                             const isSelected = isSameDay(day, selectedDate);
                             const isToday = isSameDay(day, new Date());
+                            const dateKey = format(day, 'yyyy-MM-dd');
+                            const shiftCount = weekShifts[dateKey] || 0;
 
                             return (
                                 <button
                                     key={day.toISOString()}
                                     onClick={() => setSelectedDate(day)}
-                                    className={`flex flex-col items-center p-2 rounded-xl transition-all ${isSelected
-                                            ? 'bg-primary text-primary-foreground'
-                                            : isToday
-                                                ? 'bg-primary/10 text-primary'
-                                                : 'hover:bg-muted text-foreground'
+                                    className={`relative flex flex-col items-center p-2 rounded-xl transition-all ${isSelected
+                                        ? 'bg-primary text-primary-foreground shadow-md'
+                                        : isToday
+                                            ? 'bg-primary/10 text-primary'
+                                            : 'hover:bg-muted text-foreground'
                                         }`}
                                 >
                                     <span className="text-xs font-medium opacity-70">
@@ -185,6 +246,14 @@ export default function OwnerShiftsPage() {
                                     <span className="text-lg font-bold">
                                         {format(day, 'd')}
                                     </span>
+                                    {shiftCount > 0 && (
+                                        <span className={`absolute -top-1 -right-1 w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center ${isSelected
+                                                ? 'bg-white text-primary'
+                                                : 'bg-primary text-white'
+                                            }`}>
+                                            {shiftCount}
+                                        </span>
+                                    )}
                                 </button>
                             );
                         })}
@@ -236,9 +305,9 @@ export default function OwnerShiftsPage() {
                                                         {shift.current_workers || 0}/{shift.max_workers}
                                                     </span>
                                                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${shift.status === 'open' ? 'bg-warning/10 text-warning' :
-                                                            shift.status === 'filled' ? 'bg-success/10 text-success' :
-                                                                shift.status === 'completed' ? 'bg-primary/10 text-primary' :
-                                                                    'bg-destructive/10 text-destructive'
+                                                        shift.status === 'filled' ? 'bg-success/10 text-success' :
+                                                            shift.status === 'completed' ? 'bg-primary/10 text-primary' :
+                                                                'bg-destructive/10 text-destructive'
                                                         }`}>
                                                         {getStatusLabel(shift.status)}
                                                     </span>

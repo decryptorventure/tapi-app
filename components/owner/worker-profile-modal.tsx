@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -16,10 +17,14 @@ import {
     CheckCircle2,
     Clock,
     Calendar,
-    Contact
+    Contact,
+    Heart,
+    Loader2
 } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
+import { createUntypedClient } from '@/lib/supabase/client';
+import { toast } from 'sonner';
 
 interface WorkerProfileModalProps {
     worker: any;
@@ -29,6 +34,63 @@ interface WorkerProfileModalProps {
 }
 
 export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: WorkerProfileModalProps) {
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [savingFavorite, setSavingFavorite] = useState(false);
+
+    useEffect(() => {
+        if (worker?.id && isOpen) {
+            checkFavoriteStatus();
+        }
+    }, [worker?.id, isOpen]);
+
+    const checkFavoriteStatus = async () => {
+        const supabase = createUntypedClient();
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            const { data } = await supabase
+                .from('favorite_workers')
+                .select('id')
+                .eq('owner_id', user.id)
+                .eq('worker_id', worker.id)
+                .single();
+
+            setIsFavorite(!!data);
+        } catch (error) {
+            setIsFavorite(false);
+        }
+    };
+
+    const toggleFavorite = async () => {
+        const supabase = createUntypedClient();
+        setSavingFavorite(true);
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            if (isFavorite) {
+                await supabase
+                    .from('favorite_workers')
+                    .delete()
+                    .eq('owner_id', user.id)
+                    .eq('worker_id', worker.id);
+                setIsFavorite(false);
+                toast.success('Đã xóa khỏi yêu thích');
+            } else {
+                await supabase
+                    .from('favorite_workers')
+                    .insert({ owner_id: user.id, worker_id: worker.id });
+                setIsFavorite(true);
+                toast.success('Đã thêm vào yêu thích');
+            }
+        } catch (error) {
+            toast.error('Lỗi cập nhật');
+        } finally {
+            setSavingFavorite(false);
+        }
+    };
+
     if (!worker) return null;
 
     const getLanguageLabel = (lang: string) => {
@@ -136,7 +198,20 @@ export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: 
                         </div>
                     </div>
 
-                    <div className="pt-4 flex justify-end">
+                    <div className="pt-4 flex justify-between">
+                        <Button
+                            variant="outline"
+                            onClick={toggleFavorite}
+                            disabled={savingFavorite}
+                            className={`rounded-xl px-6 ${isFavorite ? 'text-rose-500 border-rose-200 bg-rose-50 hover:bg-rose-100' : ''}`}
+                        >
+                            {savingFavorite ? (
+                                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                            ) : (
+                                <Heart className={`w-4 h-4 mr-2 ${isFavorite ? 'fill-rose-500' : ''}`} />
+                            )}
+                            {isFavorite ? 'Yêu thích' : 'Thêm yêu thích'}
+                        </Button>
                         <Button onClick={onClose} className="rounded-xl px-8">Đóng</Button>
                     </div>
                 </div>
