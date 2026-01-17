@@ -9,8 +9,8 @@ import { LanguageSwitcher } from '@/components/shared/language-switcher';
 export function MainNav() {
     const pathname = usePathname();
 
-    // Hide on auth pages or onboarding or dashboard
-    if (pathname.startsWith('/onboarding') || pathname.startsWith('/worker') || pathname.startsWith('/owner')) {
+    // Hide on auth pages, onboarding, dashboard, or public profile pages
+    if (pathname.startsWith('/onboarding') || pathname.startsWith('/worker') || pathname.startsWith('/owner') || pathname.startsWith('/p/')) {
         return null;
     }
 

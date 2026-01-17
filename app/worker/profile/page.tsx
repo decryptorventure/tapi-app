@@ -24,7 +24,10 @@ import {
     Plus,
     Trash2,
     Building2,
+    AlertTriangle,
+    Camera,
 } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
 import { WorkExperienceForm } from '@/components/profile/work-experience-form';
 import { useTranslation } from '@/lib/i18n';
@@ -80,6 +83,11 @@ export default function WorkerProfilePage() {
     const [completedJobs, setCompletedJobs] = useState<CompletedJob[]>([]);
     const [workExperiences, setWorkExperiences] = useState<WorkExperience[]>([]);
     const [showWorkExpForm, setShowWorkExpForm] = useState(false);
+    const [identityVerified, setIdentityVerified] = useState<'pending' | 'verified' | 'rejected' | null>(null);
+    const [profileCompletion, setProfileCompletion] = useState<{
+        percentage: number;
+        missingItems: { key: string; label: string; link: string }[];
+    }>({ percentage: 0, missingItems: [] });
 
     useEffect(() => {
         fetchProfileData();
@@ -142,6 +150,35 @@ export default function WorkerProfilePage() {
                 .order('start_date', { ascending: false });
 
             setWorkExperiences(workExpData || []);
+
+            // Fetch identity verification status
+            const { data: identityData } = await supabase
+                .from('identity_verifications')
+                .select('status')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+
+            const idStatus = identityData?.status as 'pending' | 'verified' | 'rejected' | null || null;
+            setIdentityVerified(idStatus);
+
+            // Calculate profile completion
+            const completionChecks = [
+                { key: 'avatar', condition: !!profileData.avatar_url, label: locale === 'vi' ? 'Thêm ảnh đại diện' : 'Add profile photo', link: '/worker/profile/edit' },
+                { key: 'phone', condition: !!profileData.phone_number, label: locale === 'vi' ? 'Thêm số điện thoại' : 'Add phone number', link: '/worker/profile/edit' },
+                { key: 'bio', condition: !!profileData.bio, label: locale === 'vi' ? 'Thêm giới thiệu bản thân' : 'Add bio', link: '/worker/profile/edit' },
+                { key: 'identity', condition: idStatus === 'verified' || idStatus === 'pending', label: locale === 'vi' ? 'Xác minh danh tính' : 'Verify identity', link: '/worker/profile/identity' },
+                { key: 'language', condition: (skillsData || []).length > 0, label: locale === 'vi' ? 'Thêm kỹ năng ngôn ngữ' : 'Add language skills', link: '/worker/profile/languages' },
+                { key: 'experience', condition: (workExpData || []).length > 0, label: locale === 'vi' ? 'Thêm kinh nghiệm làm việc' : 'Add work experience', link: '/worker/profile' },
+            ];
+
+            const completedItems = completionChecks.filter(c => c.condition).length;
+            const totalItems = completionChecks.length;
+            const percentage = Math.round((completedItems / totalItems) * 100);
+            const missingItems = completionChecks.filter(c => !c.condition);
+
+            setProfileCompletion({ percentage, missingItems });
         } catch (error: any) {
             console.error('Fetch error:', error);
             toast.error(t('common.error') || 'Lỗi tải thông tin');
@@ -288,11 +325,57 @@ export default function WorkerProfilePage() {
             </div>
 
             <div className="container mx-auto px-4 py-6 max-w-lg space-y-6">
+                {/* Profile Completion Card */}
+                {profileCompletion.percentage < 100 && (
+                    <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl shadow-sm border border-orange-200 p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                                <AlertTriangle className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="font-semibold text-orange-900">
+                                    {locale === 'vi' ? 'Hoàn thiện hồ sơ của bạn' : 'Complete Your Profile'}
+                                </h3>
+                                <p className="text-sm text-orange-700">
+                                    {locale === 'vi'
+                                        ? 'Hồ sơ hoàn thiện giúp bạn nhận được nhiều cơ hội làm việc hơn'
+                                        : 'A complete profile helps you get more job opportunities'}
+                                </p>
+                            </div>
+                            <div className="text-2xl font-bold text-orange-600">
+                                {profileCompletion.percentage}%
+                            </div>
+                        </div>
+
+                        <Progress value={profileCompletion.percentage} className="h-2 mb-4" />
+
+                        <div className="space-y-2">
+                            {profileCompletion.missingItems.map((item) => (
+                                <Link
+                                    key={item.key}
+                                    href={item.link}
+                                    className="flex items-center gap-2 p-2 rounded-lg hover:bg-orange-100/50 transition-colors text-sm text-orange-800"
+                                >
+                                    <div className="w-5 h-5 border-2 border-orange-300 rounded-full flex items-center justify-center">
+                                        <Plus className="w-3 h-3 text-orange-500" />
+                                    </div>
+                                    {item.label}
+                                    <ChevronRight className="w-4 h-4 ml-auto text-orange-400" />
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* Profile Card */}
                 <div className="bg-card rounded-xl shadow-sm border border-border p-6">
                     <div className="flex items-start gap-4 mb-4">
-                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground text-2xl font-bold">
-                            {profile.full_name?.charAt(0) || 'U'}
+                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground text-2xl font-bold overflow-hidden">
+                            {profile.avatar_url ? (
+                                <img src={profile.avatar_url} alt={profile.full_name} className="w-full h-full object-cover" />
+                            ) : (
+                                profile.full_name?.charAt(0) || 'U'
+                            )}
                         </div>
                         <div className="flex-1">
                             <h2 className="text-xl font-bold text-foreground">
@@ -301,7 +384,7 @@ export default function WorkerProfilePage() {
                             <p className="text-muted-foreground text-sm">{profile.email}</p>
                             <p className="text-muted-foreground text-sm">{profile.phone_number}</p>
                         </div>
-                        <Link href="/onboarding/worker/profile">
+                        <Link href="/worker/profile/edit">
                             <Button variant="ghost" size="sm">
                                 <Edit className="h-4 w-4" />
                             </Button>
