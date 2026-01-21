@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { createUntypedClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -59,6 +59,7 @@ interface Job {
 export default function JobDetailPage() {
     const router = useRouter();
     const params = useParams();
+    const searchParams = useSearchParams();
     const jobId = params.id as string;
     const { t, locale } = useTranslation();
     const { user } = useAuth();
@@ -72,6 +73,14 @@ export default function JobDetailPage() {
     const applyMutation = useApplyToJob();
 
     const isInstantBook = qualification?.qualification.qualifiesForInstantBook;
+
+    // Check if chat should be auto-opened from URL params (e.g., from notification)
+    useEffect(() => {
+        const chatParam = searchParams.get('chat');
+        if (chatParam === 'open' && qualification?.hasApplied) {
+            setIsChatOpen(true);
+        }
+    }, [searchParams, qualification?.hasApplied]);
 
     useEffect(() => {
         fetchJob();

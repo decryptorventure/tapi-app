@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Bell, Check, Info, Mail, MessageCircle } from 'lucide-react';
 import {
     DropdownMenu,
@@ -22,6 +23,7 @@ import { toast } from 'sonner';
 
 export function NotificationBell() {
     const { user } = useAuth();
+    const router = useRouter();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
@@ -88,6 +90,48 @@ export function NotificationBell() {
         }
     };
 
+    const handleNotificationClick = async (notification: Notification) => {
+        // Mark as read first
+        await handleMarkAsRead(notification.id, notification.is_read);
+        setIsOpen(false);
+
+        // Handle navigation based on notification type
+        if (notification.type === 'chat_message' && notification.related_id) {
+            // related_id contains application_id, need to fetch job_id
+            try {
+                const supabase = createUntypedClient();
+                const { data: application } = await supabase
+                    .from('job_applications')
+                    .select('job_id')
+                    .eq('id', notification.related_id)
+                    .single();
+
+                if (application?.job_id) {
+                    // Navigate to job page with chat=open param
+                    router.push(`/worker/job/${application.job_id}?chat=open`);
+                }
+            } catch (error) {
+                console.error('Failed to navigate to chat', error);
+            }
+        } else if (notification.type === 'application_update' && notification.related_id) {
+            // Navigate to job page
+            try {
+                const supabase = createUntypedClient();
+                const { data: application } = await supabase
+                    .from('job_applications')
+                    .select('job_id')
+                    .eq('id', notification.related_id)
+                    .single();
+
+                if (application?.job_id) {
+                    router.push(`/worker/job/${application.job_id}`);
+                }
+            } catch (error) {
+                console.error('Failed to navigate', error);
+            }
+        }
+    };
+
     const handleMarkAllRead = async () => {
         if (!user?.id || unreadCount === 0) return;
         try {
@@ -151,7 +195,7 @@ export function NotificationBell() {
                                     "flex flex-col items-start gap-1 p-3 cursor-pointer",
                                     !notification.is_read && "bg-muted/50"
                                 )}
-                                onClick={() => handleMarkAsRead(notification.id, notification.is_read)}
+                                onClick={() => handleNotificationClick(notification)}
                             >
                                 <div className="flex w-full items-start gap-2">
                                     <div className="mt-1 shrink-0">
