@@ -269,10 +269,10 @@ export default function WorkerJobDetailsPage() {
             {application.status === 'approved' && (
                 <div className="fixed bottom-0 left-0 right-0 p-4 bg-card border-t border-border shadow-lg">
                     <div className="max-w-2xl mx-auto">
-                        <Link href={`/worker/jobs/${application.id}/qr`}>
+                        <Link href="/worker/scan-qr">
                             <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 rounded-xl flex items-center justify-center gap-2">
                                 <QrCode className="w-5 h-5" />
-                                {t('jobs.viewQr')}
+                                Quét QR để Check-in
                             </Button>
                         </Link>
                     </div>
