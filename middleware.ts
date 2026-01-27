@@ -2,11 +2,15 @@ import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Admin emails - hardcoded for now
+const ADMIN_EMAILS = ['admin@tapi.vn', 'tommy@example.com'];
+
 // Routes that require authentication
-const protectedRoutes = ['/owner', '/worker', '/onboarding'];
+const protectedRoutes = ['/owner', '/worker', '/onboarding', '/admin'];
 
 // Routes that should redirect to dashboard if authenticated
 const authRoutes = ['/login', '/signup'];
+
 
 export async function middleware(req: NextRequest) {
     const res = NextResponse.next();
