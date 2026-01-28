@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "sonner";
 import { MainNav } from "@/components/layout/main-nav";
+import { PWAInstallPrompt } from "@/components/shared/pwa-install-prompt";
 
 const inter = Inter({ subsets: ["latin", "vietnamese"] });
 
@@ -30,6 +31,7 @@ export default function RootLayout({
         <Providers>
           <MainNav />
           {children}
+          <PWAInstallPrompt />
           <Toaster position="top-center" />
         </Providers>
       </body>

@@ -9,7 +9,6 @@ import {
     Wallet,
     ArrowLeft,
     TrendingUp,
-    TrendingDown,
     Banknote,
     Clock,
     CheckCircle2,
@@ -18,25 +17,42 @@ import {
     ArrowDownRight,
     Gift,
     AlertTriangle,
-    Calendar,
-    ChevronRight
+    ChevronRight,
+    X,
+    Smartphone,
+    Building2,
+    QrCode
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { EarningsService, WalletBalance, Transaction } from '@/lib/services/earnings.service';
+import { WithdrawalService, WithdrawalRequest, PaymentMethod } from '@/lib/services/withdrawal.service';
 
 export default function WorkerWalletPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [balance, setBalance] = useState<WalletBalance | null>(null);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([]);
     const [summary, setSummary] = useState({
         today: 0,
         thisWeek: 0,
         thisMonth: 0,
         pendingCount: 0,
+    });
+
+    // Withdrawal modal state
+    const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+    const [withdrawLoading, setWithdrawLoading] = useState(false);
+    const [withdrawForm, setWithdrawForm] = useState({
+        amount: '',
+        method: 'momo' as PaymentMethod,
+        phone: '',
+        bankName: '',
+        bankAccount: '',
+        accountHolder: '',
     });
 
     useEffect(() => {
@@ -54,21 +70,86 @@ export default function WorkerWalletPage() {
             }
 
             // Fetch all wallet data in parallel
-            const [walletBalance, txHistory, earningSummary] = await Promise.all([
+            const [walletBalance, txHistory, earningSummary, userWithdrawals] = await Promise.all([
                 EarningsService.getWalletBalance(user.id),
                 EarningsService.getTransactionHistory(user.id, 20),
                 EarningsService.getEarningsSummary(user.id),
+                WithdrawalService.getUserRequests(user.id),
             ]);
 
             setBalance(walletBalance);
             setTransactions(txHistory);
             setSummary(earningSummary);
+            setWithdrawals(userWithdrawals);
         } catch (error) {
             console.error('Fetch wallet error:', error);
             toast.error('Lỗi tải dữ liệu ví');
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleWithdraw = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setWithdrawLoading(true);
+
+        const supabase = createUntypedClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            toast.error('Vui lòng đăng nhập lại');
+            return;
+        }
+
+        const amount = parseInt(withdrawForm.amount);
+        if (isNaN(amount) || amount < 50000) {
+            toast.error('Số tiền rút tối thiểu là 50,000đ');
+            setWithdrawLoading(false);
+            return;
+        }
+
+        const paymentInfo: any = {};
+        if (withdrawForm.method === 'momo' || withdrawForm.method === 'zalopay') {
+            if (!withdrawForm.phone) {
+                toast.error('Vui lòng nhập số điện thoại');
+                setWithdrawLoading(false);
+                return;
+            }
+            paymentInfo.phone = withdrawForm.phone;
+        } else {
+            if (!withdrawForm.bankName || !withdrawForm.bankAccount || !withdrawForm.accountHolder) {
+                toast.error('Vui lòng nhập đầy đủ thông tin ngân hàng');
+                setWithdrawLoading(false);
+                return;
+            }
+            paymentInfo.bank_name = withdrawForm.bankName;
+            paymentInfo.bank_account = withdrawForm.bankAccount;
+            paymentInfo.account_holder = withdrawForm.accountHolder;
+        }
+
+        const result = await WithdrawalService.createRequest(user.id, {
+            amount_vnd: amount,
+            payment_method: withdrawForm.method,
+            payment_info: paymentInfo,
+        });
+
+        if (result.success) {
+            toast.success('Yêu cầu rút tiền đã được gửi! Chúng tôi sẽ xử lý trong 24h.');
+            setShowWithdrawModal(false);
+            fetchWalletData();
+            setWithdrawForm({
+                amount: '',
+                method: 'momo',
+                phone: '',
+                bankName: '',
+                bankAccount: '',
+                accountHolder: '',
+            });
+        } else {
+            toast.error(result.error || 'Có lỗi xảy ra');
+        }
+
+        setWithdrawLoading(false);
     };
 
     const getTransactionIcon = (type: Transaction['type']) => {
@@ -127,6 +208,21 @@ export default function WorkerWalletPage() {
         }
     };
 
+    const getWithdrawalStatusBadge = (status: string) => {
+        switch (status) {
+            case 'completed':
+                return <span className="px-2 py-0.5 bg-success/10 text-success text-xs font-medium rounded-full">Đã chuyển</span>;
+            case 'processing':
+                return <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded-full">Đang xử lý</span>;
+            case 'pending':
+                return <span className="px-2 py-0.5 bg-warning/10 text-warning text-xs font-medium rounded-full">Chờ duyệt</span>;
+            case 'rejected':
+                return <span className="px-2 py-0.5 bg-destructive/10 text-destructive text-xs font-medium rounded-full">Từ chối</span>;
+            default:
+                return null;
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
@@ -136,6 +232,7 @@ export default function WorkerWalletPage() {
     }
 
     const withdrawCheck = balance ? EarningsService.canWithdraw(balance) : { canWithdraw: false, minAmount: 50000 };
+    const hasPendingWithdrawal = withdrawals.some(w => w.status === 'pending' || w.status === 'processing');
 
     return (
         <div className="min-h-screen bg-background pb-24">
@@ -170,17 +267,46 @@ export default function WorkerWalletPage() {
 
                         <Button
                             className="w-full mt-4 bg-white text-primary hover:bg-white/90"
-                            disabled={!withdrawCheck.canWithdraw}
-                            onClick={() => toast.info('Tính năng rút tiền sẽ sớm ra mắt!')}
+                            disabled={!withdrawCheck.canWithdraw || hasPendingWithdrawal}
+                            onClick={() => setShowWithdrawModal(true)}
                         >
                             <Banknote className="w-4 h-4 mr-2" />
-                            {withdrawCheck.canWithdraw ? 'Rút tiền' : withdrawCheck.reason}
+                            {hasPendingWithdrawal
+                                ? 'Đang có yêu cầu chờ xử lý'
+                                : withdrawCheck.canWithdraw
+                                    ? 'Rút tiền'
+                                    : withdrawCheck.reason}
                         </Button>
                     </div>
                 </div>
             </div>
 
             <div className="max-w-lg mx-auto px-4 -mt-8 space-y-6">
+                {/* Pending Withdrawals */}
+                {withdrawals.filter(w => w.status === 'pending' || w.status === 'processing').length > 0 && (
+                    <div className="bg-warning/10 border border-warning/20 rounded-2xl p-4">
+                        <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
+                            <Clock className="w-5 h-5 text-warning" />
+                            Yêu cầu rút tiền đang xử lý
+                        </h3>
+                        <div className="space-y-2">
+                            {withdrawals.filter(w => w.status === 'pending' || w.status === 'processing').map(w => (
+                                <div key={w.id} className="flex items-center justify-between bg-card rounded-xl p-3">
+                                    <div>
+                                        <p className="font-medium text-foreground">
+                                            {EarningsService.formatCurrency(w.amount_vnd)}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {w.payment_method.toUpperCase()} • {format(new Date(w.created_at), 'dd/MM HH:mm')}
+                                        </p>
+                                    </div>
+                                    {getWithdrawalStatusBadge(w.status)}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* Earnings Summary */}
                 <div className="bg-card rounded-2xl border border-border p-5">
                     <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
@@ -287,13 +413,170 @@ export default function WorkerWalletPage() {
                         <div>
                             <p className="font-medium text-foreground">Thời gian xử lý</p>
                             <p className="text-sm text-muted-foreground">
-                                Thu nhập sẽ được cộng vào ví sau 24 giờ kể từ khi hoàn thành ca làm.
-                                Bạn có thể rút tiền khi số dư đạt tối thiểu 50,000đ.
+                                Yêu cầu rút tiền sẽ được xử lý trong vòng 24 giờ làm việc.
+                                Số tiền tối thiểu để rút là 50,000đ.
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Withdrawal Modal */}
+            {showWithdrawModal && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
+                    <div className="bg-card rounded-t-2xl sm:rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                        {/* Modal Header */}
+                        <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+                            <h2 className="text-lg font-bold text-foreground">Rút tiền</h2>
+                            <button
+                                onClick={() => setShowWithdrawModal(false)}
+                                className="p-2 hover:bg-muted rounded-lg transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleWithdraw} className="p-4 space-y-4">
+                            {/* Amount */}
+                            <div>
+                                <label className="block text-sm font-medium text-foreground mb-2">
+                                    Số tiền muốn rút
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="number"
+                                        required
+                                        min={50000}
+                                        max={balance?.available || 0}
+                                        value={withdrawForm.amount}
+                                        onChange={(e) => setWithdrawForm({ ...withdrawForm, amount: e.target.value })}
+                                        className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary transition-all text-foreground text-lg font-bold"
+                                        placeholder="0"
+                                    />
+                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">
+                                        VNĐ
+                                    </span>
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    Tối thiểu 50,000đ • Khả dụng: {EarningsService.formatCurrency(balance?.available || 0)}
+                                </p>
+                            </div>
+
+                            {/* Payment Method */}
+                            <div>
+                                <label className="block text-sm font-medium text-foreground mb-2">
+                                    Phương thức nhận tiền
+                                </label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {[
+                                        { value: 'momo', label: 'MoMo', icon: Smartphone, color: 'text-pink-600' },
+                                        { value: 'zalopay', label: 'ZaloPay', icon: Smartphone, color: 'text-blue-600' },
+                                        { value: 'bank_transfer', label: 'Ngân hàng', icon: Building2, color: 'text-slate-600' },
+                                    ].map((method) => (
+                                        <button
+                                            key={method.value}
+                                            type="button"
+                                            onClick={() => setWithdrawForm({ ...withdrawForm, method: method.value as PaymentMethod })}
+                                            className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${withdrawForm.method === method.value
+                                                    ? 'border-primary bg-primary/5'
+                                                    : 'border-border hover:border-primary/50'
+                                                }`}
+                                        >
+                                            <method.icon className={`w-5 h-5 ${method.color}`} />
+                                            <span className="text-xs font-medium text-foreground">{method.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Payment Info */}
+                            {(withdrawForm.method === 'momo' || withdrawForm.method === 'zalopay') ? (
+                                <div>
+                                    <label className="block text-sm font-medium text-foreground mb-2">
+                                        Số điện thoại {withdrawForm.method === 'momo' ? 'MoMo' : 'ZaloPay'}
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        required
+                                        value={withdrawForm.phone}
+                                        onChange={(e) => setWithdrawForm({ ...withdrawForm, phone: e.target.value })}
+                                        className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary transition-all text-foreground"
+                                        placeholder="0901234567"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    <div>
+                                        <label className="block text-sm font-medium text-foreground mb-2">
+                                            Tên ngân hàng
+                                        </label>
+                                        <input
+                                            type="text"
+                                            required
+                                            value={withdrawForm.bankName}
+                                            onChange={(e) => setWithdrawForm({ ...withdrawForm, bankName: e.target.value })}
+                                            className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary transition-all text-foreground"
+                                            placeholder="VD: Vietcombank, Techcombank..."
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-foreground mb-2">
+                                            Số tài khoản
+                                        </label>
+                                        <input
+                                            type="text"
+                                            required
+                                            value={withdrawForm.bankAccount}
+                                            onChange={(e) => setWithdrawForm({ ...withdrawForm, bankAccount: e.target.value })}
+                                            className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary transition-all text-foreground"
+                                            placeholder="Nhập số tài khoản"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-foreground mb-2">
+                                            Tên chủ tài khoản
+                                        </label>
+                                        <input
+                                            type="text"
+                                            required
+                                            value={withdrawForm.accountHolder}
+                                            onChange={(e) => setWithdrawForm({ ...withdrawForm, accountHolder: e.target.value })}
+                                            className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary transition-all text-foreground uppercase"
+                                            placeholder="NGUYEN VAN A"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Note */}
+                            <div className="bg-muted/50 rounded-xl p-3">
+                                <p className="text-sm text-muted-foreground">
+                                    Yêu cầu sẽ được xử lý trong 24 giờ làm việc. Bạn sẽ nhận được thông báo khi hoàn tất.
+                                </p>
+                            </div>
+
+                            {/* Submit Button */}
+                            <Button
+                                type="submit"
+                                className="w-full h-12 text-base font-bold"
+                                disabled={withdrawLoading}
+                            >
+                                {withdrawLoading ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                        Đang xử lý...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Banknote className="w-5 h-5 mr-2" />
+                                        Gửi yêu cầu rút tiền
+                                    </>
+                                )}
+                            </Button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

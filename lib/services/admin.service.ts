@@ -1,6 +1,7 @@
 import { createUntypedClient } from '@/lib/supabase/client';
 
-// Admin emails - hardcoded for now
+// Admin check is now database-based via is_admin column
+// Legacy email list kept for backwards compatibility during migration
 export const ADMIN_EMAILS = ['admin@tapi.vn', 'tommy@example.com'];
 
 export interface UserFilters {
@@ -42,7 +43,7 @@ export interface UserDetail extends UserListItem {
     license_verified?: boolean;
     onboarding_completed?: boolean;
     profile_completion_percentage?: number;
-    deleted_at?: string | null;
+    is_admin?: boolean;
 }
 
 export interface PaginatedResult<T> {

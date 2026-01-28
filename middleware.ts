@@ -2,9 +2,6 @@ import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Admin emails - hardcoded for now
-const ADMIN_EMAILS = ['admin@tapi.vn', 'tommy@example.com'];
-
 // Routes that require authentication
 const protectedRoutes = ['/owner', '/worker', '/onboarding', '/admin'];
 
@@ -65,7 +62,7 @@ export async function middleware(req: NextRequest) {
         // Get user profile for role-based access and onboarding check
         const { data: profile } = await supabase
             .from('profiles')
-            .select('role, onboarding_completed')
+            .select('role, onboarding_completed, is_admin')
             .eq('id', session.user.id)
             .single();
 
@@ -98,6 +95,16 @@ export async function middleware(req: NextRequest) {
         // Worker routes - require worker role
         if (pathname.startsWith('/worker') && profile?.role !== 'worker') {
             return NextResponse.redirect(new URL('/owner/dashboard', req.url));
+        }
+
+        // Admin routes - require is_admin flag
+        if (pathname.startsWith('/admin') && !profile?.is_admin) {
+            // Redirect non-admins to their dashboard
+            if (profile?.role === 'owner') {
+                return NextResponse.redirect(new URL('/owner/dashboard', req.url));
+            } else {
+                return NextResponse.redirect(new URL('/worker/dashboard', req.url));
+            }
         }
     }
 
