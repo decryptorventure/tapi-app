@@ -93,8 +93,7 @@ class AdminService {
 
         let query = this.supabase
             .from('profiles')
-            .select('*', { count: 'exact' })
-            .is('deleted_at', null);
+            .select('*', { count: 'exact' });
 
         if (role) {
             query = query.eq('role', role);
@@ -178,26 +177,28 @@ class AdminService {
         if (error) throw error;
     }
 
-    // Soft delete user
-    async deleteUser(userId: string, adminId: string): Promise<void> {
+    // Soft delete user - TODO: Add deleted_at column to profiles table
+    async deleteUser(userId: string, _adminId: string): Promise<void> {
+        // Note: Soft delete not implemented yet - deleted_at column doesn't exist
+        // For now, freeze the account instead
         const { error } = await this.supabase
             .from('profiles')
             .update({
-                deleted_at: new Date().toISOString(),
-                deleted_by: adminId,
+                is_account_frozen: true,
             })
             .eq('id', userId);
 
         if (error) throw error;
     }
 
-    // Restore deleted user
+    // Restore deleted user - TODO: Add deleted_at column to profiles table
     async restoreUser(userId: string): Promise<void> {
+        // Note: Soft delete not implemented yet - deleted_at column doesn't exist
+        // For now, unfreeze the account instead
         const { error } = await this.supabase
             .from('profiles')
             .update({
-                deleted_at: null,
-                deleted_by: null,
+                is_account_frozen: false,
             })
             .eq('id', userId);
 
@@ -211,20 +212,17 @@ class AdminService {
         // Users counts
         const { count: totalUsers } = await supabase
             .from('profiles')
-            .select('*', { count: 'exact', head: true })
-            .is('deleted_at', null);
+            .select('*', { count: 'exact', head: true });
 
         const { count: totalWorkers } = await supabase
             .from('profiles')
             .select('*', { count: 'exact', head: true })
-            .eq('role', 'worker')
-            .is('deleted_at', null);
+            .eq('role', 'worker');
 
         const { count: totalOwners } = await supabase
             .from('profiles')
             .select('*', { count: 'exact', head: true })
-            .eq('role', 'owner')
-            .is('deleted_at', null);
+            .eq('role', 'owner');
 
         // Jobs counts
         const { count: totalJobs } = await supabase
@@ -306,8 +304,7 @@ class AdminService {
         const { data: users } = await this.supabase
             .from('profiles')
             .select('created_at')
-            .gte('created_at', startDate.toISOString())
-            .is('deleted_at', null);
+            .gte('created_at', startDate.toISOString());
 
         const { data: jobs } = await this.supabase
             .from('jobs')
