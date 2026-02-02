@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { createUntypedClient } from '@/lib/supabase/client';
-import { QRCodeService } from '@/lib/services/qr-code.service';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import {
@@ -15,8 +14,11 @@ import {
     Clock,
     Building2,
     AlertCircle,
-    CheckCircle2
+    CheckCircle2,
+    Camera,
+    Scan
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Job, JobApplication } from '@/types/database.types';
 
 interface ApplicationWithJob extends JobApplication {
@@ -35,7 +37,6 @@ export default function WorkerQRPage() {
 
     const [loading, setLoading] = useState(true);
     const [application, setApplication] = useState<ApplicationWithJob | null>(null);
-    const [qrCodeData, setQrCodeData] = useState<string | null>(null);
     const [timeUntilShift, setTimeUntilShift] = useState<string>('');
 
     useEffect(() => {
@@ -124,28 +125,7 @@ export default function WorkerQRPage() {
                 },
             });
 
-            // Generate QR code
-            try {
-                // Calculate expiry time (shift start + 2 hours)
-                const expiryDate = new Date(`${jobData.shift_date}T${jobData.shift_start_time}`);
-                expiryDate.setHours(expiryDate.getHours() + 2);
-
-                const qrCode = await QRCodeService.generateQRCode(
-                    appData.id,
-                    user.id,
-                    appData.job_id,
-                    expiryDate
-                );
-                setQrCodeData(qrCode);
-            } catch (qrError) {
-                console.error('QR generation error:', qrError);
-                // Generate fallback QR text
-                const qrText = `TAPY:${appData.id}:${user.id}:${appData.job_id}`;
-                setQrCodeData(qrText);
-            }
-
-        } catch (error: any) {
-            console.error('Fetch error:', error);
+        } catch (error) {
             toast.error('Lỗi tải thông tin');
         } finally {
             setLoading(false);
@@ -201,7 +181,7 @@ export default function WorkerQRPage() {
                             <div className="p-2 bg-primary/10 rounded-lg">
                                 <QrCode className="w-5 h-5 text-primary" />
                             </div>
-                            <h1 className="text-lg font-bold text-foreground">Mã QR Check-in</h1>
+                            <h1 className="text-lg font-bold text-foreground">Check-in</h1>
                         </div>
                     </div>
                 </div>
@@ -213,36 +193,27 @@ export default function WorkerQRPage() {
                     <CheckCircle2 className="w-6 h-6 text-success flex-shrink-0" />
                     <div>
                         <p className="font-medium text-success">Đơn đã được duyệt</p>
-                        <p className="text-sm text-success/80">Đến địa điểm và cho owner quét mã này</p>
+                        <p className="text-sm text-success/80">Đến địa điểm và quét mã QR của Owner</p>
                     </div>
                 </div>
 
-                {/* QR Code Card */}
+                {/* Scan QR Button - Primary Action */}
                 <div className="bg-card rounded-xl shadow-sm border border-border p-6 text-center">
-                    {qrCodeData ? (
-                        <div className="bg-card p-4 rounded-lg inline-block border-2 border-border">
-                            {/* Display QR code as image if it's base64, otherwise show text */}
-                            {qrCodeData.startsWith('data:') ? (
-                                <img
-                                    src={qrCodeData}
-                                    alt="QR Code"
-                                    className="w-48 h-48 mx-auto"
-                                />
-                            ) : (
-                                <div className="w-48 h-48 flex items-center justify-center bg-muted rounded-lg">
-                                    <QrCode className="w-24 h-24 text-muted-foreground" />
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="w-48 h-48 mx-auto flex items-center justify-center bg-muted rounded-lg">
-                            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-                        </div>
-                    )}
-
-                    <p className="mt-4 text-sm text-muted-foreground">
-                        Cho owner quét mã này khi check-in
+                    <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Scan className="w-10 h-10 text-primary" />
+                    </div>
+                    <h2 className="text-xl font-bold text-foreground mb-2">Quét mã QR tại cửa hàng</h2>
+                    <p className="text-muted-foreground mb-6">
+                        Tìm mã QR do Owner dán tại cửa hàng và quét để check-in
                     </p>
+                    <Button
+                        onClick={() => router.push('/worker/scan-qr')}
+                        className="w-full"
+                        size="lg"
+                    >
+                        <Camera className="w-5 h-5 mr-2" />
+                        Mở Camera Quét QR
+                    </Button>
                 </div>
 
                 {/* Countdown Timer */}
@@ -290,12 +261,12 @@ export default function WorkerQRPage() {
 
                 {/* Instructions */}
                 <div className="bg-warning/10 border border-warning/20 rounded-xl p-4">
-                    <h4 className="font-medium text-warning mb-2">📋 Hướng dẫn</h4>
+                    <h4 className="font-medium text-warning mb-2">📋 Hướng dẫn Check-in</h4>
                     <ul className="text-sm text-warning/80 space-y-1">
                         <li>1. Đến đúng giờ tại địa chỉ nhà hàng</li>
-                        <li>2. Tìm owner/quản lý và cho họ quét mã QR</li>
-                        <li>3. Hoàn thành ca làm việc</li>
-                        <li>4. Quét lại mã QR khi check-out</li>
+                        <li>2. Tìm mã QR dán tại quầy hoặc poster</li>
+                        <li>3. Bấm "Mở Camera Quét QR" ở trên</li>
+                        <li>4. Quét lại mã QR khi hết ca để check-out</li>
                     </ul>
                 </div>
             </div>

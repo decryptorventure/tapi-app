@@ -139,7 +139,16 @@ export default function WorkerScanQRPage() {
         // Check if worker has approved application for this job
         const { data: application, error: appError } = await supabase
             .from('job_applications')
-            .select('id, status, job:jobs(title, restaurant_name, restaurant_lat, restaurant_lng)')
+            .select(`
+                id, 
+                status, 
+                job:jobs(
+                    id,
+                    title, 
+                    owner_id,
+                    owner:profiles!owner_id(restaurant_name, restaurant_lat, restaurant_lng)
+                )
+            `)
             .eq('job_id', jobId)
             .eq('worker_id', user.id)
             .single();
@@ -153,12 +162,14 @@ export default function WorkerScanQRPage() {
         }
 
         const job = application.job as any;
+        // Flatten owner data if it's an array
+        const owner = Array.isArray(job.owner) ? job.owner[0] : job.owner;
 
         // Validate GPS if location available
-        if (userLocation && job.restaurant_lat && job.restaurant_lng) {
+        if (userLocation && owner?.restaurant_lat && owner?.restaurant_lng) {
             const gpsValidation = QRCodeService.validateGPSLocation(
                 userLocation,
-                { latitude: job.restaurant_lat, longitude: job.restaurant_lng }
+                { latitude: owner.restaurant_lat, longitude: owner.restaurant_lng }
             );
 
             if (!gpsValidation.valid) {
@@ -193,10 +204,10 @@ export default function WorkerScanQRPage() {
                 checkin_time: new Date().toISOString(),
                 latitude: userLocation?.latitude,
                 longitude: userLocation?.longitude,
-                distance_from_restaurant_meters: userLocation && job.restaurant_lat ?
+                distance_from_restaurant_meters: userLocation && owner?.restaurant_lat ?
                     QRCodeService.calculateDistanceMeters(
                         userLocation,
-                        { latitude: job.restaurant_lat, longitude: job.restaurant_lng }
+                        { latitude: owner.restaurant_lat, longitude: owner.restaurant_lng }
                     ) : null,
                 is_valid: true,
                 qr_code_id: qrCodeRecord?.id,
@@ -251,12 +262,12 @@ export default function WorkerScanQRPage() {
             <div className="max-w-lg mx-auto px-4 -mt-8 space-y-6">
                 {/* GPS Status */}
                 <div className={`p-4 rounded-xl flex items-center gap-3 ${gpsStatus === 'success' ? 'bg-success/10 border border-success/20' :
-                        gpsStatus === 'error' ? 'bg-warning/10 border border-warning/20' :
-                            'bg-muted'
+                    gpsStatus === 'error' ? 'bg-warning/10 border border-warning/20' :
+                        'bg-muted'
                     }`}>
                     <MapPin className={`w-5 h-5 ${gpsStatus === 'success' ? 'text-success' :
-                            gpsStatus === 'error' ? 'text-warning' :
-                                'text-muted-foreground'
+                        gpsStatus === 'error' ? 'text-warning' :
+                            'text-muted-foreground'
                         }`} />
                     <div className="flex-1">
                         <p className="text-sm font-medium text-foreground">
