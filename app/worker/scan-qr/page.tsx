@@ -173,7 +173,10 @@ export default function WorkerScanQRPage() {
             );
 
             if (!gpsValidation.valid) {
-                throw new Error(gpsValidation.error);
+                // TEMPORARILY DISABLED: Allow check-in even if far from location
+                // throw new Error(gpsValidation.error);
+                console.warn('GPS validation failed:', gpsValidation.error);
+                toast.warning('Cảnh báo: Vị trí của bạn ở xa nhà hàng');
             }
         }
 
