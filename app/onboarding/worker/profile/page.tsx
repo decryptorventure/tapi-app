@@ -16,6 +16,7 @@ import {
   Check
 } from 'lucide-react';
 import Image from 'next/image';
+import { StorageService } from '@/lib/services/storage.service';
 
 export default function WorkerProfilePage() {
   const router = useRouter();
@@ -74,19 +75,21 @@ export default function WorkerProfilePage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Upload avatar if provided
+      // Upload avatar if provided using StorageService
       let avatarUrl = avatarPreview;
       if (avatarFile) {
-        const avatarPath = `avatars/${user.id}/${Date.now()}.jpg`;
-        const { error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(avatarPath, avatarFile);
+        const uploadResult = await StorageService.uploadWithRetry(
+          'avatars',
+          avatarFile,
+          user.id
+        );
 
-        if (!uploadError) {
-          const { data } = supabase.storage
-            .from('avatars')
-            .getPublicUrl(avatarPath);
-          avatarUrl = data.publicUrl;
+        if (uploadResult.success && uploadResult.url) {
+          avatarUrl = uploadResult.url;
+        } else if (uploadResult.error) {
+          toast.error(uploadResult.error.message);
+          setLoading(false);
+          return;
         }
       }
 

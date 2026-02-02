@@ -10,11 +10,11 @@ import {
     Video as VideoIcon,
     X,
     Upload,
-    Play,
-    CheckCircle2,
     ChevronRight,
-    Sparkles
+    Sparkles,
+    CheckCircle2
 } from 'lucide-react';
+import { StorageService } from '@/lib/services/storage.service';
 
 export default function WorkerVideoPage() {
     const router = useRouter();
@@ -26,8 +26,10 @@ export default function WorkerVideoPage() {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            if (file.size > 50 * 1024 * 1024) {
-                toast.error('Video quá lớn (tối đa 50MB)');
+            // Use StorageService config for validation
+            const config = StorageService.getBucketConfig('videos');
+            if (file.size > config.maxSize) {
+                toast.error(`Video quá lớn (tối đa ${config.maxSize / (1024 * 1024)}MB)`);
                 return;
             }
             if (!file.type.startsWith('video/')) {
@@ -61,29 +63,30 @@ export default function WorkerVideoPage() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('Not authenticated');
 
-            const fileExt = videoFile.name.split('.').pop();
-            const filePath = `videos/${user.id}/${Date.now()}.${fileExt}`;
+            // Use StorageService with retry logic
+            const uploadResult = await StorageService.uploadWithRetry(
+                'videos',
+                videoFile,
+                user.id
+            );
 
-            const { error: uploadError } = await supabase.storage
-                .from('videos')
-                .upload(filePath, videoFile);
+            if (!uploadResult.success) {
+                toast.error(uploadResult.error?.message || 'Lỗi upload video');
+                setLoading(false);
+                return;
+            }
 
-            if (uploadError) throw uploadError;
-
-            const { data } = supabase.storage
-                .from('videos')
-                .getPublicUrl(filePath);
-
+            // Update profile with video URL
             await supabase
                 .from('profiles')
-                .update({ intro_video_url: data.publicUrl })
+                .update({ intro_video_url: uploadResult.url })
                 .eq('id', user.id);
 
             toast.success('Video đã được tải lên!');
             router.push('/onboarding/worker/review');
         } catch (error: any) {
             console.error('Video upload error:', error);
-            toast.error('Lỗi upload video');
+            toast.error('Lỗi upload video. Vui lòng thử lại.');
         } finally {
             setLoading(false);
         }
@@ -138,7 +141,7 @@ export default function WorkerVideoPage() {
                                 Click để upload video
                             </h3>
                             <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-                                MP4, MOV, AVI • Tối đa 50MB • Thời lượng 30-60 giây
+                                MP4, MOV, WebM • Tối đa 50MB • Thời lượng 30-60 giây
                             </p>
                         </div>
                     ) : (
