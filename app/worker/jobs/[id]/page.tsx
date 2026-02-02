@@ -28,6 +28,7 @@ import { format } from 'date-fns';
 import { vi, enUS } from 'date-fns/locale';
 import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import { StaticMap } from '@/components/map/static-map';
 
 export default function WorkerJobDetailsPage() {
     const router = useRouter();
@@ -56,7 +57,7 @@ export default function WorkerJobDetailsPage() {
                 .from('job_applications')
                 .select(`
                     *,
-                    job:jobs(*, owner:profiles!owner_id(restaurant_name, restaurant_address, avatar_url))
+                    job:jobs(*, owner:profiles!owner_id(restaurant_name, restaurant_address, avatar_url, restaurant_lat, restaurant_lng))
                 `)
                 .eq('id', applicationId)
                 .single();
@@ -245,6 +246,20 @@ export default function WorkerJobDetailsPage() {
                             <div className="pt-4 border-t border-border">
                                 <h3 className="font-black text-foreground mb-2 text-sm uppercase tracking-wide">{t('jobs.dressCode')}</h3>
                                 <p className="text-muted-foreground text-sm">{job.dress_code}</p>
+                            </div>
+                        )}
+
+                        {/* Map Section */}
+                        {job.owner?.restaurant_lat && job.owner?.restaurant_lng && (
+                            <div className="pt-4 border-t border-border">
+                                <h3 className="font-black text-foreground mb-3 flex items-center gap-2">
+                                    <MapPin className="w-4 h-4 text-primary" /> Vị trí bản đồ
+                                </h3>
+                                <StaticMap
+                                    lat={job.owner.restaurant_lat}
+                                    lng={job.owner.restaurant_lng}
+                                    showDirections={true}
+                                />
                             </div>
                         )}
                     </div>
