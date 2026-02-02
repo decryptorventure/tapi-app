@@ -111,9 +111,26 @@ export default function OwnerJobQRPage() {
                 .single();
 
             if (existingQR) {
-                setQrCode(existingQR);
-                // Regenerate QR image from stored data
-                await regenerateQRImage(existingQR.qr_data);
+                // Check if QR is old format (no version 2)
+                let needsRegenerate = false;
+                try {
+                    const qrData = JSON.parse(existingQR.qr_data);
+                    if (qrData.version !== 2) {
+                        needsRegenerate = true;
+                    }
+                } catch {
+                    needsRegenerate = true;
+                }
+
+                if (needsRegenerate) {
+                    // Old QR format, regenerate with new version
+                    console.log('Upgrading QR to version 2');
+                    await generateNewQR(jobId, user.id);
+                } else {
+                    setQrCode(existingQR);
+                    // Regenerate QR image from stored data
+                    await regenerateQRImage(existingQR.qr_data);
+                }
             } else {
                 // Generate new QR
                 await generateNewQR(jobId, user.id);
