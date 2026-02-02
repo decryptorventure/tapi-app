@@ -14,15 +14,6 @@ const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
 const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
 const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
 
-const customIcon = new L.Icon({
-    iconUrl: iconUrl,
-    iconRetinaUrl: iconRetinaUrl,
-    shadowUrl: shadowUrl,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-});
 
 interface Location {
     lat: number;
@@ -39,7 +30,7 @@ interface MapPickerClientProps {
 // Default center (Hanoi)
 const DEFAULT_CENTER = { lat: 21.0285, lng: 105.8542 };
 
-function LocationMarker({ position, onChange }: { position: L.LatLngExpression, onChange: (lat: number, lng: number) => void }) {
+function LocationMarker({ position, onChange, icon }: { position: L.LatLngExpression, onChange: (lat: number, lng: number) => void, icon: L.Icon }) {
     const map = useMap();
 
     // Fly to position when it changes
@@ -57,7 +48,7 @@ function LocationMarker({ position, onChange }: { position: L.LatLngExpression, 
     return (
         <Marker
             position={position}
-            icon={customIcon}
+            icon={icon}
             draggable={true}
             eventHandlers={{
                 dragend: (e) => {
@@ -74,6 +65,24 @@ export default function MapPickerClient({ value, onChange }: MapPickerClientProp
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [customIcon, setCustomIcon] = useState<L.Icon | null>(null);
+
+    // Initialize Leaflet Icon on client side only
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const icon = new L.Icon({
+                iconUrl: iconUrl,
+                iconRetinaUrl: iconRetinaUrl,
+                shadowUrl: shadowUrl,
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+            setCustomIcon(icon);
+        }
+    }, []);
+
 
     // Initial position
     const [center, setCenter] = useState<[number, number]>(
@@ -150,6 +159,14 @@ export default function MapPickerClient({ value, onChange }: MapPickerClientProp
         }
     };
 
+    if (!customIcon) {
+        return (
+            <div className="h-[300px] w-full bg-muted/20 animate-pulse rounded-xl flex items-center justify-center">
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-4">
             {/* Search Bar */}
@@ -201,6 +218,7 @@ export default function MapPickerClient({ value, onChange }: MapPickerClientProp
                     <LocationMarker
                         position={center}
                         onChange={handleMapClick}
+                        icon={customIcon}
                     />
                 </MapContainer>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import { useState, useEffect } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Button } from '@/components/ui/button';
@@ -11,16 +12,6 @@ const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
 const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png';
 const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
 
-const customIcon = new L.Icon({
-    iconUrl: iconUrl,
-    iconRetinaUrl: iconRetinaUrl,
-    shadowUrl: shadowUrl,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-});
-
 interface StaticMapClientProps {
     lat: number;
     lng: number;
@@ -30,6 +21,26 @@ interface StaticMapClientProps {
 
 export default function StaticMapClient({ lat, lng, address, showDirections = true }: StaticMapClientProps) {
     const googleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    const [customIcon, setCustomIcon] = useState<L.Icon | null>(null);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const icon = new L.Icon({
+                iconUrl: iconUrl,
+                iconRetinaUrl: iconRetinaUrl,
+                shadowUrl: shadowUrl,
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+            setCustomIcon(icon);
+        }
+    }, []);
+
+    if (!customIcon) {
+        return <div className="h-[200px] w-full bg-muted/20 animate-pulse rounded-xl" />;
+    }
 
     return (
         <div className="space-y-2">
