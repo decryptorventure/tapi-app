@@ -27,13 +27,15 @@ import { QRCodeService } from '@/lib/services/qr-code.service';
 interface JobData {
     id: string;
     title: string;
-    restaurant_name: string;
-    location_name: string;
     shift_date: string;
     shift_start_time: string;
     shift_end_time: string;
     max_workers: number;
     current_workers: number;
+    owner?: {
+        restaurant_name?: string;
+        restaurant_address?: string;
+    };
 }
 
 interface QRData {
@@ -71,10 +73,19 @@ export default function OwnerJobQRPage() {
                 return;
             }
 
-            // Fetch job data
+            // Fetch job data with owner profile for restaurant name
             const { data: jobData, error: jobError } = await supabase
                 .from('jobs')
-                .select('id, title, restaurant_name, location_name, shift_date, shift_start_time, shift_end_time, max_workers, current_workers')
+                .select(`
+                    id, 
+                    title, 
+                    shift_date, 
+                    shift_start_time, 
+                    shift_end_time, 
+                    max_workers, 
+                    current_workers,
+                    owner:profiles!owner_id(restaurant_name, restaurant_address)
+                `)
                 .eq('id', jobId)
                 .eq('owner_id', user.id)
                 .single();
@@ -85,7 +96,12 @@ export default function OwnerJobQRPage() {
                 return;
             }
 
-            setJob(jobData);
+            // Flatten owner data for easier access
+            const formattedJob = {
+                ...jobData,
+                owner: Array.isArray(jobData.owner) ? jobData.owner[0] : jobData.owner
+            };
+            setJob(formattedJob);
 
             // Fetch existing QR or generate new one
             const { data: existingQR } = await supabase
@@ -268,7 +284,7 @@ export default function OwnerJobQRPage() {
                 <div class="container">
                     <div class="logo">Tapy</div>
                     <h1>${job?.title}</h1>
-                    <p class="restaurant">${job?.restaurant_name}</p>
+                    <p class="restaurant">${job?.owner?.restaurant_name || ''}</p>
                     <div class="qr-container">
                         <img src="${qrImage}" alt="QR Code" />
                     </div>
@@ -335,7 +351,7 @@ export default function OwnerJobQRPage() {
                     )}
 
                     <h2 className="text-xl font-bold text-foreground mb-1">{job?.title}</h2>
-                    <p className="text-muted-foreground text-sm mb-4">{job?.restaurant_name}</p>
+                    <p className="text-muted-foreground text-sm mb-4">{job?.owner?.restaurant_name}</p>
 
                     {/* Backup Code */}
                     {qrCode && (
@@ -385,7 +401,7 @@ export default function OwnerJobQRPage() {
                     <div className="space-y-3">
                         <div className="flex items-center gap-3 text-sm">
                             <MapPin className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-foreground">{job?.location_name || job?.restaurant_name}</span>
+                            <span className="text-foreground">{job?.owner?.restaurant_address || job?.owner?.restaurant_name}</span>
                         </div>
                         <div className="flex items-center gap-3 text-sm">
                             <Calendar className="w-4 h-4 text-muted-foreground" />
