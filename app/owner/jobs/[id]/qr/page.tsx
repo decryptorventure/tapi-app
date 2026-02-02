@@ -411,7 +411,7 @@ export default function OwnerJobQRPage() {
                     <h3 className="font-bold text-foreground mb-3">Hướng dẫn sử dụng</h3>
                     <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
                         <li>In poster hoặc hiển thị mã QR tại quầy</li>
-                        <li>Worker mở app Tapy và chọn "Scan QR"</li>
+                        <li>Worker mở app Tapy và chọn &quot;Scan QR&quot;</li>
                         <li>Worker quét mã để check-in khi đến ca</li>
                         <li>Worker quét lại mã khi check-out</li>
                         <li>Nếu không quét được, nhập mã backup thủ công</li>

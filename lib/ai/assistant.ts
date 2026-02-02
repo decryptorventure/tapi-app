@@ -192,8 +192,6 @@ export async function chat(
     const functions = getFunctionsForRole(context.role);
     const systemPrompt = getSystemPrompt(context.role, context.profile);
 
-    console.log(`[AI] Using provider: ${provider}`);
-
     try {
         let result: { text: string; functionCall?: { name: string; args: Record<string, any> } };
 

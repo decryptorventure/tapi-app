@@ -49,19 +49,19 @@ export default function TermsPage() {
                         <ul className="space-y-3 text-muted-foreground">
                             <li className="flex items-start gap-3">
                                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                                <span><strong>"TAPI"</strong> hoặc <strong>"Nền tảng"</strong>: Ứng dụng và website do TAPI vận hành.</span>
+                                <span><strong>&quot;TAPI&quot;</strong> hoặc <strong>&quot;Nền tảng&quot;</strong>: Ứng dụng và website do TAPI vận hành.</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                                <span><strong>"Worker"</strong>: Người dùng đăng ký để tìm kiếm và làm việc tại các nhà hàng.</span>
+                                <span><strong>&quot;Worker&quot;</strong>: Người dùng đăng ký để tìm kiếm và làm việc tại các nhà hàng.</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                                <span><strong>"Owner"</strong>: Chủ nhà hàng hoặc người quản lý đăng tin tuyển dụng.</span>
+                                <span><strong>&quot;Owner&quot;</strong>: Chủ nhà hàng hoặc người quản lý đăng tin tuyển dụng.</span>
                             </li>
                             <li className="flex items-start gap-3">
                                 <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                                <span><strong>"Ca làm"</strong> hoặc <strong>"Job"</strong>: Công việc được đăng bởi Owner cho Worker ứng tuyển.</span>
+                                <span><strong>&quot;Ca làm&quot;</strong> hoặc <strong>&quot;Job&quot;</strong>: Công việc được đăng bởi Owner cho Worker ứng tuyển.</span>
                             </li>
                         </ul>
                     </section>

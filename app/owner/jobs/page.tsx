@@ -13,7 +13,6 @@ import {
     Calendar,
     Clock,
     Users,
-    Loader2,
     MoreVertical,
     Eye,
     Edit,
@@ -21,12 +20,13 @@ import {
     Languages,
     TrendingUp,
     CheckCircle2,
-    AlertCircle,
     FileText,
     QrCode,
     RefreshCw
 } from 'lucide-react';
 import { Job, JobStatus } from '@/types/database.types';
+import { PageLoader } from '@/components/shared/page-loader';
+import { EmptyState } from '@/components/shared/empty-state';
 
 const statusLabels: Record<JobStatus, { label: string; color: string }> = {
     open: { label: 'Đang mở', color: 'bg-success/10 text-success' },
@@ -72,8 +72,7 @@ export default function OwnerJobsPage() {
 
             if (error) throw error;
             setJobs(data || []);
-        } catch (error: any) {
-            console.error('Jobs fetch error:', error);
+        } catch (error: unknown) {
             toast.error('Lỗi tải danh sách việc làm');
         } finally {
             setLoading(false);
@@ -100,8 +99,7 @@ export default function OwnerJobsPage() {
 
             toast.success('Đã hủy tin tuyển dụng');
             fetchJobs();
-        } catch (error: any) {
-            console.error('Cancel job error:', error);
+        } catch (error: unknown) {
             toast.error('Lỗi hủy tin');
         }
         setOpenMenu(null);
@@ -132,11 +130,7 @@ export default function OwnerJobsPage() {
     };
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <Loader2 className="h-8 w-8 animate-spin text-cta" />
-            </div>
-        );
+        return <PageLoader />;
     }
 
     return (

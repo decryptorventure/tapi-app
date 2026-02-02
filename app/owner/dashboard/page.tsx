@@ -14,30 +14,23 @@ import {
     Clock,
     Plus,
     ChevronRight,
-    Building2,
-    Loader2,
-    AlertCircle,
     Bell,
     Store,
-    LayoutDashboard,
-    Search,
-    UserCircle2,
     Star,
     Zap,
-    ArrowUpRight,
     Check,
     X,
     Sparkles,
-    TrendingUp,
-    BarChart3,
     CheckCircle2,
     XCircle,
     Phone,
-    Mail,
-    QrCode
+    Mail
 } from 'lucide-react';
 import { WorkerProfileModal } from '@/components/owner/worker-profile-modal';
-import { AnimatedCounter } from '@/components/shared/animated-counter';
+import { OwnerStatCard } from '@/components/owner/owner-stat-card';
+import { TodayShiftsCard } from '@/components/owner/today-shifts-card';
+import { WorkersOnDutyCard } from '@/components/owner/workers-on-duty-card';
+import { PageLoader } from '@/components/shared/page-loader';
 
 interface DashboardStats {
     activeJobs: number;
@@ -340,11 +333,7 @@ export default function OwnerDashboardPage() {
     };
 
     if (loading && !profile) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <Loader2 className="h-8 w-8 animate-spin text-cta" />
-            </div>
-        );
+        return <PageLoader />;
     }
 
     return (
@@ -436,126 +425,34 @@ export default function OwnerDashboardPage() {
             <div className="container mx-auto px-4 py-6 max-w-5xl space-y-6">
                 {/* Statistics Cards */}
                 <div className="grid grid-cols-3 gap-3 md:gap-6">
-                    <div className="bg-card rounded-2xl border border-border p-3 md:p-6 card-hover">
-                        <div className="flex items-center justify-between mb-2 md:mb-4">
-                            <div className="p-2 md:p-3 bg-primary/10 rounded-xl">
-                                <Briefcase className="w-4 h-4 md:w-6 md:h-6 text-primary" />
-                            </div>
-                        </div>
-                        <p className="text-[10px] md:text-sm text-muted-foreground mb-1">Đang tuyển</p>
-                        <AnimatedCounter value={stats.activeJobs} className="text-xl md:text-4xl font-bold text-foreground block" />
-                    </div>
-
-                    <div className="bg-card rounded-2xl border border-border p-3 md:p-6 card-hover">
-                        <div className="flex items-center justify-between mb-2 md:mb-4">
-                            <div className="p-2 md:p-3 bg-warning/10 rounded-xl">
-                                <Clock className="w-4 h-4 md:w-6 md:h-6 text-warning" />
-                            </div>
-                        </div>
-                        <p className="text-[10px] md:text-sm text-muted-foreground mb-1">Chờ duyệt</p>
-                        <AnimatedCounter value={stats.pendingApplications} className="text-xl md:text-4xl font-bold text-warning block" />
-                    </div>
-
-                    <div className="bg-card rounded-2xl border border-border p-3 md:p-6 card-hover">
-                        <div className="flex items-center justify-between mb-2 md:mb-4">
-                            <div className="p-2 md:p-3 bg-success/10 rounded-xl">
-                                <Users className="w-4 h-4 md:w-6 md:h-6 text-success" />
-                            </div>
-                        </div>
-                        <p className="text-[10px] md:text-sm text-muted-foreground mb-1">Nhân viên</p>
-                        <AnimatedCounter value={stats.totalWorkers} className="text-xl md:text-4xl font-bold text-success block" />
-                    </div>
+                    <OwnerStatCard
+                        icon={Briefcase}
+                        label="Đang tuyển"
+                        value={stats.activeJobs}
+                        iconColorClass="text-primary"
+                    />
+                    <OwnerStatCard
+                        icon={Clock}
+                        label="Chờ duyệt"
+                        value={stats.pendingApplications}
+                        iconColorClass="text-warning"
+                    />
+                    <OwnerStatCard
+                        icon={Users}
+                        label="Nhân viên"
+                        value={stats.totalWorkers}
+                        iconColorClass="text-success"
+                    />
                 </div>
 
                 {/* Workers On Duty Card */}
-                {workersOnDuty.length > 0 && (
-                    <div className="bg-gradient-to-r from-success/10 to-emerald-500/10 border border-success/30 rounded-2xl p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-success/20 rounded-xl">
-                                    <Users className="w-5 h-5 text-success" />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-foreground">Workers đang làm</h3>
-                                    <p className="text-xs text-muted-foreground">{workersOnDuty.length} người đã check-in hôm nay</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                                <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                                <span className="text-xs text-success font-semibold">Live</span>
-                            </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                            {workersOnDuty.slice(0, 5).map((worker) => (
-                                <div
-                                    key={worker.id}
-                                    className="flex items-center gap-2 bg-card/80 px-3 py-2 rounded-lg cursor-pointer hover:bg-card transition-colors"
-                                    onClick={() => viewWorkerProfile(worker.worker_id)}
-                                >
-                                    {worker.worker_avatar ? (
-                                        <Image
-                                            src={worker.worker_avatar}
-                                            alt={worker.worker_name}
-                                            width={24}
-                                            height={24}
-                                            className="rounded-full"
-                                        />
-                                    ) : (
-                                        <div className="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center text-xs font-bold text-success">
-                                            {worker.worker_name.charAt(0)}
-                                        </div>
-                                    )}
-                                    <span className="text-sm font-medium text-foreground">{worker.worker_name}</span>
-                                    <span className="text-xs text-muted-foreground">• {worker.job_title}</span>
-                                </div>
-                            ))}
-                            {workersOnDuty.length > 5 && (
-                                <div className="flex items-center gap-1 px-3 py-2 text-sm text-success">
-                                    +{workersOnDuty.length - 5} khác
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
+                <WorkersOnDutyCard
+                    workers={workersOnDuty}
+                    onViewWorker={viewWorkerProfile}
+                />
 
                 {/* Today's Shifts */}
-                {todayShifts.length > 0 && (
-                    <div className="bg-card rounded-2xl border border-border p-4">
-                        <div className="flex items-center justify-between mb-3">
-                            <h3 className="font-bold text-foreground flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-primary" />
-                                Ca làm hôm nay
-                            </h3>
-                            <Link href="/owner/shifts" className="text-xs text-primary hover:underline">
-                                Xem tất cả
-                            </Link>
-                        </div>
-                        <div className="space-y-2">
-                            {todayShifts.map((shift) => (
-                                <div key={shift.id} className="flex items-center justify-between p-2.5 bg-muted/50 rounded-xl">
-                                    <div className="flex items-center gap-3">
-                                        <div className="text-center min-w-[50px]">
-                                            <p className="text-base font-bold text-foreground">{shift.shift_start_time?.slice(0, 5)}</p>
-                                            <p className="text-[10px] text-muted-foreground">{shift.shift_end_time?.slice(0, 5)}</p>
-                                        </div>
-                                        <div className="border-l border-border pl-3">
-                                            <p className="text-sm font-medium text-foreground">{shift.title}</p>
-                                            <p className="text-[11px] text-muted-foreground">
-                                                {shift.current_workers || 0}/{shift.max_workers} nhân viên
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <Link href={`/owner/jobs/${shift.id}/qr`}>
-                                        <Button variant="outline" size="sm" className="gap-1.5">
-                                            <QrCode className="w-4 h-4" />
-                                            QR
-                                        </Button>
-                                    </Link>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                <TodayShiftsCard shifts={todayShifts} />
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Recent Applications */}

@@ -25,7 +25,6 @@ export async function applyToJob(
 
   try {
     // 1. Fetch job details
-    console.log('applyToJob - Step 1: Fetching job', jobId);
     const { data: jobs, error: jobError } = await supabase
       .from('jobs')
       .select('*')
@@ -54,7 +53,6 @@ export async function applyToJob(
     }
 
     // 3. Check if already applied
-    console.log('applyToJob - Step 3: Checking existing application', { jobId, workerId });
     const { data: apps, error: existingError } = await supabase
       .from('job_applications')
       .select('*')
@@ -69,7 +67,6 @@ export async function applyToJob(
     }
 
     if (existingApp) {
-      console.log('Applying to job - Already applied', existingApp.id);
       return {
         success: false,
         isInstantBook: existingApp.is_instant_book,
@@ -78,7 +75,6 @@ export async function applyToJob(
     }
 
     // 4. Fetch worker profile with language skills
-    console.log('applyToJob - Step 4: Fetching profile', workerId);
     const { data: profiles, error: profileError } = await supabase
       .from('profiles')
       .select(`
@@ -105,7 +101,6 @@ export async function applyToJob(
     }
 
     // 5. Evaluate qualification
-    console.log('Applying to job - Step 5: Profile found', workerProfile.id);
     const workerProfileTyped = {
       reliability_score: workerProfile.reliability_score,
       is_account_frozen: workerProfile.is_account_frozen,
@@ -124,7 +119,6 @@ export async function applyToJob(
     );
 
     const isInstantBook = qualification.qualifiesForInstantBook;
-    console.log('Applying to job - Step 6: Qualification result', { isInstantBook });
 
     // 6. Create application
     const applicationData: Partial<JobApplication> = {
@@ -139,7 +133,6 @@ export async function applyToJob(
       }),
     };
 
-    console.log('Applying to job - Step 7: Inserting application', applicationData);
     const { data: insertedApps, error: insertError } = await supabase
       .from('job_applications')
       .insert(applicationData)
@@ -157,8 +150,6 @@ export async function applyToJob(
         error: insertError?.message,
       };
     }
-
-    console.log('Applying to job - Step 8: Successfully inserted', application.id);
 
     // 7. If instant book, update job workers count and generate QR code
     if (isInstantBook) {
@@ -304,15 +295,6 @@ export async function approveApplication(
   ownerId: string
 ): Promise<{ success: boolean; message: string }> {
   const supabase = createUntypedClient();
-
-  // Debug: Check if key is present
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  console.log('approveApplication - Debug:', {
-    hasKey: !!key,
-    keyPrefix: key?.substring(0, 5),
-    ownerId,
-    applicationId
-  });
 
   // Verify owner owns the job
   const { data: apps } = await supabase

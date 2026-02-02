@@ -57,7 +57,6 @@ export default function OwnerReviewPage() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('Not authenticated');
 
-            console.log('Completing owner onboarding for:', user.id);
             const { error } = await supabase
                 .from('profiles')
                 .update({

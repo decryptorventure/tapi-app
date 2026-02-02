@@ -187,7 +187,7 @@ export default function WorkerReviewPage() {
                             {profile?.bio && (
                                 <div className="mt-4 pt-4 border-t border-border">
                                     <p className="text-sm text-muted-foreground leading-relaxed italic">
-                                        "{profile.bio}"
+                                        {`"${profile.bio}"`}
                                     </p>
                                 </div>
                             )}

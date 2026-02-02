@@ -46,6 +46,35 @@ export interface JobMatchCriteria {
 }
 
 /**
+ * Language skill record from database
+ */
+interface LanguageSkillRecord {
+    language: LanguageType;
+    level: LanguageLevel;
+    verification_status: 'pending' | 'verified' | 'rejected';
+}
+
+/**
+ * Worker profile from database query
+ */
+interface WorkerProfile {
+    id: string;
+    full_name: string;
+    avatar_url: string | null;
+    reliability_score: number;
+    is_verified: boolean;
+    is_frozen: boolean;
+    language_skills: LanguageSkillRecord[];
+}
+
+/**
+ * Job application record
+ */
+interface JobApplicationRecord {
+    worker_id: string;
+}
+
+/**
  * Language level weight for scoring
  */
 const LEVEL_WEIGHTS: Record<string, number> = {
@@ -62,7 +91,7 @@ const LEVEL_WEIGHTS: Record<string, number> = {
  * Calculate match score between worker and job
  */
 function calculateMatchScore(
-    worker: any,
+    worker: WorkerProfile,
     criteria: JobMatchCriteria,
     completedCount: number
 ): MatchScore {
@@ -71,7 +100,7 @@ function calculateMatchScore(
 
     // Find matching language skill
     const matchingSkill = worker.language_skills?.find(
-        (s: any) => s.language === criteria.required_language
+        (s) => s.language === criteria.required_language
     );
 
     if (matchingSkill) {
@@ -118,8 +147,8 @@ function calculateMatchScore(
  * Requirements: 90+ reliability, verified language, 3+ completed jobs
  */
 function canInstantBook(
-    worker: any,
-    matchingSkill: any,
+    worker: WorkerProfile,
+    matchingSkill: LanguageSkillRecord | undefined,
     completedCount: number
 ): boolean {
     return (
@@ -158,12 +187,12 @@ export async function getRecommendedWorkers(
         }
 
         // Filter workers who have the required language
-        const filtered = workers.filter((w: any) =>
-            w.language_skills?.some((s: any) => s.language === criteria.required_language)
+        const filtered = (workers as WorkerProfile[]).filter((w) =>
+            w.language_skills?.some((s) => s.language === criteria.required_language)
         );
 
         // Get completed jobs count for each worker
-        const workerIds = filtered.map((w: any) => w.id);
+        const workerIds = filtered.map((w) => w.id);
         const { data: completedCounts } = await supabase
             .from('job_applications')
             .select('worker_id')
@@ -171,7 +200,7 @@ export async function getRecommendedWorkers(
             .eq('status', 'completed');
 
         const countMap = new Map<string, number>();
-        completedCounts?.forEach((c: any) => {
+        (completedCounts as JobApplicationRecord[] | null)?.forEach((c) => {
             countMap.set(c.worker_id, (countMap.get(c.worker_id) || 0) + 1);
         });
 
@@ -181,17 +210,17 @@ export async function getRecommendedWorkers(
             .select('worker_id')
             .eq('job_id', criteria.job_id);
 
-        const appliedSet = new Set(existingApps?.map((a: any) => a.worker_id) || []);
+        const appliedSet = new Set((existingApps as JobApplicationRecord[] | null)?.map((a) => a.worker_id) || []);
 
         // Score and rank workers
         const recommendations: RecommendedWorker[] = filtered
-            .filter((w: any) => !appliedSet.has(w.id)) // Exclude already applied
-            .map((worker: any) => {
+            .filter((w) => !appliedSet.has(w.id)) // Exclude already applied
+            .map((worker) => {
                 const completedCount = countMap.get(worker.id) || 0;
                 const matchScore = calculateMatchScore(worker, criteria, completedCount);
 
                 const matchingSkill = worker.language_skills?.find(
-                    (s: any) => s.language === criteria.required_language
+                    (s) => s.language === criteria.required_language
                 );
 
                 return {

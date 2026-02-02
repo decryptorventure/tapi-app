@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import {
-    Loader2,
     User,
     Languages,
     Shield,
@@ -33,6 +32,7 @@ import { WorkExperienceForm } from '@/components/profile/work-experience-form';
 import { useTranslation } from '@/lib/i18n';
 import { format } from 'date-fns';
 import { vi, enUS } from 'date-fns/locale';
+import { PageLoader } from '@/components/shared/page-loader';
 
 interface LanguageSkill {
     //...
@@ -179,8 +179,7 @@ export default function WorkerProfilePage() {
             const missingItems = completionChecks.filter(c => !c.condition);
 
             setProfileCompletion({ percentage, missingItems });
-        } catch (error: any) {
-            console.error('Fetch error:', error);
+        } catch (error: unknown) {
             toast.error(t('common.error') || 'Lỗi tải thông tin');
         } finally {
             setLoading(false);
@@ -258,7 +257,6 @@ export default function WorkerProfilePage() {
             });
 
         if (error) {
-            console.error('Save work experience error:', error);
             toast.error(locale === 'vi' ? 'Lỗi lưu kinh nghiệm' : 'Error saving experience');
             return;
         }
@@ -277,7 +275,6 @@ export default function WorkerProfilePage() {
             .eq('id', id);
 
         if (error) {
-            console.error('Delete work experience error:', error);
             toast.error(locale === 'vi' ? 'Lỗi xóa kinh nghiệm' : 'Error deleting experience');
             return;
         }
@@ -287,11 +284,7 @@ export default function WorkerProfilePage() {
     };
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-        );
+        return <PageLoader />;
     }
 
     if (!profile) {

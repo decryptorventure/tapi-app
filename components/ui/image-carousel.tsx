@@ -11,6 +11,9 @@ interface ImageCarouselProps {
 
 export function ImageCarousel({ images, alt, className = '' }: ImageCarouselProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
+    // Touch handlers for swipe - must be declared before any conditional returns
+    const [touchStart, setTouchStart] = useState(0);
+    const [touchEnd, setTouchEnd] = useState(0);
 
     if (!images || images.length === 0) return null;
 
@@ -21,10 +24,6 @@ export function ImageCarousel({ images, alt, className = '' }: ImageCarouselProp
     const goToNext = () => {
         setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
     };
-
-    // Touch handlers for swipe
-    const [touchStart, setTouchStart] = useState(0);
-    const [touchEnd, setTouchEnd] = useState(0);
 
     const handleTouchStart = (e: React.TouchEvent) => {
         setTouchStart(e.targetTouches[0].clientX);
@@ -94,8 +93,8 @@ export function ImageCarousel({ images, alt, className = '' }: ImageCarouselProp
                                     setCurrentIndex(index);
                                 }}
                                 className={`w-2 h-2 rounded-full transition-all ${index === currentIndex
-                                        ? 'bg-white w-4'
-                                        : 'bg-white/50'
+                                    ? 'bg-white w-4'
+                                    : 'bg-white/50'
                                     }`}
                                 aria-label={`Go to image ${index + 1}`}
                             />

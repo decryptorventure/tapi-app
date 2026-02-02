@@ -318,7 +318,7 @@ export default function GuidePage() {
                             <li>Vào <strong>Dashboard</strong> → <strong>Đăng tin mới</strong></li>
                             <li>Điền thông tin:
                                 <ul className="list-disc list-inside ml-4 mt-1">
-                                    <li><strong>Tiêu đề:</strong> VD: "Nhân viên phục vụ ca tối"</li>
+                                    <li><strong>Tiêu đề:</strong> VD: &quot;Nhân viên phục vụ ca tối&quot;</li>
                                     <li><strong>Ngày làm việc:</strong> Chọn ngày</li>
                                     <li><strong>Giờ bắt đầu - kết thúc:</strong> VD: 17:00 - 22:00</li>
                                     <li><strong>Lương theo giờ:</strong> VD: 35,000 VND</li>

@@ -150,7 +150,7 @@ export function PWAInstallPrompt() {
                             <div>
                                 <p className="font-medium text-foreground">Thêm vào Màn hình chính</p>
                                 <p className="text-sm text-muted-foreground">
-                                    Cuộn xuống và chọn <Plus className="w-4 h-4 inline text-primary" /> "Thêm vào MH chính"
+                                    Cuộn xuống và chọn <Plus className="w-4 h-4 inline text-primary" /> &quot;Thêm vào MH chính&quot;
                                 </p>
                             </div>
                         </div>
@@ -162,7 +162,7 @@ export function PWAInstallPrompt() {
                             <div>
                                 <p className="font-medium text-foreground">Xác nhận cài đặt</p>
                                 <p className="text-sm text-muted-foreground">
-                                    Nhấn "Thêm" ở góc trên bên phải
+                                    Nhấn &quot;Thêm&quot; ở góc trên bên phải
                                 </p>
                             </div>
                         </div>
