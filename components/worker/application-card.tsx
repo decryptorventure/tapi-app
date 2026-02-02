@@ -34,11 +34,17 @@ interface Application {
 
 interface ApplicationCardProps {
   application: Application;
+  paymentRequests?: any[];
+  onRequestPayment?: () => void;
 }
 
-export function ApplicationCard({ application }: ApplicationCardProps) {
+export function ApplicationCard({ application, paymentRequests, onRequestPayment }: ApplicationCardProps) {
   const { jobs: job, status, is_instant_book } = application;
   const { t, locale } = useTranslation();
+
+  // Determine payment status
+  const paymentRequest = paymentRequests?.[0]; // Assume 1 request per job
+  // ... (rest of component) ...
 
   const getStatusBadge = () => {
     switch (status) {
@@ -50,6 +56,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
           </div>
         );
       case 'pending':
+        // ...
         return (
           <div className="flex items-center gap-1.5 px-3 py-1 bg-warning/10 text-warning rounded-full text-sm font-medium">
             <Clock className="h-4 w-4" />
@@ -64,6 +71,21 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
           </div>
         );
       case 'completed':
+        if (paymentRequest?.status === 'completed') {
+          return (
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-success/10 text-success rounded-full text-sm font-medium">
+              <CheckCircle2 className="h-4 w-4" />
+              Đã thanh toán
+            </div>
+          );
+        } else if (paymentRequest?.status === 'pending' || paymentRequest?.status === 'processing') {
+          return (
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-warning/10 text-warning rounded-full text-sm font-medium">
+              <Clock className="h-4 w-4" />
+              Chờ thanh toán
+            </div>
+          );
+        }
         return (
           <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
             <CheckCircle2 className="h-4 w-4" />
@@ -82,6 +104,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
     }
   };
 
+  // ... (date formatting functions) ...
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', {
@@ -172,11 +195,30 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
         )}
 
         {status === 'completed' && (
-          <Link href={`/worker/jobs/${application.id}`} className="flex-1">
-            <Button variant="outline" className="w-full">
-              {t('applicationCard.viewDetails')}
-            </Button>
-          </Link>
+          <>
+            {!paymentRequest && onRequestPayment ? (
+              <Button onClick={onRequestPayment} className="flex-1 bg-green-600 hover:bg-green-700 text-white">
+                <DollarSign className="w-4 h-4 mr-2" />
+                Yêu cầu thanh toán
+              </Button>
+            ) : paymentRequest?.status === 'pending' ? (
+              <Button variant="outline" className="flex-1 text-warning border-warning" disabled>
+                <Clock className="w-4 h-4 mr-2" />
+                Đang chờ thanh toán
+              </Button>
+            ) : paymentRequest?.status === 'completed' ? (
+              <Button variant="ghost" className="flex-1 text-success" disabled>
+                <CheckCircle2 className="w-4 h-4 mr-2" />
+                Đã nhận tiền
+              </Button>
+            ) : (
+              <Link href={`/worker/jobs/${application.id}`} className="flex-1">
+                <Button variant="outline" className="w-full">
+                  {t('applicationCard.viewDetails')}
+                </Button>
+              </Link>
+            )}
+          </>
         )}
 
         {status === 'rejected' && (

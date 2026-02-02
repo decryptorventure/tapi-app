@@ -128,6 +128,71 @@ export const WithdrawalService = {
     },
 
     /**
+     * Create a new payment request for specific job (manual payment MVP)
+     */
+    async createJobPaymentRequest(
+        userId: string,
+        input: CreateWithdrawalInput,
+        context: {
+            ownerId: string;
+            jobId: string;
+            applicationId: string;
+        }
+    ): Promise<{
+        success: boolean;
+        request?: WithdrawalRequest;
+        error?: string;
+    }> {
+        const supabase = createUntypedClient();
+
+        try {
+            // Check for existing pending request for this application
+            const { data: existing } = await supabase
+                .from('withdrawal_requests')
+                .select('id, status')
+                .eq('application_id', context.applicationId)
+                .neq('status', 'rejected') // Allow re-request if rejected
+                .single();
+
+            if (existing) {
+                return {
+                    success: false,
+                    error: `Đã có yêu cầu thanh toán cho job này (${existing.status === 'completed' ? 'Đã thanh toán' : 'Đang chờ'})`
+                };
+            }
+
+            // Create request linked to owner
+            const { data, error } = await supabase
+                .from('withdrawal_requests')
+                .insert({
+                    user_id: userId,
+                    owner_id: context.ownerId,
+                    job_id: context.jobId,
+                    application_id: context.applicationId,
+                    amount_vnd: input.amount_vnd,
+                    payment_method: input.payment_method,
+                    payment_info: input.payment_info,
+                    status: 'pending'
+                })
+                .select()
+                .single();
+
+            if (error) throw error;
+
+            return {
+                success: true,
+                request: data
+            };
+        } catch (error: any) {
+            console.error('Create job payment request error:', error);
+            return {
+                success: false,
+                error: error.message || 'Có lỗi xảy ra'
+            };
+        }
+    },
+
+    /**
      * Get user's withdrawal history
      */
     async getUserRequests(userId: string): Promise<WithdrawalRequest[]> {
