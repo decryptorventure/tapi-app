@@ -218,6 +218,19 @@ export default function WorkerScanQRPage() {
             throw new Error('Lỗi ghi nhận check-in');
         }
 
+        // Update application status on check-out
+        if (checkinType === 'checkout') {
+            const { error: updateError } = await supabase
+                .from('job_applications')
+                .update({ status: 'completed' })
+                .eq('id', application.id);
+
+            if (updateError) {
+                console.error('Failed to update application status:', updateError);
+                // Continue despite error to not block user
+            }
+        }
+
         // Success
         setResult({
             success: true,

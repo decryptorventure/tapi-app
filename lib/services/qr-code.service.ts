@@ -127,21 +127,59 @@ export class QRCodeService {
     try {
       const qrData = JSON.parse(qrString);
 
-      // Check version (new flow uses version 2)
-      if (qrData.version !== 2) {
-        return { valid: false, error: 'QR code phiên bản cũ, vui lòng liên hệ quản lý', errorCode: 'INVALID_FORMAT' };
-      }
-
+      // Check signature first
       const { signature, version, ...data } = qrData;
 
-      // Verify signature
-      const expectedSignature = this.generateJobQRSignature(data);
-      if (signature !== expectedSignature) {
-        return { valid: false, error: 'Mã QR không hợp lệ', errorCode: 'INVALID_SIGNATURE' };
+      // Try validating with current signature logic (V2)
+      let isValidSignature = false;
+      try {
+        const expectedSignature = this.generateJobQRSignature(data as any);
+        if (signature === expectedSignature) {
+          isValidSignature = true;
+        }
+      } catch (e) { }
+
+      // If V2 signature fail, try legacy signature logic (if available)
+      if (!isValidSignature) {
+        try {
+          const legacySignature = this.generateLegacySignature(data);
+          if (signature === legacySignature) {
+            isValidSignature = true;
+          }
+        } catch (e) { }
       }
 
-      // Verify secret key if provided
-      if (expectedSecretKey && data.secret_key !== expectedSecretKey) {
+      if (!isValidSignature) {
+        return { valid: false, error: 'Mã QR không hợp lệ hoặc đã bị thay đổi', errorCode: 'INVALID_SIGNATURE' };
+      }
+
+      // Check mandatory fields
+      if (!data.job_id || !data.owner_id) {
+        // Fallback verify for legacy QR which might have differnt field names
+        // Legacy check: application_id, worker_id, job_id, expires_at
+        if (data.job_id && (data.worker_id || data.application_id)) {
+          // Legacy QR is for specific worker/application, but NEW FLOW requires Generic Job QR.
+          // Ensure this QR is NOT used for Check-in if it's a Worker QR.
+          // Wait: Original issue was Worker QR page generated codes.
+          // If worker scans an OLD Worker QR, it should fail because it's not an Owner QR.
+          // But if worker scans an OLD Owner QR (if any existed?), we accept.
+
+          // However, previous code generated QR with `job_id` and `owner_id`.
+          // If legacy QR has these, we accept.
+        }
+
+        if (!data.job_id) {
+          return { valid: false, error: 'Dữ liệu QR không đầy đủ', errorCode: 'INVALID_FORMAT' };
+        }
+        // If no owner_id but has job_id, we might accept but warning?
+        // For now, require both as generateJobQR always adds them.
+        if (!data.owner_id) {
+          return { valid: false, error: 'QR thiếu thông tin chủ sở hữu', errorCode: 'INVALID_FORMAT' };
+        }
+      }
+
+      // Verify secret key if provided (V2 feature)
+      if (expectedSecretKey && data.secret_key && data.secret_key !== expectedSecretKey) {
         return { valid: false, error: 'Mã QR không khớp với job', errorCode: 'INVALID_SIGNATURE' };
       }
 
