@@ -40,7 +40,8 @@ export default function MyJobsPage() {
 
       let statusFilter: string[];
       if (activeTab === 'upcoming') {
-        statusFilter = ['approved'];
+        // Include both approved and working (currently on shift)
+        statusFilter = ['approved', 'working'];
       } else if (activeTab === 'pending') {
         statusFilter = ['pending'];
       } else {
@@ -84,7 +85,7 @@ export default function MyJobsPage() {
       value: 'upcoming' as TabType,
       label: t('myJobs.upcoming'),
       icon: Briefcase,
-      count: applications?.filter(app => app.status === 'approved').length || 0,
+      count: applications?.filter(app => app.status === 'approved' || app.status === 'working').length || 0,
     },
     {
       value: 'pending' as TabType,

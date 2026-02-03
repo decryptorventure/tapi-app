@@ -9,7 +9,7 @@ export type LanguageLevel =
   | 'a1' | 'a2' | 'b1' | 'b2' | 'c1' | 'c2';
 export type VerificationStatus = 'pending' | 'verified' | 'rejected';
 export type JobStatus = 'open' | 'filled' | 'completed' | 'cancelled';
-export type ApplicationStatus = 'pending' | 'approved' | 'rejected' | 'completed' | 'no_show';
+export type ApplicationStatus = 'pending' | 'approved' | 'working' | 'rejected' | 'completed' | 'no_show';
 export type CheckinType = 'check_in' | 'check_out';
 
 export interface Profile {

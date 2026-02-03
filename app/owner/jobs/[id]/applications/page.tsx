@@ -349,7 +349,7 @@ export default function JobApplicationsPage() {
     }
 
     const pendingApps = applications.filter(a => a.status === 'pending');
-    const approvedApps = applications.filter(a => a.status === 'approved');
+    const approvedApps = applications.filter(a => a.status === 'approved' || a.status === 'working');
     const rejectedApps = applications.filter(a => a.status === 'rejected');
 
     return (

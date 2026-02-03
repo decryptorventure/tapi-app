@@ -25,7 +25,7 @@ interface Job {
 
 interface Application {
   id: string;
-  status: 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled';
+  status: 'pending' | 'approved' | 'working' | 'rejected' | 'completed' | 'cancelled';
   created_at: string;
   is_instant_book?: boolean;
   checkin_qr_code?: string;
@@ -53,6 +53,13 @@ export function ApplicationCard({ application, paymentRequests, onRequestPayment
           <div className="flex items-center gap-1.5 px-3 py-1 bg-success/10 text-success rounded-full text-sm font-medium">
             <CheckCircle2 className="h-4 w-4" />
             {t('applicationCard.approved')}
+          </div>
+        );
+      case 'working':
+        return (
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+            <Clock className="h-4 w-4" />
+            Đang làm
           </div>
         );
       case 'pending':
