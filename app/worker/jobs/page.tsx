@@ -12,6 +12,7 @@ import { useTranslation } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { WithdrawalService, PaymentMethod } from '@/lib/services/withdrawal.service';
+import { ActiveJobCard } from '@/components/worker/active-job-card';
 
 type TabType = 'upcoming' | 'pending' | 'completed';
 
@@ -70,13 +71,27 @@ export default function MyJobsPage() {
             id, 
             status, 
             created_at
+          ),
+          checkins (
+            id,
+            type,
+            checkin_time
           )
         `)
         .eq('worker_id', user.id)
         .in('status', statusFilter)
         .order('created_at', { ascending: false });
 
-      return data || [];
+      // Merge checkin_time into application for ActiveJobCard
+      const appsWithCheckin = (data || []).map((app: any) => {
+        const lastCheckin = app.checkins?.find((c: any) => c.type === 'checkin');
+        return {
+          ...app,
+          checkin_time: lastCheckin?.checkin_time || null,
+        };
+      });
+
+      return appsWithCheckin;
     },
   });
 
@@ -243,6 +258,21 @@ export default function MyJobsPage() {
             );
           })}
         </div>
+
+        {/* Active Jobs Section - Show jobs with 'working' status prominently */}
+        {activeTab === 'upcoming' && applications && applications.filter((app: any) => app.status === 'working').length > 0 && (
+          <div className="mb-6 space-y-4">
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              Ca đang làm
+            </h2>
+            {applications
+              .filter((app: any) => app.status === 'working')
+              .map((app: any) => (
+                <ActiveJobCard key={app.id} application={app} />
+              ))}
+          </div>
+        )}
 
         {/* Applications List */}
         {isLoading ? (
