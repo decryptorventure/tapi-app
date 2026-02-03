@@ -103,6 +103,12 @@ export const CheckinService = {
                 .update({ scanned_at: new Date().toISOString() })
                 .eq('id', checkin.id);
 
+            // Update application status to 'working' (Timee flow)
+            await supabase
+                .from('job_applications')
+                .update({ status: 'working' })
+                .eq('id', data.applicationId);
+
             // Update reliability score based on punctuality
             if (isLate && minutesLate > 30) {
                 // Late more than 30 minutes - deduct 2 points
@@ -147,6 +153,18 @@ export const CheckinService = {
                 return { success: false, message: 'Chưa check-in' };
             }
 
+            // Check if already checked out
+            const { data: existingCheckout } = await supabase
+                .from('checkins')
+                .select('id')
+                .eq('application_id', data.applicationId)
+                .eq('checkin_type', 'check_out')
+                .single();
+
+            if (existingCheckout) {
+                return { success: false, message: 'Đã check-out trước đó' };
+            }
+
             // Get job details for pay calculation
             const { data: job } = await supabase
                 .from('jobs')
@@ -177,18 +195,16 @@ export const CheckinService = {
                 return { success: false, message: 'Lỗi ghi nhận check-out' };
             }
 
-            // Update application status to completed
-            await supabase
-                .from('job_applications')
-                .update({ status: 'completed' })
-                .eq('id', data.applicationId);
+            // NOTE: Status remains 'working' until owner confirms (Timee flow)
+            // Owner will call WorkConfirmationService.confirmWork() to change to 'completed'
+            // This prevents auto-payment without owner verification
 
-            // Add reliability point for completion
-            await this.updateReliabilityScore(data.workerId, 1, 'job_completed');
+            // Add reliability point for completing shift
+            await this.updateReliabilityScore(data.workerId, 1, 'shift_completed');
 
             return {
                 success: true,
-                message: 'Check-out thành công',
+                message: 'Check-out thành công. Chờ xác nhận từ chủ nhà hàng.',
                 hoursWorked: Math.round(hoursWorked * 10) / 10,
                 totalPay,
             };
