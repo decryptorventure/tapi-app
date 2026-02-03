@@ -35,6 +35,10 @@ interface ApplicationWithWorker extends JobApplication {
         level: string;
         verification_status: string;
     }[];
+    last_checkin?: {
+        type: 'checkin' | 'checkout';
+        checkin_time: string;
+    };
 }
 
 import { WorkerProfileModal } from '@/components/owner/worker-profile-modal';
@@ -126,12 +130,25 @@ export default function JobApplicationsPage() {
                     .select('*')
                     .in('worker_id', workerIds);
 
-                // Combine data
-                const appsWithWorkers = apps.map(app => ({
-                    ...app,
-                    worker: workers?.find(w => w.id === app.worker_id) || {} as Profile,
-                    language_skills: skills?.filter(s => s.worker_id === app.worker_id) || [],
-                }));
+                // Fetch checkins for check-in time display
+                const appIds = apps.map(a => a.id);
+                const { data: checkins } = await supabase
+                    .from('checkins')
+                    .select('application_id, type, checkin_time')
+                    .in('application_id', appIds)
+                    .order('checkin_time', { ascending: false });
+
+                // Combine data with checkin info
+                const appsWithWorkers = apps.map(app => {
+                    // Find the most recent checkin for this application
+                    const lastCheckin = checkins?.find(c => c.application_id === app.id);
+                    return {
+                        ...app,
+                        worker: workers?.find(w => w.id === app.worker_id) || {} as Profile,
+                        language_skills: skills?.filter(s => s.worker_id === app.worker_id) || [],
+                        last_checkin: lastCheckin,
+                    };
+                });
 
                 setApplications(appsWithWorkers);
             }
@@ -235,14 +252,15 @@ export default function JobApplicationsPage() {
                     .update({ reliability_score: newScore })
                     .eq('id', workerId);
 
-                // Log to reliability_history
+                // Log to reliability_history with correct column names
                 await supabase
                     .from('reliability_history')
                     .insert({
-                        worker_id: workerId,
+                        user_id: workerId,
                         score_change: 1,
-                        reason: 'job_completed',
+                        previous_score: profile.reliability_score,
                         new_score: newScore,
+                        reason: 'job_completed',
                     });
             }
 
@@ -307,6 +325,11 @@ export default function JobApplicationsPage() {
             return <span className="px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary inline-flex items-center gap-1">
                 <Check className="w-3 h-3" />
                 Hoàn thành
+            </span>;
+        } else if (status === 'working') {
+            return <span className="px-3 py-1 text-xs font-semibold rounded-full bg-blue-50 text-blue-700 inline-flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                Đang làm
             </span>;
         } else if (status === 'no_show') {
             return <span className="px-3 py-1 text-xs font-semibold rounded-full bg-destructive/10 text-destructive inline-flex items-center gap-1">
@@ -486,6 +509,16 @@ export default function JobApplicationsPage() {
                                                     Ứng tuyển {new Date(app.applied_at).toLocaleString('vi-VN')}
                                                 </span>
                                             </div>
+
+                                            {/* Check-in Time (if available) */}
+                                            {app.last_checkin && (
+                                                <div className="flex items-center gap-1.5 text-xs text-blue-600 mt-1">
+                                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                                    <span>
+                                                        {app.last_checkin.type === 'checkin' ? 'Check-in' : 'Check-out'}: {new Date(app.last_checkin.checkin_time).toLocaleString('vi-VN')}
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 
