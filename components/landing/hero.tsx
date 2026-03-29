@@ -88,7 +88,7 @@ export function Hero() {
                         <h1 className="mb-6 text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-foreground leading-[1.05]">
                             {locale === 'vi' ? (
                                 <>
-                                    Tìm việc nhà hàng<br />
+                                    TAPY - Tìm việc nhà hàng<br />
                                     <span className="text-cta">Chỉ trong 1 phút</span>
                                 </>
                             ) : (
