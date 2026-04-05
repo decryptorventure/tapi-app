@@ -204,7 +204,7 @@ export function ChatWindow({
             </div>
 
             {/* Desktop: Bottom-right popup */}
-            <div className="hidden md:flex fixed bottom-4 right-4 w-96 bg-background border border-border rounded-2xl shadow-2xl flex-col z-50 h-[600px] max-h-[85vh]">
+            <div style={{ zIndex: 51 }} className="hidden md:flex fixed bottom-4 right-4 w-96 bg-background border border-border rounded-2xl shadow-2xl flex-col z-50 h-[600px] max-h-[85vh]">
                 {/* Header */}
                 <div className="p-3 bg-primary text-primary-foreground rounded-t-2xl flex items-center justify-between shadow-sm">
                     <div className="flex items-center gap-2">
