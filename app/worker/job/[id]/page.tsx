@@ -20,7 +20,8 @@ import {
     Star,
     Users,
     Sparkles,
-    CheckCircle2
+    CheckCircle2,
+    Phone
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi, enUS } from 'date-fns/locale';
@@ -53,6 +54,7 @@ interface Job {
         avatar_url: string;
         restaurant_logo_url?: string;
         restaurant_cover_urls?: string[];
+        phone_number?: string;
     };
 }
 
@@ -93,7 +95,7 @@ export default function JobDetailPage() {
                 .from('jobs')
                 .select(`
                     *,
-                    owner:profiles!owner_id(restaurant_name, restaurant_address, avatar_url, restaurant_logo_url, restaurant_cover_urls)
+                    owner:profiles!owner_id(restaurant_name, restaurant_address, avatar_url, restaurant_logo_url, restaurant_cover_urls, phone_number)
                 `)
                 .eq('id', jobId)
                 .single();
@@ -314,6 +316,15 @@ export default function JobDetailPage() {
                         <div>
                             <h4 className="font-bold text-foreground">{job.owner?.restaurant_name}</h4>
                             <p className="text-xs text-muted-foreground">{t('jobs.trustedPartner')}</p>
+                            {job.owner?.phone_number && (
+                                <a
+                                    href={`tel:${job.owner.phone_number}`}
+                                    className="flex items-center gap-1 text-xs text-primary mt-1 hover:underline"
+                                >
+                                    <Phone className="w-3 h-3" />
+                                    {job.owner.phone_number}
+                                </a>
+                            )}
                         </div>
                     </div>
                     <ShieldCheck className="w-6 h-6 text-primary" />
