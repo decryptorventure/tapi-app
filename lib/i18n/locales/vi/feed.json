@@ -1,0 +1,21 @@
+{
+    "jobs": "Việc làm",
+    "filter": "Lọc",
+    "searchPlaceholder": "Tìm việc, nhà hàng...",
+    "language": "Ngôn ngữ",
+    "all": "Tất cả",
+    "japanese": "Tiếng Nhật",
+    "korean": "Tiếng Hàn",
+    "english": "Tiếng Anh",
+    "sortBy": "Sắp xếp",
+    "sortNewest": "Ngày đăng (Mới nhất)",
+    "sortHighestPay": "Lương (Cao nhất)",
+    "sortSoonest": "Ngày làm (Gần nhất)",
+    "minWage": "Mức lương tối thiểu",
+    "results": "Kết quả tìm kiếm",
+    "suggestions": "Gợi ý cho bạn",
+    "noResults": "Không tìm thấy việc làm phù hợp",
+    "noResultsDesc": "Hãy thử thay đổi từ khóa hoặc bộ lọc để tìm kiếm thêm cơ hội nhé!",
+    "clearFilters": "Xóa tất cả bộ lọc",
+    "jobCount": "công việc"
+}

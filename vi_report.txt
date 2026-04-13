@@ -1,0 +1,1169 @@
+--- Hardcoded Vietnamese in app/ ---
+
+app\(auth)\forgot-password\page.tsx:
+  - Nhập email của bạn để nhận link đặt lại mật khẩu
+  - ) : (
+                                    'Gửi link đặt lại mật khẩu'
+                                )}
+  - setSent(false)}
+                            >
+                                Gửi lại email
+  - để đặt lại mật khẩu.
+                            Link sẽ hết hạn sau 1 giờ.
+  - Email đã được gửi!
+  - Quay lại đăng nhập
+  - Vui lòng kiểm tra hộp thư
+  - Quên mật khẩu?
+  - Đang gửi...
+  - liên hệ hỗ trợ
+
+app\(auth)\login\page.tsx:
+  - Đăng ký ngay
+  - Đăng nhập thất bại
+  - Mật khẩu
+  - Đang đăng nhập...
+  - Email hoặc mật khẩu không đúng
+  - ) : (
+                            'Đăng nhập'
+                        )}
+  - Quên mật khẩu?
+  - Vui lòng xác nhận email trước khi đăng nhập
+
+app\(auth)\reset-password\page.tsx:
+  - Đăng nhập ngay
+  - Nhập mật khẩu mới cho tài khoản của bạn
+  - Đặt lại mật khẩu thành công!
+  - Xác nhận mật khẩu
+  - Bạn sẽ được chuyển đến trang đăng nhập...
+  - Đặt mật khẩu mới
+  - Tối thiểu 8 ký tự
+  - Mật khẩu mới
+  - Đang xử lý...
+  - ) : (
+                            'Đặt lại mật khẩu'
+                        )}
+
+app\(auth)\signup\page.tsx:
+  - ) : (
+              'Đăng ký'
+            )}
+  - Số điện thoại
+  - Mật khẩu
+  - Đăng nhập
+  - Nguyễn Văn A
+  - Tối thiểu 8 ký tự
+  - Đang xử lý...
+  - Họ và tên
+
+app\admin\page.tsx:
+  - Applications đã duyệt
+  - Tỷ lệ chuyển đổi từ ứng tuyển → hoàn thành
+  - Chủ nhà hàng đăng nhiều jobs nhất
+  - )}
+                    Làm mới
+  - Jobs hoàn thành
+  - Chưa có dữ liệu
+  - Tổng người dùng
+  - Cần xử lý để người dùng có thể hoạt động
+  - Tổng Jobs
+  - Tổng Applications
+  - Workers hoàn thành nhiều jobs nhất
+  - Jobs đang mở
+  - Tổng quan hệ thống và số liệu
+  - Xem tất cả
+  - Tăng trưởng 30 ngày
+  - Người dùng, jobs và applications mới
+  - Shifts hoàn thành
+
+app\admin\applications\page.tsx:
+  - (đang lọc theo job)
+  - Đã duyệt
+  - Tìm theo tên worker...
+  - Từ chối
+  - Bỏ lọc job
+  - Quản lý Applications
+  - Chờ duyệt
+  - Không tìm thấy đơn ứng tuyển nào
+  - Hoàn thành
+
+app\admin\jobs\page.tsx:
+  - Không tìm thấy job nào
+  - Đã đủ
+  - Xem và quản lý tất cả các job đã đăng
+  - Quản lý Jobs
+  - Đã hủy
+  - Đang mở
+  - Tìm theo tiêu đề...
+  - Hoàn thành
+
+app\admin\monitoring\page.tsx:
+  - API p95: &gt;1s → Cảnh báo
+  - Workers hoạt động
+  - Làm mới
+  - Instant Book: &lt;50% → Cảnh báo
+  - Ngưỡng cảnh báo
+  - Đơn ứng tuyển (7 ngày)
+  - Tỷ lệ No-show
+  - Chỉ số quan trọng
+  - Jobs đang mở
+  - Check-in thành công
+  - Check-in: &lt;80% → Cảnh báo
+  - No-show: &gt;10% → Cảnh báo
+  - Điểm reliability TB
+
+app\admin\users\page.tsx:
+  - Xem, chỉnh sửa và quản lý tài khoản người dùng
+  - Tìm theo tên, email, SĐT...
+  - Đã khóa
+  - Quản lý người dùng
+  - Không tìm thấy người dùng nào
+
+app\admin\users\[id]\page.tsx:
+  - Điểm tin cậy
+  - Trạng thái xác minh
+  - Danh tính
+  - Thông tin thêm
+  - Hoàn thành
+  - }
+                                Lưu
+  - Đơn ứng tuyển
+  - setIsEditing(true)}>
+                            Chỉnh sửa
+  - Ngôn ngữ
+  - Tài khoản đang bị khóa
+  - Tên nhà hàng
+  - setIsEditing(false)}>
+                                Hủy
+  - Quay lại
+  - Ngày sinh
+  - )}
+                        Xóa người dùng
+  - Địa chỉ
+  - Giấy phép
+  - Chi tiết người dùng
+  - Nhập tên trường
+  - Loại ẩm thực
+  - Hành động
+  - Trường học
+  - )}
+                        Reset mật khẩu
+
+app\admin\verifications\page.tsx:
+  - Không có yêu cầu chờ duyệt
+  - Tất cả đã được xử lý!
+
+app\admin\verifications\[id]\page.tsx:
+  - Duyệt
+  - Đã duyệt
+  - Giấy phép kinh doanh
+  - Mặt trước
+  - Mặt sau
+  - Từ chối
+  - Xác minh danh tính
+  - Chờ duyệt
+  - Chứng chỉ ngôn ngữ
+  - Chi tiết xác minh
+
+app\admin\withdrawals\page.tsx:
+  - Chi tiết Yêu cầu
+  - Quản lý Rút tiền
+  - Người yêu cầu
+  - Ghi chú admin
+  - Đã chuyển
+  - Số tiền
+  - Ghi chú (tùy chọn)
+  - Làm mới
+  - Chủ TK:
+  - )}
+                                        Đã chuyển tiền
+  - Ngân hàng:
+  - Chờ duyệt
+  - Số TK:
+  - Đang xử lý
+  - Ghi chú nội bộ...
+  - Không có yêu cầu nào
+  - Xử lý yêu cầu rút tiền từ Worker
+  - Đã chuyển hôm nay
+  - Từ chối
+  - )}
+                                        Bắt đầu xử lý
+
+app\faq\page.tsx:
+  - Email hỗ trợ
+  - Vẫn cần hỗ trợ?
+  - Liên hệ đội ngũ hỗ trợ của chúng tôi
+  - Trạng thái hệ thống
+  - Tìm câu trả lời cho các thắc mắc phổ biến về Tapy
+  - Tìm kiếm câu hỏi...
+  - Không tìm thấy câu hỏi phù hợp
+  - Câu hỏi thường gặp
+
+app\guide\page.tsx:
+  - Khi worker đến
+  - &quot;Tìm việc&quot;
+  - 1h trước - 15&apos; sau ca bắt đầu
+  - Worker sẽ bị:
+  - Bạn nhận được thông báo check-in thành công
+  - Đóng băng tài khoản 7 ngày
+  - Không phạt
+  - Trình độ ngôn ngữ
+  - Số lượng cần:
+  - - Để nhận thanh toán
+  - Đăng tin
+  - Đơn ứng tuyển
+  - VD: &quot;Nhân viên phục vụ ca tối&quot;
+  - Thời gian ca làm
+  - ✓ Chấp nhận
+  - Truy cập
+  - Tiêu đề:
+  - Ngôn ngữ yêu cầu (VD: Tiếng Nhật N4)
+  - và
+  - Nhấn
+  - Trễ trên 30 phút
+  - Worker đủ điều kiện (chứng chỉ verified, điểm reliability đạt yêu cầu)
+                            sẽ được
+  - Thêm kỹ năng ngôn ngữ
+  - Điền thông tin:
+  - Hướng camera vào mã QR của worker
+  - Điền địa chỉ đầy đủ
+  - Đánh dấu vắng mặt
+  - Ghi nhận thời gian check-in
+  - Lương theo giờ:
+  - Mở app →
+  - Tại nhà hàng
+  - Trạng thái hệ thống
+  - Xác nhận danh tính worker
+  - Hồ sơ càng đầy đủ, bạn càng có nhiều cơ hội được nhận việc ngay (Instant Book)!
+  - Đảm bảo có đủ ánh sáng và camera hoạt động. Nếu vẫn lỗi,
+                            liên hệ hỗ trợ để check-in thủ công.
+  - nếu bạn đủ điều kiện Instant Book
+  - trình độ tối thiểu
+  - Nếu chưa đủ điều kiện Instant Book, nhấn
+  - Vào tab
+  - -20 điểm + đóng băng 7 ngày
+  - Nếu bạn đủ điều kiện, nhấn
+  - Đăng tin mới
+  - trên trang chủ
+  - Giờ bắt đầu - kết thúc:
+  - Chọn ca làm đã được duyệt
+  - Hệ thống tự động:
+  - -5 điểm
+  - Tìm câu trả lời cho các thắc mắc phổ biến
+  - Worker được thông báo và có thể tìm job khác
+  - Xác nhận qua mã OTP gửi về email
+  - Thời gian:
+  - Tìm hiểu cách sử dụng Tapy để tìm việc hoặc tuyển dụng nhân viên
+  - để xem danh sách công việc đang tuyển.
+                            Mỗi card hiển thị:
+  - yêu cầu ngôn ngữ
+  - Tìm việc
+  - Lọc & Tìm kiếm
+  - Điểm Reliability
+  - 2. Hoàn thiện hồ sơ
+  - Nếu worker không đến ca làm đã được duyệt:
+  - Thêm mô tả ngắn về nhà hàng
+  - VD: 3 người
+  - Ngày làm việc:
+  - Thời điểm hủy
+  - để được
+                                duyệt tự động và nhận QR code ngay lập tức!
+  - Mức lương theo giờ
+  - Câu hỏi thường gặp
+  - 💡 Không quét được QR?
+  - Tuyển dụng
+  - Phạt
+  - Worker nhận QR code và có thể check-in vào ca làm
+  - Lọc theo Nhật/Hàn/Anh
+  - và chờ chủ nhà hàng duyệt.
+  - Chọn trình độ: JLPT N1-N5, TOPIK 1-6, CEFR A1-C2
+  - Khu vực:
+  - Trừ 20 điểm reliability
+  - Trạng thái xác minh
+  - Nhập email, số điện thoại và tạo mật khẩu
+  - Ngôn ngữ:
+  - Liên hệ hỗ trợ
+  - Thông tin ngân hàng
+  - Nếu bạn có việc bận, hãy hủy đơn sớm để tránh bị trừ điểm!
+  - Vắng mặt (No-show)
+  - Hướng dẫn sử dụng Tapy
+  - ✕ Từ chối
+  - ảnh nhà hàng
+  - Lưu ý:
+  - Trước 6 giờ so với ca
+  - &quot;Nhận ngay&quot;
+  - Hệ thống tự động ghi nhận thời gian
+  - Xem danh sách ứng viên
+  - Xác nhận qua mã OTP
+  - 💡 Mẹo check-in
+  - Chỉ đánh dấu vắng mặt khi worker thực sự không đến.
+                            Hệ thống sẽ học và giảm ưu tiên cho các worker hay vắng mặt.
+  - Upload ảnh chứng chỉ để xác minh
+  - Sau 15 phút ca bắt đầu
+  - Mẹo:
+  - Check-in đúng giờ
+  - Cập nhật điểm reliability
+  - Hiển thị QR
+  - Đến sớm 5-10 phút để đảm bảo check-in đúng giờ
+  - Upload ảnh đại diện
+  - mà không cần bạn xác nhận thủ công.
+                            Tiết kiệm thời gian và đảm bảo chất lượng!
+  - Kiểm tra tình trạng các dịch vụ
+  - → Chọn job đã đăng
+  - 2. Thiết lập hồ sơ nhà hàng
+  - Tên nhà hàng và ảnh
+  - Chọn ngày
+  - - Ảnh rõ mặt, chuyên nghiệp
+  - Đảm bảo điện thoại có internet ổn định
+  - 6h - 1h trước ca
+  - tự động duyệt
+  - Ca làm của tôi
+  - Ca sáng/chiều/tối
+  - Điểm
+  - 1. Đăng ký tài khoản
+  - Việc làm
+  - Tăng độ sáng màn hình để QR hiển thị rõ
+  - Instant Book là gì?
+  - Đánh giá đúng giờ hay trễ
+  - Quét QR
+  - &quot;Tuyển dụng&quot;
+  - Chọn ngôn ngữ: Nhật, Hàn, hoặc Anh
+  - Hoàn thành ca làm
+  - Vào job → ứng viên đã duyệt
+  - Tên và ảnh worker
+  - thể hiện độ tin cậy của bạn với nhà hàng.
+                        Điểm càng cao, bạn càng có nhiều cơ hội Instant Book và được ưu tiên.
+  - Mỗi đơn hiển thị:
+  - -15 điểm
+  - Mở app → vào
+  - &quot;Gửi đơn&quot;
+  - Nếu bị đóng băng, bạn không thể ứng tuyển việc trong 7 ngày!
+  - hoặc cài đặt ứng dụng
+  - Nhập email, số điện thoại, tên nhà hàng
+  - Vào
+  - để xem mã QR của bạn
+  - Liên kết Google Maps (nếu có)
+  - Duyệt Job Feed
+  - Trước ca làm
+  - Chọn
+  - Hành động
+  - Trễ 15-30 phút
+  - Lọc theo quận/huyện
+  - -20 + đóng băng 7 ngày
+  - Tạo Job mới
+  - Về trang chủ
+  - Đưa QR code cho quản lý quét
+
+app\onboarding\owner\location\page.tsx:
+  - Địa chỉ chi tiết
+  - setAddress(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                                    placeholder="Nhập số nhà, tên đường, quận/huyện..."
+                                />
+  - Xác định vị trí chính xác để ứng viên dễ dàng tìm đến
+  - Đang lưu...
+  - Nhập số nhà, tên đường, quận/huyện...
+  - Thông tin vị trí
+  - router.push('/onboarding/owner/profile')}
+                                className="flex-1"
+                            >
+                                Quay lại
+  - ) : (
+                                    'Hoàn tất & Tiếp tục'
+                                )}
+  - Vui lòng nhập địa chỉ chính xác của nhà hàng. Thông tin này sẽ giúp nhân viên tìm thấy bạn dễ dàng hơn.
+  - Vị trí nhà hàng
+  - Bước 2/3
+
+app\onboarding\owner\profile\page.tsx:
+  - Giấy phép kinh doanh sẽ được xác minh trong 24-48 giờ.
+                                Bạn vẫn có thể đăng tin tuyển dụng trong thời gian chờ xác minh.
+  - ) : (
+                                'Lưu và tiếp tục'
+                            )}
+  - Điền thông tin để đăng tuyển nhân viên
+  - router.push('/owner/dashboard')}
+                            className="flex-1"
+                        >
+                            Bỏ qua - hoàn thiện sau
+  - Địa chỉ nhà hàng
+  - Thông tin Nhà hàng
+  - Số nhà, đường, phường/xã, quận/huyện, TP.HCM
+  - Ảnh bìa nhà hàng
+  - Giấy phép kinh doanh
+  - Email liên hệ
+  - 🍔 Âu Mỹ
+  - Số điện thoại liên hệ
+  - 🇻🇳 Việt Nam
+  - Lưu ý:
+  - Ảnh vuông, tối đa 5MB
+  - Tên nhà hàng
+  - 🇰🇷 Hàn Quốc
+  - Ảnh giấy phép kinh doanh (tùy chọn)
+  - Đang lưu...
+  - Chọn loại ẩm thực
+  - 🇯🇵 Nhật Bản
+  - Tải lên ảnh hoặc bản scan rõ ràng
+  - Logo nhà hàng
+  - Loại ẩm thực
+  - Số giấy phép kinh doanh
+  - Khổ ngang, tối đa 5MB
+
+app\onboarding\owner\review\page.tsx:
+  - Bước 3/3
+  - Xác nhận thông tin
+  - Địa chỉ & Vị trí
+  - Tọa độ chính xác
+  - Bằng cách nhấp vào &quot;Hoàn tất&quot;, bạn xác nhận rằng mình có thẩm quyền đại diện cho nhà hàng và cam kết các thông tin cung cấp là đúng sự thật.
+  - router.push('/onboarding/owner/location')}
+                            className="flex-1"
+                        >
+                            Quay lại
+  - Hoàn tất & Bắt đầu
+  - Sửa
+  - Kiểm tra lại lần cuối trước khi đăng tin tuyển dụng
+  - Thông tin nhà hàng
+
+app\onboarding\worker\languages\page.tsx:
+  - Chứng chỉ (không bắt buộc)
+  - Tiếp tục
+  - Thêm kỹ năng ngôn ngữ để tăng cơ hội tìm việc phù hợp
+  - Upload chứng chỉ để được xác minh và tăng độ tin cậy của bạn lên đến 100%
+  - Đang lưu...
+  - Ngôn ngữ
+  - Trình độ
+  - Upload ảnh/PDF chứng chỉ để được xác minh nhanh hơn
+  - Kỹ năng ngôn ngữ
+  - Ngôn ngữ của bạn
+  - Mẹo:
+  - Bước 2/4
+  - Thêm ngôn ngữ
+  - router.push('/onboarding/worker/profile')}
+                            className="flex-1 h-12"
+                        >
+                            Quay lại
+
+app\onboarding\worker\profile\page.tsx:
+  - router.push('/')}
+              className="flex-1 h-12"
+            >
+              Bỏ qua, xem việc ngay
+  - Ảnh đại diện
+  - Ảnh rõ mặt, kích thước tối đa 5MB
+  - Tiếp tục
+  - Chia sẻ về kinh nghiệm, sở thích, điểm mạnh của bạn...
+  - Chọn trường
+  - Nguyễn Văn A
+  - Hãy cho chúng tôi biết thêm về bạn để tìm công việc phù hợp nhất
+  - Bước 1/4
+  - Trường đại học
+  - Giới thiệu bản thân
+  - Đại học Kinh tế TP.HCM
+  - Đang lưu...
+  - Thông tin cá nhân
+  - Đại học Ngoại ngữ - Tin học
+  - Đại học Bách Khoa
+  - Ngày sinh
+  - Đại học Ngoại thương
+  - Trường khác
+  - Đại học Quốc gia TP.HCM
+  - Họ và tên
+  - Xin chào! 👋
+  - Bạn phải từ 18 tuổi trở lên
+
+app\onboarding\worker\review\page.tsx:
+  - router.push('/onboarding/worker/video')}
+                            className="flex-1 h-12"
+                        >
+                            Quay lại
+  - Chính sách bảo mật
+  - Video giới thiệu
+  - Đang xử lý...
+  - Kỹ năng ngôn ngữ
+  - Bước 4/4
+  - và
+  - Hoàn tất & Bắt đầu
+  - Điều khoản dịch vụ
+  - Chưa upload video giới thiệu
+  - Hoàn tất đăng ký để bắt đầu tìm kiếm công việc phù hợp với kỹ năng của bạn
+  - Bạn đã sẵn sàng!
+  - Chưa thêm kỹ năng ngôn ngữ
+  - Kiểm tra lại thông tin trước khi hoàn tất đăng ký
+  - Trình duyệt của bạn không hỗ trợ video.
+  - Thông tin cá nhân
+  - Xem lại thông tin
+  - Chỉnh sửa
+  - Tôi đồng ý với
+  - Hoàn tất
+
+app\onboarding\worker\video\page.tsx:
+  - Mẹo để video tốt hơn
+  - Giới thiệu bản thân
+  - Tiếp tục
+  - Click để upload video
+  - Mỉm cười và tự tin!
+  - Nói rõ tên, trường, và ngôn ngữ bạn biết
+  - Video giới thiệu
+  - MP4, MOV, WebM • Tối đa 50MB • Thời lượng 30-60 giây
+  - router.push('/onboarding/worker/languages')}
+                            className="flex-1 h-12"
+                        >
+                            Quay lại
+  - Ghi hình nơi sáng sủa, âm thanh rõ ràng
+  - Một video ngắn giúp nhà tuyển dụng hiểu hơn về bạn (không bắt buộc)
+  - Đang tải lên...
+  - Bước 3/4
+  - Bỏ qua bước này
+  - Chia sẻ kinh nghiệm làm việc nếu có
+
+app\owner\analytics\page.tsx:
+  - Đã duyệt
+  - Điểm tin cậy trung bình
+  - Ứng tuyển
+  - Chất lượng worker
+  - Từ chối
+  - Tổng tin
+  - Thống kê
+  - Đã chi
+  - đ
+  - Tỷ lệ duyệt
+  - Tin tuyển theo tháng
+  - Hoàn thành
+
+app\owner\dashboard\page.tsx:
+  - Nhân viên
+  - Bật thông báo
+  - Đăng tin để đón những nhân viên chất lượng
+  - Cài đặt
+  - Nhân viên sẽ xuất hiện ngay khi có ứng tuyển mới.
+  - Tạo tin tuyển dụng
+  - Tiếp tục cập nhật
+  - Hoàn thành
+  - Duyệt
+  - Đăng tin
+  - Lối tắt nhanh
+  - Chờ duyệt
+  - Nâng cấp hồ sơ
+  - handleApproveApplication(app.id, e)}
+                                                                className="p-2 bg-success/10 text-success hover:bg-success/20 rounded-lg transition-colors"
+                                                                title="Duyệt"
+                                                            >
+  - Quản lý
+  - Ứng tuyển gần đây
+  - Tuyển dụng thần tốc
+  - handleRejectApplication(app.id, e)}
+                                                                className="p-2 bg-destructive/10 text-destructive hover:bg-destructive/20 rounded-lg transition-colors"
+                                                                title="Từ chối"
+                                                            >
+  - Từ chối
+  - Đang tuyển
+  - TẤT CẢ
+  - Đăng việc
+  - Hoàn tất
+  - Chưa có ứng tuyển nào
+
+app\owner\favorites\page.tsx:
+  - Tìm kiếm worker...
+  - Xóa khỏi yêu thích
+  - Workers yêu thích
+  - handleRemoveFavorite(favorite.id)}
+                                                className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                                                title="Xóa khỏi yêu thích"
+                                            >
+  - Xem hồ sơ
+
+app\owner\jobs\page.tsx:
+  - Ứng viên
+  - Tổng tin tuyển
+  - Đăng tin
+  - Xem đơn
+  - Đăng tin đầu tiên
+  - Chỉnh sửa
+  - Hủy tin
+  - Đã đủ người
+  - Xem đơn ứng tuyển
+  - Đang mở
+  - Quản lý việc làm
+
+app\owner\jobs\new\page.tsx:
+  - Lương thưởng
+  - Đăng tin tuyển dụng
+  - Tiếng Hàn
+  - Mô tả chi tiết công việc, yêu cầu, quyền lợi...
+  - Tiếng Anh
+  - Dress code / Yêu cầu trang phục
+  - VD: Áo trắng, quần đen, giày đen
+  - Đang đăng...
+  - Thị trường: 40,000 - 80,000 VNĐ/giờ
+  - Ảnh sẽ hiển thị trong danh sách công việc (16:9 khuyến nghị)
+  - router.push('/owner/jobs')}
+                            className="flex-1 h-12"
+                        >
+                            Hủy
+  - Mức lương theo giờ
+  - Tải ảnh lên
+  - Số lượng cần tuyển
+  - Lương theo giờ (VNĐ)
+  - Gợi ý: Mô tả nhiệm vụ, môi trường làm việc, quyền lợi...
+  - Ảnh thumbnail công việc
+
+app\owner\jobs\[id]\applications\page.tsx:
+  - Đơn ứng tuyển sẽ hiển thị ở đây khi có người apply
+  - Duyệt
+  - Đã duyệt
+  - Đơn ứng tuyển
+  - Chưa có đơn ứng tuyển
+  - Từ chối
+  - Vắng mặt
+  - Xem hồ sơ
+  - Chờ duyệt
+  - điểm tin cậy
+  - Đang làm
+  - Hoàn thành
+
+app\owner\jobs\[id]\edit\page.tsx:
+  - Chi tiết về công việc
+  - Lưu thay đổi
+  - Tiếng Hàn
+  - Mô tả công việc
+  - Giờ kết thúc *
+  - Số lượng tuyển
+  - Chỉnh sửa tin
+  - Chọn ngôn ngữ
+  - Yêu cầu ứng viên
+  - Trình độ *
+  - Tiếng Anh
+  - Tiêu đề công việc
+  - Thông tin cơ bản
+  - router.push('/owner/jobs')}
+                            className="flex-1 h-12"
+                        >
+                            Hủy
+  - Lương theo giờ (VNĐ)
+  - VD: Áo trắng, quần đen
+  - Ngày làm *
+  - Ảnh thumbnail
+  - Ngôn ngữ *
+  - Đang lưu...
+  - Lịch làm việc
+  - Điểm tin cậy tối thiểu
+  - Tải ảnh lên
+  - Chọn trình độ
+  - Lương thưởng
+  - Giờ bắt đầu *
+  - Tiếng Nhật
+
+app\owner\payments\page.tsx:
+  - Số TK:
+  - Đã thanh toán
+  - Chi tiết thanh toán
+  - Xác nhận đã thanh toán
+  - Bấm sau khi đã chuyển tiền cho Worker
+  - Chủ TK:
+  - Thông tin công việc
+  - Thanh toán
+  - Chờ thanh toán
+  - Số tiền cần thanh toán
+  - Ngân hàng:
+  - Xác nhận thanh toán cho Worker
+
+app\owner\qr-management\page.tsx:
+  - QR Check-in Nhà Hàng
+  - Mã QR Check-in
+  - Sử dụng duy nhất một mã QR này cho toàn bộ nhà hàng. Nhân viên quét mã này bằng chức năng Scan QR trong ứng dụng của họ.
+  - Không thể tạo mã QR. Vui lòng thử lại.
+  - In Mã QR
+  - Tapi - Việc làm bán thời gian
+  - Mã QR cố định
+  - Quét mã này bằng ứng dụng Tapi Worker để Check-in/Check-out ca làm việc của bạn.
+  - Tải về
+
+app\owner\scan-qr\page.tsx:
+  - 2. Nhấn &quot;Bắt đầu quét&quot; và hướng camera vào mã QR
+  - Nhập mã thủ công
+  - Check-in Thất Bại
+  - Nhấn nút bên dưới để bắt đầu quét
+  - Quét QR Check-in
+  - Quét tiếp
+  - 3. Hệ thống sẽ tự động ghi nhận check-in
+  - )}
+                                    Bắt đầu quét QR
+  - 1. Yêu cầu nhân viên xuất trình mã QR trên app
+  - Check-in Thành Công!
+  - Dừng quét
+  - 📋 Hướng dẫn
+  - 4. Lặp lại khi nhân viên check-out
+
+app\owner\settings\page.tsx:
+  - Tải lên logo
+  - Ảnh bìa nhà hàng
+  - Cài đặt nhà hàng
+  - Tên nhà hàng
+  - Logo nhà hàng
+  - Thêm ảnh
+  - Chia sẻ link này để thu hút nhân viên
+  - Hàn Quốc
+  - Chọn loại
+  - Nhật Bản
+  - Loại ẩm thực
+  - Nhập địa chỉ
+  - Trang tuyển dụng
+  - }
+                        Lưu thay đổi
+  - Nhập tên nhà hàng
+  - Địa chỉ
+  - Thông tin nhà hàng
+
+app\owner\shifts\page.tsx:
+  - Hôm nay
+  - Xem đơn
+  - Lịch ca làm
+  - Không có ca làm nào
+  - Tạo tin tuyển dụng
+
+app\privacy\page.tsx:
+  - Khi bạn check-in/check-out tại nhà hàng
+  - 2.1. Thông tin bạn cung cấp
+  - Nhận bản sao dữ liệu của bạn
+  - Dữ liệu thiết bị:
+  - Yêu cầu pháp lý:
+  - Mã hóa dữ liệu trong quá trình truyền tải (SSL/TLS)
+  - 1. Cam kết của chúng tôi
+  - 8. Thông báo và Email
+  - Khi bạn ứng tuyển hoặc được chấp nhận làm việc, Owner sẽ thấy thông tin hồ sơ cơ bản của bạn
+  - Logs hệ thống:
+  - Nếu bạn có câu hỏi về chính sách bảo mật hoặc muốn báo cáo vấn đề bảo mật:
+  - TAPI không dành cho người dưới 18 tuổi. Chúng tôi không cố ý thu thập thông tin từ trẻ em.
+                            Nếu bạn là phụ huynh và phát hiện con bạn đã cung cấp thông tin cho chúng tôi, vui lòng
+                            liên hệ ngay để chúng tôi xóa dữ liệu đó.
+  - Quyền chỉnh sửa:
+  - Bạn có các quyền sau đối với dữ liệu cá nhân:
+  - Chúng tôi áp dụng các biện pháp bảo mật tiên tiến:
+  - Họ tên, email, số điện thoại, ngày sinh
+  - Đối với Owner:
+  - TAPI cam kết bảo vệ quyền riêng tư và dữ liệu cá nhân của bạn. Chính sách này giải thích cách
+                            chúng tôi thu thập, sử dụng, lưu trữ và bảo vệ thông tin của bạn khi sử dụng nền tảng TAPI.
+  - Bạn có thể nhận các loại thông báo sau:
+  - Thông báo nhắc nhở:
+  - Điều khoản Dịch vụ
+  - Khi có yêu cầu từ cơ quan pháp luật có thẩm quyền
+  - Thông tin nhà hàng, giấy phép kinh doanh, địa chỉ
+  - Về ca sắp tới, deadline (có thể tùy chỉnh)
+  - Gửi thông báo về ca làm, ứng tuyển và cập nhật
+  - 5 năm (theo yêu cầu pháp luật)
+  - Kỹ năng ngôn ngữ:
+  - Trang bạn truy cập, thời gian sử dụng, tương tác
+  - Yêu cầu xem dữ liệu chúng tôi lưu trữ về bạn
+  - Xử lý thanh toán và giao dịch
+  - Dữ liệu tài khoản:
+  - Xác thực hai yếu tố (tùy chọn)
+  - 5. Bảo mật Dữ liệu
+  - không bán
+  - 6. Quyền của Bạn
+  - Kết nối Worker với các công việc phù hợp
+  - Dữ liệu check-in/out:
+  - Dữ liệu sử dụng:
+  - 11. Liên hệ về Bảo mật
+  - Thông báo marketing:
+  - Quyền xóa:
+  - dữ liệu cá nhân của bạn. Dữ liệu chỉ được chia sẻ trong các trường hợp sau:
+  - Thông tin cần thiết để xử lý giao dịch (MoMo, ZaloPay, ngân hàng)
+  - 📧 Email bảo mật:
+  - Để thực hiện các quyền này, vui lòng liên hệ
+  - Giữa Worker và Owner:
+  - Khi cần thiết để bảo vệ quyền và an toàn của TAPI, người dùng hoặc công chúng
+  - Xác minh danh tính và trình độ ngôn ngữ
+  - Cải thiện và tối ưu hóa nền tảng
+  - Dữ liệu đã xóa:
+  - Tắt một số loại thu thập dữ liệu (như thông báo, vị trí)
+  - Yêu cầu xóa tài khoản và dữ liệu cá nhân
+  - Dữ liệu vị trí:
+  - Mã hóa mật khẩu và thông tin nhạy cảm
+  - Số điện thoại ví điện tử hoặc thông tin ngân hàng
+  - Cập nhật lần cuối: 28/01/2026
+  - Quyền xuất dữ liệu:
+  - Quay lại
+  - 10. Thay đổi Chính sách
+  - Chính sách Bảo mật
+  - Về tính năng mới, ưu đãi (có thể tắt)
+  - Thông tin đăng ký:
+  - Về ca làm, ứng tuyển, thanh toán (không thể tắt)
+  - Giám sát và phát hiện các hoạt động đáng ngờ
+  - Giới hạn quyền truy cập dữ liệu nội bộ
+  - Quyền truy cập:
+  - Chúng tôi có thể cập nhật chính sách bảo mật này theo thời gian. Khi có thay đổi quan trọng,
+                            chúng tôi sẽ thông báo cho bạn qua email hoặc thông báo trong ứng dụng trước khi thay đổi có hiệu lực.
+  - Bạn có thể quản lý cài đặt thông báo trong phần Cài đặt của ứng dụng.
+  - Thông tin thanh toán:
+  - Loại thiết bị, hệ điều hành, trình duyệt
+  - 2.2. Thông tin tự động thu thập
+  - 3. Cách chúng tôi sử dụng dữ liệu
+  - 📧 Email hỗ trợ:
+  - 2. Thông tin chúng tôi thu thập
+  - Trình độ tiếng Nhật/Hàn/Anh và chứng chỉ liên quan
+  - Ảnh đại diện, trường đại học, tiểu sử, video giới thiệu
+  - Quyền từ chối:
+  - Cung cấp và vận hành dịch vụ TAPI
+  - Chúng tôi
+  - 2 năm
+  - Cập nhật thông tin không chính xác trong hồ sơ
+  - Tuân thủ yêu cầu pháp lý
+  - Đối tác thanh toán:
+  - Xóa hoàn toàn trong vòng 30 ngày
+  - 4. Chia sẻ Dữ liệu
+  - Bảo vệ quyền lợi:
+  - Sao lưu dữ liệu định kỳ
+  - © 2026 TAPI. Tất cả quyền được bảo lưu.
+  - Thông báo giao dịch:
+  - 90 ngày
+  - Đào tạo nhân viên về bảo mật thông tin
+  - 9. Trẻ em
+  - Lịch sử giao dịch:
+  - Được lưu trữ cho đến khi bạn yêu cầu xóa
+  - 7. Thời gian Lưu trữ
+  - Phát hiện và ngăn chặn gian lận
+  - Chúng tôi sử dụng thông tin của bạn để:
+  - Thông tin hồ sơ:
+  - Để cải thiện trải nghiệm và duy trì phiên đăng nhập
+
+app\status\page.tsx:
+  - Hôm nay
+  - 30 ngày trước
+  - Không có sự cố nào trong 30 ngày qua
+  - Trạng thái hệ thống Tapy
+  - Làm mới
+  - Sự cố gần đây
+  - Uptime 30 ngày:
+  - Dịch vụ
+  - Cập nhật real-time về các dịch vụ của chúng tôi
+  - Xem câu hỏi thường gặp →
+  - Lịch sử 30 ngày
+
+app\terms\page.tsx:
+  - 5. Thanh toán
+  - Không đến (No-show)
+  - Thu nhập được ghi nhận sau khi hoàn thành ca làm và được Owner xác nhận
+  - 3.2. Đối với Owner
+  - Xác nhận check-in/check-out cho Worker
+  - Chất lượng dịch vụ do Worker cung cấp
+  - Điều kiện làm việc tại nhà hàng của Owner
+  - Worker có điểm tin cậy dưới 70 sẽ bị hạn chế ứng tuyển các công việc yêu cầu điểm cao.
+  - 4. Điểm Tin cậy (Reliability Score)
+  - Hỗ trợ thanh toán qua: MoMo, ZaloPay, chuyển khoản ngân hàng
+  - Cung cấp thông tin giả mạo
+  - : -30 điểm, tài khoản bị đóng băng 7 ngày
+  - Tuân thủ quy định của nhà hàng trong ca làm
+  - Check-in và check-out đúng quy trình
+  - Đến đúng giờ theo lịch đã cam kết
+  - Hủy ca muộn
+  - Thông báo trước ít nhất 24 giờ nếu cần hủy ca
+  - 9. Liên hệ
+  - : -5 điểm
+  - Có hành vi gian lận hoặc lừa đảo
+  - Hoàn thành ca đúng giờ
+  - 1. Giới thiệu
+  - 100 điểm
+  - : Chủ nhà hàng hoặc người quản lý đăng tin tuyển dụng.
+  - 6. Chấm dứt Tài khoản
+  - 7. Giới hạn Trách nhiệm
+  - Đến muộn (dưới 15 phút)
+  - : Điểm khởi đầu cho tất cả Worker mới
+  - &quot;Ca làm&quot;
+  - Cung cấp thông tin cá nhân chính xác và đầy đủ
+  - : +2 điểm
+  - Cập nhật lần cuối: 28/01/2026
+  - 3. Nghĩa vụ của Người dùng
+  - : -15 điểm
+  - Đảm bảo môi trường làm việc an toàn
+  - TAPI sử dụng hệ thống Điểm Tin cậy để đánh giá độ đáng tin cậy của Worker:
+  - Chào mừng bạn đến với TAPI! Đây là nền tảng kết nối sinh viên và người lao động tự do với các nhà hàng
+                            Nhật Bản và Hàn Quốc tại Việt Nam. Bằng việc sử dụng dịch vụ của chúng tôi, bạn đồng ý tuân thủ các
+                            điều khoản và điều kiện sau đây.
+  - TAPI có quyền tạm khóa hoặc chấm dứt tài khoản trong các trường hợp sau:
+  - 3.1. Đối với Worker
+  - &quot;Nền tảng&quot;
+  - Thanh toán đầy đủ và đúng hạn cho Worker
+  - Thiệt hại gián tiếp phát sinh từ việc sử dụng nền tảng
+  - Quay lại
+  - © 2026 TAPI. Tất cả quyền được bảo lưu.
+  - Nhận được nhiều khiếu nại từ Owner hoặc Worker khác
+  - : Công việc được đăng bởi Owner cho Worker ứng tuyển.
+  - Duy trì điểm tin cậy (Reliability Score) ở mức tốt
+  - Chính sách Bảo mật
+  - Điểm tin cậy xuống dưới 50
+  - Điều khoản Dịch vụ
+  - TAPI có quyền cập nhật điều khoản dịch vụ bất cứ lúc nào. Người dùng sẽ được thông báo về các
+                            thay đổi quan trọng qua email hoặc thông báo trong ứng dụng. Việc tiếp tục sử dụng dịch vụ sau
+                            khi có thay đổi đồng nghĩa với việc bạn chấp nhận các điều khoản mới.
+  - : Người dùng đăng ký để tìm kiếm và làm việc tại các nhà hàng.
+  - : Ứng dụng và website do TAPI vận hành.
+  - hoặc
+  - Cung cấp thông tin nhà hàng chính xác
+  - TAPI thu phí dịch vụ 10% trên tổng thu nhập
+  - Vi phạm nghiêm trọng các điều khoản dịch vụ
+  - TAPI là nền tảng kết nối và không chịu trách nhiệm về:
+  - Đến muộn (trên 15 phút)
+  - Tranh chấp trực tiếp giữa Worker và Owner
+  - : -10 điểm
+  - 8. Thay đổi Điều khoản
+  - Đăng tin tuyển dụng rõ ràng, minh bạch về công việc và mức lương
+  - Worker có thể rút tiền khi số dư đạt tối thiểu 50,000đ
+  - 🏢 Địa chỉ: Tầng 10, Tòa nhà ABC, Quận 1, TP. Hồ Chí Minh
+  - 2. Định nghĩa
+  - Thời gian xử lý rút tiền: 24 giờ làm việc
+  - Nếu bạn có bất kỳ câu hỏi nào về điều khoản dịch vụ, vui lòng liên hệ:
+
+app\verify\page.tsx:
+  - Gửi lại mã OTP
+  - : 'Xác thực ngay'}
+  - Gửi lại mã trong
+  - Nếu không nhận được mã, vui lòng kiểm tra hộp thư rác hoặc đảm bảo số điện thoại chính xác.
+  - Xác thực tài khoản
+  - 0) return;
+        setTimer(60);
+        toast.success('Đã gửi lại mã OTP');
+    };
+
+    return (
+
+app\worker\dashboard\page.tsx:
+  - Khám phá các công việc phù hợp với kỹ năng của bạn ngay!
+  - Tìm việc ngay
+  - Tìm việc
+  - Cập nhật ngay
+  - Hồ sơ đầy đủ giúp bạn có nhiều cơ hội được nhận việc hơn!
+  - Chưa có ca làm nào
+  - Hoàn thiện hồ sơ
+
+app\worker\feed\page.tsx:
+  - 0đ
+
+app\worker\job\[id]\page.tsx:
+  - Không tìm thấy công việc
+  - Công việc này đã hết hạn đăng ký hoặc đã qua thời gian làm việc.
+  - Vị trí
+  - Tổng thu nhập
+  - Điểm tin cậy
+  - Đã đủ người
+  - Đang chờ duyệt
+  - Đang xử lý...
+  - ) : (
+                                'Đã ứng tuyển'
+                            )
+                        ) : isInstantBook ? (
+  - Quay lại
+  - Đã hết hạn
+  - Thu nhập dự kiến
+  - Lương theo giờ
+  - Nhận job ngay
+  - ) : (
+                            'Gửi yêu cầu'
+                        )}
+  - Đã nhận
+
+app\worker\jobs\page.tsx:
+  - Ca đang làm
+  - Số điện thoại
+  - Số tài khoản
+  - Tên ngân hàng
+  - Tên chủ tài khoản
+  - Yêu cầu thanh toán
+  - }
+                Gửi yêu cầu
+  - Phương thức nhận tiền
+  - Số tiền yêu cầu
+
+app\worker\profile\edit\page.tsx:
+  - ) : (
+                        locale === 'vi' ? 'Lưu thay đổi' : 'Save Changes'
+                    )}
+
+app\worker\profile\identity\page.tsx:
+  - ) : (
+                locale === 'vi' ? 'Gửi lại xác minh' : 'Resubmit Verification'
+              )}
+
+app\worker\reliability\page.tsx:
+  - Hoàn thành các ca làm việc đúng giờ (+1 điểm mỗi ca)
+  - Tìm việc để tăng điểm
+  - 70 (Tối thiểu)
+  - 90 (Tốt)
+  - Không đến làm
+  - Nhận đánh giá 5 sao từ chủ quán (+2 điểm)
+  - Không đến làm (No-show): -20 điểm, cấm nếu 3 lần!
+  - Hủy muộn
+  - Ca hoàn thành
+  - Xếp hạng
+  - = 90 ? 'Tốt' : reliabilityScore >= 70 ? 'TB' : 'Thấp'}
+  - Thanh điểm
+  - Quay lại
+  - Chưa có lịch sử
+  - Tổng quan
+  - Điểm Tin Cậy
+  - Tài khoản bị tạm khóa
+  - Đúng giờ 5 lần liên tiếp (+3 điểm bonus)
+  - Lịch sử điểm
+  - Cách tăng điểm tin cậy
+
+app\worker\scan-qr\page.tsx:
+  - Hủy
+  - Đợi xác nhận check-in thành công
+  - Quét lại mã khi hết ca để check-out
+  - Thử lại
+  - Mở camera và đưa vào khung quét
+  - Quét mã QR tại cửa hàng
+  - Đặt camera hướng vào mã QR tại cửa hàng
+  - Đang quét mã QR...
+  - Check-in vẫn hoạt động nhưng không xác minh vị trí
+  - router.push('/worker/dashboard')} className="w-full">
+                                Về Dashboard
+  - router.push('/worker/dashboard')}>
+                                    Về Dashboard
+  - Hướng dẫn
+  - Sẵn sàng quét
+  - Quay lại
+  - Mở Camera
+  - Đang xác thực...
+  - Tìm mã QR tại quầy hoặc poster của cửa hàng
+  - Không thể check-in
+
+app\worker\wallet\page.tsx:
+  - Hôm nay
+  - Số tiền muốn rút
+  - Số tài khoản
+  - VNĐ
+  - Thu nhập
+  - Thời gian xử lý
+  - Đang xử lý...
+  - Đã chuyển
+  - Tháng này
+  - Hoàn thành
+  - Yêu cầu rút tiền đang xử lý
+  - Đã rút
+  - Phương thức nhận tiền
+  - Gửi yêu cầu rút tiền
+  - Tuần này
+  - Chờ duyệt
+  - Chưa có giao dịch nào
+  - Yêu cầu sẽ được xử lý trong 24 giờ làm việc. Bạn sẽ nhận được thông báo khi hoàn tất.
+  - Nhập số tài khoản
+  - Tên ngân hàng
+  - Tổng thu nhập
+  - Quay lại
+  - Đang xử lý
+  - Yêu cầu rút tiền sẽ được xử lý trong vòng 24 giờ làm việc.
+                                Số tiền tối thiểu để rút là 50,000đ.
+  - Lịch sử giao dịch
+  - Thất bại
+  - Tìm việc ngay
+  - Tên chủ tài khoản
+  - Từ chối
+  - Ví của tôi
+  - Rút tiền
+  - Số dư khả dụng
+
+--- Hardcoded Vietnamese in components/ ---
+
+components\job-card.tsx:
+  - ) : (
+              'Đã ứng tuyển'
+            )
+          ) : isInstantBook ? (
+  - ) : (
+            'Gửi yêu cầu'
+          )}
+  - Đang chờ duyệt
+  - Đã đủ người
+  - Đang xử lý...
+  - Nhận job ngay
+  - ) : job.status === 'expired' ? (
+            'Đã hết hạn'
+          ) : (job.status === 'filled' && !qualification?.hasApplied) ? (
+            'Đã đủ người'
+          ) : qualification?.hasApplied ? (
+            qualification.applicationStatus === 'pending' ? (
+  - Đã nhận
+
+components\landing\hero.tsx:
+  - Tìm việc nhà hàng
+  - Chỉ trong 1 phút
+
+components\layout\main-nav.tsx:
+  - Đăng nhập
+  - Đăng ký
+
+components\layout\owner-nav.tsx:
+  - Đăng xuất
+  - Thoát
+
+components\notifications\notification-bell.tsx:
+  - Không có thông báo nào
+  - Thông báo
+  - Đánh dấu đã đọc
+
+components\owner\today-shifts-card.tsx:
+  - Xem tất cả
+  - Ca làm hôm nay
+
+components\owner\worker-profile-modal.tsx:
+  - Đã xác minh
+  - Xác minh
+  - Video giới thiệu
+  - Đóng
+  - Tin cậy:
+  - Không có video giới thiệu
+  - Kỹ năng ngôn ngữ
+  - Chờ duyệt
+  - Chưa có thông tin ngôn ngữ
+  - Hồ sơ ứng viên
+
+components\owner\workers-on-duty-card.tsx:
+  - Workers đang làm
+
+components\profile\work-experience-form.tsx:
+  - ) : (
+                        locale === 'vi' ? 'Lưu' : 'Save'
+                    )}
+
+components\shared\image-upload.tsx:
+  - Xóa tệp
+  - Xóa ảnh
+  - Tệp đã tải lên
+
+components\shared\profile-completion-banner.tsx:
+  - Tiến độ hoàn thiện
+  - Các bước cần hoàn thành:
+  - Hồ sơ đã hoàn thiện!
+
+components\shared\pwa-install-prompt.tsx:
+  - Xác nhận cài đặt
+  - Cuộn xuống và chọn
+  - ✓ Mở nhanh
+  - Cài đặt TAPI trên iPhone
+  - ở thanh công cụ Safari
+  - &quot;Thêm vào MH chính&quot;
+  - Nhấn &quot;Thêm&quot; ở góc trên bên phải
+  - Thêm vào Màn hình chính
+  - Xong! Mở app từ màn hình chính
+  - Thêm vào màn hình chính để truy cập nhanh hơn
+  - Đã hiểu
+  - Cài đặt TAPI
+  - Nhấn nút Chia sẻ
+  - Nhấn vào biểu tượng
+  - ✓ Thông báo
+
+components\skeletons\job-card-skeleton.tsx:
+  - Đang tải thông tin công việc...
+  - Đang tải công việc...
+
+components\worker\active-job-card.tsx:
+  - Quét mã QR tại nhà hàng để kết thúc ca làm
+  - ĐANG LÀM VIỆC
+  - Thời gian làm việc
+
+components\worker\application-card.tsx:
+  - Đã thanh toán
+  - Đang chờ thanh toán
+  - Yêu cầu thanh toán
+  - Đã nhận tiền
+  - Chờ thanh toán
+  - Đang làm

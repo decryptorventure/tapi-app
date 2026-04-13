@@ -1,0 +1,31 @@
+{
+    "createJob": "Post a Job",
+    "jobTitle": "Job Title",
+    "jobTitlePlaceholder": "Example: Waiter for Sushi Restaurant...",
+    "description": "Job Description (Optional)",
+    "descriptionPlaceholder": "Detailed job requirements...",
+    "thumbnail": "Job Thumbnail (Optional)",
+    "thumbnailHelper": "Upload restaurant photo or work environment",
+    "uploading": "Uploading photo...",
+    "timeAndSalary": "Time & Salary",
+    "date": "Work Date",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "hourlyRate": "Hourly Rate (VND)",
+    "hourlyRatePlaceholder": "Example: 30000",
+    "requirements": "Candidate Requirements",
+    "language": "Required Language",
+    "targetLevel": "Minimum Level",
+    "reliabilityScore": "Minimum Reliability Score",
+    "reliabilityHelper": "Candidates must meet this score to apply",
+    "hiringStats": "Hiring Information",
+    "maxWorkers": "Workers Needed",
+    "maxWorkersPlaceholder": "Example: 2",
+    "dressCode": "Dress Code (Optional)",
+    "dressCodePlaceholder": "Example: Dark shirt, black pants...",
+    "validation": {
+        "missingLanguage": "Please select a required language",
+        "successJob": "Job posted successfully!",
+        "errorJob": "Error posting job"
+    }
+}

@@ -1,4 +1,5 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -50,6 +51,7 @@ interface Job {
 type TabType = 'all' | 'open' | 'completed' | 'cancelled';
 
 export default function JobsPage() {
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(true);
     const [jobs, setJobs] = useState<Job[]>([]);
     const [activeTab, setActiveTab] = useState<TabType>('all');
@@ -139,13 +141,13 @@ export default function JobsPage() {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'open':
-                return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success"><CheckCircle2 className="w-3 h-3" />Đang mở</span>;
+                return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success"><CheckCircle2 className="w-3 h-3" />{t('admin.jobs_open')}</span>;
             case 'filled':
-                return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-warning/10 text-warning"><Users className="w-3 h-3" />Đã đủ</span>;
+                return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-warning/10 text-warning"><Users className="w-3 h-3" />{t('admin.jobs_filled')}</span>;
             case 'completed':
-                return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary"><CheckCircle2 className="w-3 h-3" />Hoàn thành</span>;
+                return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary"><CheckCircle2 className="w-3 h-3" />{t('admin.jobs_completed')}</span>;
             case 'cancelled':
-                return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive"><XCircle className="w-3 h-3" />Đã hủy</span>;
+                return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive"><XCircle className="w-3 h-3" />{t('admin.jobs_canceled')}</span>;
             default:
                 return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">{status}</span>;
         }
@@ -277,17 +279,17 @@ export default function JobsPage() {
 
     const tabs: { key: TabType; label: string; icon: React.ReactNode }[] = [
         { key: 'all', label: 'Tất cả', icon: <Briefcase className="w-4 h-4" /> },
-        { key: 'open', label: 'Đang mở', icon: <CheckCircle2 className="w-4 h-4" /> },
-        { key: 'completed', label: 'Hoàn thành', icon: <CheckCircle2 className="w-4 h-4" /> },
-        { key: 'cancelled', label: 'Đã hủy', icon: <XCircle className="w-4 h-4" /> },
+        { key: 'open', label: t('admin.jobs_open'), icon: <CheckCircle2 className="w-4 h-4" /> },
+        { key: 'completed', label: t('admin.jobs_completed'), icon: <CheckCircle2 className="w-4 h-4" /> },
+        { key: 'cancelled', label: t('admin.jobs_canceled'), icon: <XCircle className="w-4 h-4" /> },
     ];
 
     return (
         <div className="p-6 space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-foreground">Quản lý Jobs</h1>
-                <p className="text-sm text-muted-foreground">Xem và quản lý tất cả các job đã đăng</p>
+                <h1 className="text-2xl font-bold text-foreground">{t('admin.jobs_manageJobs')}</h1>
+                <p className="text-sm text-muted-foreground">{t('admin.jobs_manageAllJobsDesc')}</p>
             </div>
 
             {/* Tabs */}
@@ -317,13 +319,13 @@ export default function JobsPage() {
                 columns={columns}
                 data={jobs}
                 loading={loading}
-                searchPlaceholder="Tìm theo tiêu đề..."
+                searchPlaceholder={t('admin.jobs_searchTitle')}
                 serverSidePagination
                 pageSize={pageSize}
                 currentPage={page}
                 totalItems={totalItems}
                 onPageChange={setPage}
-                emptyMessage="Không tìm thấy job nào"
+                emptyMessage={t('admin.jobs_noJobsFound')}
             />
         </div>
     );

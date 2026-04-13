@@ -1,0 +1,10 @@
+{
+    "instantBookSuccess": "Instant Bookの条件を満たしています！",
+    "requestBookRequired": "Ownerにリクエストを送信する必要があります",
+    "missingLanguage": "必要な語学力がありません",
+    "lowLanguageLevel": "語学レベルが条件を満たしていません",
+    "lowReliability": "信頼性スコアが条件を満たしていません",
+    "accountFrozen": "アカウントが一時的に凍結されています",
+    "notVerified": "本人確認を完了する必要があります（自己紹介動画のアップロード）",
+    "needImprovement": "改善が必要です:"
+}

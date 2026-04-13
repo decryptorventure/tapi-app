@@ -1,0 +1,18 @@
+{
+    "title": "Language Skills",
+    "description": "Add certificates to increase job opportunities (required to apply)",
+    "addLanguage": "Add Language",
+    "language": "Language",
+    "chooseLanguage": "Choose Language",
+    "level": "Level",
+    "chooseLevel": "Choose Level",
+    "certificateLabel": "Certificate (PDF or Image)",
+    "certificateHelper": "Upload photo or scan of your language certificate",
+    "saving": "Saving...",
+    "addSkill": "Add Skill",
+    "fillAll": "Please fill in all information",
+    "success": "Language skill added! Pending verification",
+    "rejectionReason": "Reason",
+    "nextIdentity": "Next: Identity Verification",
+    "rejected": "Rejected"
+}

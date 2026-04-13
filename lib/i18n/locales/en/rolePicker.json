@@ -1,0 +1,16 @@
+{
+    "title": "What role do you want to join Tapy as?",
+    "subtitle": "Choose the role that fits your needs",
+    "workerTitle": "I'm looking for a job",
+    "workerDesc": "Find part-time jobs at Japanese and Korean restaurants",
+    "workerFeature1": "Quick application",
+    "workerFeature2": "Language skill verification",
+    "workerFeature3": "Convenient QR check-in",
+    "ownerTitle": "I need to hire staff",
+    "ownerDesc": "Post job openings and find suitable staff",
+    "ownerFeature1": "Fast job posting",
+    "ownerFeature2": "Easy candidate management",
+    "ownerFeature3": "Business license verification",
+    "continueWith": "Continue as",
+    "skip": "Skip - View jobs first"
+}

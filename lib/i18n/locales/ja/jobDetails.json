@@ -1,0 +1,9 @@
+{
+    "estimatedEarnings": "予想収入",
+    "hourlyRateLabel": "時給",
+    "totalEarnings": "総収入",
+    "reliabilityLabel": "信頼性スコア",
+    "slots": "募集枠",
+    "scanQR": "QRをスキャンしてチェックイン",
+    "expiredWarning": "この求人の応募期間は終了したか、勤務時間が過ぎています。"
+}

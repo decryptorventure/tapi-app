@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslation } from '@/lib/i18n';
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, Search, HelpCircle, Users, Briefcase, QrCode, Star } from 'lucide-react';
 import Link from 'next/link';
@@ -115,6 +116,7 @@ const faqData: FAQCategory[] = [
 ];
 
 export default function FAQPage() {
+    const { t } = useTranslation();
     const [openCategory, setOpenCategory] = useState<number | null>(0);
     const [openItems, setOpenItems] = useState<Record<string, boolean>>({});
     const [searchQuery, setSearchQuery] = useState('');
@@ -153,7 +155,7 @@ export default function FAQPage() {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                         <input
                             type="text"
-                            placeholder="Tìm kiếm câu hỏi..."
+                            placeholder={t('common.faq_searchQuestions')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full pl-12 pr-4 py-3 rounded-xl border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -166,7 +168,7 @@ export default function FAQPage() {
             <div className="max-w-4xl mx-auto px-4 py-12">
                 {filteredData.length === 0 ? (
                     <div className="text-center py-12">
-                        <p className="text-muted-foreground">Không tìm thấy câu hỏi phù hợp</p>
+                        <p className="text-muted-foreground">{t('common.faq_noQuestionsFound')}</p>
                     </div>
                 ) : (
                     <div className="space-y-6">
@@ -227,7 +229,7 @@ export default function FAQPage() {
 
                 {/* Contact Section */}
                 <div className="mt-12 text-center p-8 bg-muted/30 rounded-xl">
-                    <h2 className="text-xl font-semibold mb-2">Vẫn cần hỗ trợ?</h2>
+                    <h2 className="text-xl font-semibold mb-2">{t('common.faq_stillNeedHelp')}</h2>
                     <p className="text-muted-foreground mb-4">
                         Liên hệ đội ngũ hỗ trợ của chúng tôi
                     </p>

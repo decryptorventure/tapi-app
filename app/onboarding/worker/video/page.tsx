@@ -1,4 +1,5 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -17,6 +18,7 @@ import {
 import { StorageService } from '@/lib/services/storage.service';
 
 export default function WorkerVideoPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -99,7 +101,7 @@ export default function WorkerVideoPage() {
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-semibold text-foreground">Bước 3/4</span>
-                        <span className="text-sm text-muted-foreground">Video giới thiệu</span>
+                        <span className="text-sm text-muted-foreground">{t('onboarding.worker_introVideo')}</span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div className="h-full bg-primary w-3/4 transition-all duration-300"></div>
@@ -168,19 +170,19 @@ export default function WorkerVideoPage() {
                         <ul className="text-sm text-muted-foreground space-y-2">
                             <li className="flex items-start gap-2">
                                 <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
-                                <span>Nói rõ tên, trường, và ngôn ngữ bạn biết</span>
+                                <span>{t('onboarding.worker_speakPrompt')}</span>
                             </li>
                             <li className="flex items-start gap-2">
                                 <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
-                                <span>Ghi hình nơi sáng sủa, âm thanh rõ ràng</span>
+                                <span>{t('onboarding.worker_lightingPrompt')}</span>
                             </li>
                             <li className="flex items-start gap-2">
                                 <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
-                                <span>Chia sẻ kinh nghiệm làm việc nếu có</span>
+                                <span>{t('onboarding.worker_shareExp')}</span>
                             </li>
                             <li className="flex items-start gap-2">
                                 <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
-                                <span>Mỉm cười và tự tin!</span>
+                                <span>{t('onboarding.worker_smilePrompt')}</span>
                             </li>
                         </ul>
                     </div>

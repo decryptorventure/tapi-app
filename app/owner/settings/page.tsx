@@ -217,7 +217,7 @@ export default function OwnerSettingsPage() {
                     <Link href="/owner/dashboard" className="p-2 hover:bg-muted rounded-lg transition-colors">
                         <ArrowLeft className="w-5 h-5 text-muted-foreground" />
                     </Link>
-                    <h1 className="text-lg font-bold text-foreground">Cài đặt nhà hàng</h1>
+                    <h1 className="text-lg font-bold text-foreground">{t('owner.settings_restaurantSettings')}</h1>
                 </div>
             </div>
 
@@ -272,7 +272,7 @@ export default function OwnerSettingsPage() {
                 <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 rounded-xl border border-orange-200 dark:border-orange-800 p-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h3 className="font-bold text-foreground">Trang tuyển dụng</h3>
+                            <h3 className="font-bold text-foreground">{t('owner.settings_recruitmentPage')}</h3>
                             <p className="text-sm text-muted-foreground mt-1">
                                 Chia sẻ link này để thu hút nhân viên
                             </p>
@@ -318,7 +318,7 @@ export default function OwnerSettingsPage() {
                                 className="aspect-video rounded-lg border-2 border-dashed border-border bg-muted flex flex-col items-center justify-center gap-1 hover:bg-muted/80 transition-colors"
                             >
                                 <Upload className="w-5 h-5 text-muted-foreground" />
-                                <span className="text-xs text-muted-foreground">Thêm ảnh</span>
+                                <span className="text-xs text-muted-foreground">{t('owner.settings_addImage')}</span>
                             </button>
                         )}
                     </div>
@@ -334,40 +334,40 @@ export default function OwnerSettingsPage() {
 
                 {/* Restaurant Info Form */}
                 <div className="bg-card rounded-xl border border-border p-6 space-y-4">
-                    <h2 className="font-bold text-foreground mb-4">Thông tin nhà hàng</h2>
+                    <h2 className="font-bold text-foreground mb-4">{t('owner.settings_restaurantInfo')}</h2>
 
                     <div>
-                        <label className="text-sm font-medium text-foreground block mb-2">Tên nhà hàng</label>
+                        <label className="text-sm font-medium text-foreground block mb-2">{t('owner.settings_restaurantName')}</label>
                         <input
                             type="text"
                             value={formData.restaurant_name}
                             onChange={(e) => setFormData({ ...formData, restaurant_name: e.target.value })}
                             className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground"
-                            placeholder="Nhập tên nhà hàng"
+                            placeholder={t('owner.settings_enterRestaurantName')}
                         />
                     </div>
 
                     <div>
-                        <label className="text-sm font-medium text-foreground block mb-2">Địa chỉ</label>
+                        <label className="text-sm font-medium text-foreground block mb-2">{t('owner.settings_address')}</label>
                         <textarea
                             value={formData.restaurant_address}
                             onChange={(e) => setFormData({ ...formData, restaurant_address: e.target.value })}
                             rows={2}
                             className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground resize-none"
-                            placeholder="Nhập địa chỉ"
+                            placeholder={t('owner.settings_enterAddress')}
                         />
                     </div>
 
                     <div>
-                        <label className="text-sm font-medium text-foreground block mb-2">Loại ẩm thực</label>
+                        <label className="text-sm font-medium text-foreground block mb-2">{t('owner.settings_cuisineType')}</label>
                         <select
                             value={formData.cuisine_type}
                             onChange={(e) => setFormData({ ...formData, cuisine_type: e.target.value })}
                             className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground"
                         >
-                            <option value="">Chọn loại</option>
-                            <option value="japanese">Nhật Bản</option>
-                            <option value="korean">Hàn Quốc</option>
+                            <option value="">{t('owner.settings_selectType')}</option>
+                            <option value="japanese">{t('owner.settings_japanese')}</option>
+                            <option value="korean">{t('owner.settings_korean')}</option>
                         </select>
                     </div>
                 </div>

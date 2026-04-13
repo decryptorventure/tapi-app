@@ -1,0 +1,20 @@
+{
+    "workerTitle": "Hoàn thiện hồ sơ để ứng tuyển",
+    "workerDesc": "Bạn cần hoàn thiện ít nhất 80% hồ sơ để có thể ứng tuyển công việc",
+    "ownerTitle": "Hoàn thiện hồ sơ để đăng tin tuyển dụng",
+    "ownerDesc": "Bạn cần hoàn thiện ít nhất 70% hồ sơ để có thể đăng tin tuyển dụng",
+    "actionText": "Hoàn thiện hồ sơ",
+    "progress": "Tiến độ hoàn thiện",
+    "needed": "nữa để",
+    "apply": "ứng tuyển",
+    "post": "đăng tin",
+    "stepsNeeded": "Các bước cần hoàn thành:",
+    "addDob": "Thêm ngày sinh",
+    "verifyLanguage": "Xác minh kỹ năng ngôn ngữ",
+    "verifyIdentity": "Xác minh danh tính (CCCD/Passport)",
+    "addRestaurantInfo": "Thêm thông tin nhà hàng",
+    "verifyLicense": "Xác minh giấy phép kinh doanh",
+    "profileComplete": "Hồ sơ đã hoàn thiện!",
+    "workerCompleteMsg": "Bạn có thể ứng tuyển tất cả các công việc trên Tapy",
+    "ownerCompleteMsg": "Bạn có thể đăng tin tuyển dụng và quản lý ứng viên"
+}

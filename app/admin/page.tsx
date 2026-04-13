@@ -1,4 +1,5 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -38,6 +39,7 @@ import {
 } from 'recharts';
 
 export default function AdminDashboardPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -106,7 +108,7 @@ export default function AdminDashboardPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-                    <p className="text-sm text-muted-foreground">Tổng quan hệ thống và số liệu</p>
+                    <p className="text-sm text-muted-foreground">{t('admin.page_systemOverview')}</p>
                 </div>
                 <Button
                     variant="outline"
@@ -125,21 +127,21 @@ export default function AdminDashboardPage() {
             {/* Overview Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
-                    title="Tổng người dùng"
+                    title={t('admin.page_totalUsers')}
                     value={stats?.totalUsers || 0}
                     icon={<Users className="w-5 h-5 text-primary" />}
                     iconClassName="bg-primary/10"
                     description={`${stats?.totalWorkers || 0} workers, ${stats?.totalOwners || 0} owners`}
                 />
                 <StatCard
-                    title="Tổng Jobs"
+                    title={t('admin.page_totalJobs')}
                     value={stats?.totalJobs || 0}
                     icon={<Briefcase className="w-5 h-5 text-cta" />}
                     iconClassName="bg-cta/10"
                     description={`${stats?.activeJobs || 0} đang mở`}
                 />
                 <StatCard
-                    title="Tổng Applications"
+                    title={t('admin.page_totalApps')}
                     value={stats?.totalApplications || 0}
                     icon={<FileCheck className="w-5 h-5 text-success" />}
                     iconClassName="bg-success/10"
@@ -161,7 +163,7 @@ export default function AdminDashboardPage() {
                         <Clock className="w-5 h-5 text-warning" />
                         <div>
                             <p className="font-medium text-warning">Có {stats.pendingVerifications} xác minh đang chờ</p>
-                            <p className="text-sm text-warning/80">Cần xử lý để người dùng có thể hoạt động</p>
+                            <p className="text-sm text-warning/80">{t('admin.page_needActionToActivate')}</p>
                         </div>
                     </div>
                     <Link href="/admin/verifications">
@@ -177,8 +179,8 @@ export default function AdminDashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Growth Chart */}
                 <ChartContainer
-                    title="Tăng trưởng 30 ngày"
-                    description="Người dùng, jobs và applications mới"
+                    title={t('admin.page_growth30Days')}
+                    description={t('admin.page_newEntities')}
                 >
                     <ResponsiveContainer width="100%" height={250}>
                         <LineChart data={growthData}>
@@ -243,7 +245,7 @@ export default function AdminDashboardPage() {
                 {/* Top Workers */}
                 <ChartContainer
                     title="Top Workers"
-                    description="Workers hoàn thành nhiều jobs nhất"
+                    description={t('admin.page_topWorkers')}
                     headerAction={
                         <Link href="/admin/users?tab=workers">
                             <Button variant="ghost" size="sm">
@@ -287,7 +289,7 @@ export default function AdminDashboardPage() {
                                 </div>
                             ))
                         ) : (
-                            <p className="text-center text-muted-foreground py-8">Chưa có dữ liệu</p>
+                            <p className="text-center text-muted-foreground py-8">{t('admin.page_noData')}</p>
                         )}
                     </div>
                 </ChartContainer>
@@ -295,7 +297,7 @@ export default function AdminDashboardPage() {
                 {/* Top Employers */}
                 <ChartContainer
                     title="Top Employers"
-                    description="Chủ nhà hàng đăng nhiều jobs nhất"
+                    description={t('admin.page_topJobPosters')}
                     headerAction={
                         <Link href="/admin/users?tab=owners">
                             <Button variant="ghost" size="sm">
@@ -339,7 +341,7 @@ export default function AdminDashboardPage() {
                                 </div>
                             ))
                         ) : (
-                            <p className="text-center text-muted-foreground py-8">Chưa có dữ liệu</p>
+                            <p className="text-center text-muted-foreground py-8">{t('admin.page_noData')}</p>
                         )}
                     </div>
                 </ChartContainer>
@@ -348,25 +350,25 @@ export default function AdminDashboardPage() {
             {/* Jobs Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
-                    title="Jobs đang mở"
+                    title={t('admin.page_openJobs')}
                     value={stats?.activeJobs || 0}
                     icon={<Activity className="w-5 h-5 text-primary" />}
                     iconClassName="bg-primary/10"
                 />
                 <StatCard
-                    title="Jobs hoàn thành"
+                    title={t('admin.page_completedJobs')}
                     value={stats?.completedJobs || 0}
                     icon={<CheckCircle2 className="w-5 h-5 text-success" />}
                     iconClassName="bg-success/10"
                 />
                 <StatCard
-                    title="Applications đã duyệt"
+                    title={t('admin.page_approvedApps')}
                     value={stats?.approvedApplications || 0}
                     icon={<FileCheck className="w-5 h-5 text-cta" />}
                     iconClassName="bg-cta/10"
                 />
                 <StatCard
-                    title="Shifts hoàn thành"
+                    title={t('admin.page_completedShifts')}
                     value={stats?.completedApplications || 0}
                     icon={<TrendingUp className="w-5 h-5 text-warning" />}
                     iconClassName="bg-warning/10"

@@ -1,0 +1,18 @@
+{
+    "title": "Kỹ năng ngôn ngữ",
+    "description": "Thêm chứng chỉ để tăng cơ hội việc làm (cần thiết để ứng tuyển)",
+    "addLanguage": "Thêm ngôn ngữ",
+    "language": "Ngôn ngữ",
+    "chooseLanguage": "Chọn ngôn ngữ",
+    "level": "Trình độ",
+    "chooseLevel": "Chọn trình độ",
+    "certificateLabel": "Chứng chỉ (PDF hoặc ảnh)",
+    "certificateHelper": "Tải lên ảnh hoặc scan chứng chỉ ngôn ngữ",
+    "saving": "Đang lưu...",
+    "addSkill": "Thêm kỹ năng",
+    "fillAll": "Vui lòng điền đầy đủ thông tin",
+    "success": "Kỹ năng ngôn ngữ đã được thêm! Đang chờ xác minh",
+    "rejectionReason": "Lý do",
+    "nextIdentity": "Tiếp tục: Xác thực danh tính",
+    "rejected": "Bị từ chối"
+}

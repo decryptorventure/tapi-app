@@ -1,4 +1,5 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -36,6 +37,7 @@ interface Shift {
 }
 
 export default function OwnerShiftsPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -179,7 +181,7 @@ export default function OwnerShiftsPage() {
                                 <div className="p-2 bg-primary/10 rounded-lg">
                                     <Calendar className="w-5 h-5 text-primary" />
                                 </div>
-                                <h1 className="text-xl font-bold text-foreground">Lịch ca làm</h1>
+                                <h1 className="text-xl font-bold text-foreground">{t('owner.shifts_shiftSchedule')}</h1>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -275,9 +277,9 @@ export default function OwnerShiftsPage() {
                     ) : shifts.length === 0 ? (
                         <div className="p-12 text-center">
                             <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                            <p className="text-muted-foreground mb-4">Không có ca làm nào</p>
+                            <p className="text-muted-foreground mb-4">{t('owner.shifts_noShifts')}</p>
                             <Link href="/owner/jobs/new">
-                                <Button>Tạo tin tuyển dụng</Button>
+                                <Button>{t('owner.shifts_createJob')}</Button>
                             </Link>
                         </div>
                     ) : (

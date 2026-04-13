@@ -1,0 +1,21 @@
+{
+    "completeProfile": "Hoàn thiện hồ sơ của bạn",
+    "completeProfileDesc": "Hồ sơ hoàn thiện giúp bạn nhận được nhiều cơ hội làm việc hơn",
+    "completion": "hoàn thành",
+    "addAvatar": "Thêm ảnh đại diện",
+    "addPhone": "Thêm số điện thoại",
+    "addBio": "Thêm giới thiệu bản thân",
+    "verifyIdentity": "Xác minh danh tính",
+    "addLanguage": "Thêm kỹ năng ngôn ngữ",
+    "addExperience": "Thêm kinh nghiệm làm việc",
+    "publicProfile": "Xem hồ sơ công khai",
+    "shareProfile": "Chia sẻ link này cho nhà tuyển dụng",
+    "workExperience": "Kinh nghiệm làm việc",
+    "add": "Thêm",
+    "present": "Hiện tại",
+    "noExperience": "Chưa có kinh nghiệm làm việc",
+    "errorSaveExp": "Lỗi lưu kinh nghiệm",
+    "successSaveExp": "Đã thêm kinh nghiệm",
+    "errorDelExp": "Lỗi xóa kinh nghiệm",
+    "successDelExp": "Đã xóa kinh nghiệm"
+}

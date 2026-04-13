@@ -1,0 +1,17 @@
+{
+    "title": "Video giới thiệu",
+    "description": "Gây ấn tượng với nhà tuyển dụng bằng một video ngắn 30-60 giây",
+    "uploadTitle": "Tải lên video của bạn",
+    "uploadHelper": "Kéo thả hoặc nhấp để chọn tệp video. Hỗ trợ MP4, MOV, WebM. Tối đa 50MB.",
+    "tipsTitle": "Mẹo quay video:",
+    "tip1": "Mỉm cười và chào hỏi thân thiện",
+    "tip2": "Giới thiệu tên và kinh nghiệm làm việc (nếu có)",
+    "tip3": "Nói về trình độ ngôn ngữ của bạn (Nhật/Hàn/Anh)",
+    "tip4": "Đảm bảo đủ ánh sáng và âm thanh rõ ràng",
+    "skipStep": "Bỏ qua bước này",
+    "tooLarge": "Video quá lớn. Giới hạn 50MB.",
+    "invalidType": "Vui lòng chọn tệp video.",
+    "success": "Video đã được tải lên!",
+    "error": "Lỗi tải video",
+    "submitting": "Đang tải lên..."
+}

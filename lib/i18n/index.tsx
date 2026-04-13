@@ -1,16 +1,40 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import viData from './vi.json';
-import enData from './en.json';
-import jaData from './ja.json';
+
+// vi imports
+import viCommon from './locales/vi/common.json';
+import viAuth from './locales/vi/auth.json';
+import viForms from './locales/vi/forms.json';
+import viDashboard from './locales/vi/dashboard.json';
+import viProfile from './locales/vi/profile.json';
+import viOnboarding from './locales/vi/onboarding.json';
+import viJobDetails from './locales/vi/jobDetails.json';
+
+// en imports 
+import enCommon from './locales/en/common.json';
+import enAuth from './locales/en/auth.json';
+import enForms from './locales/en/forms.json';
+import enDashboard from './locales/en/dashboard.json';
+import enProfile from './locales/en/profile.json';
+import enOnboarding from './locales/en/onboarding.json';
+import enJobDetails from './locales/en/jobDetails.json';
+
+// ja imports
+import jaCommon from './locales/ja/common.json';
+import jaAuth from './locales/ja/auth.json';
+import jaForms from './locales/ja/forms.json';
+import jaDashboard from './locales/ja/dashboard.json';
+import jaProfile from './locales/ja/profile.json';
+import jaOnboarding from './locales/ja/onboarding.json';
+import jaJobDetails from './locales/ja/jobDetails.json';
 
 export type Locale = 'vi' | 'en' | 'ja';
 
 const dictionaries: Record<Locale, any> = {
-    vi: viData,
-    en: enData,
-    ja: jaData,
+    vi: { common: viCommon, auth: viAuth, forms: viForms, dashboard: viDashboard, profile: viProfile, onboarding: viOnboarding, jobDetails: viJobDetails },
+    en: { common: enCommon, auth: enAuth, forms: enForms, dashboard: enDashboard, profile: enProfile, onboarding: enOnboarding, jobDetails: enJobDetails },
+    ja: { common: jaCommon, auth: jaAuth, forms: jaForms, dashboard: jaDashboard, profile: jaProfile, onboarding: jaOnboarding, jobDetails: jaJobDetails }
 };
 
 interface I18nContextType {
@@ -27,7 +51,6 @@ export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         setMounted(true);
-        // On mount, read from localStorage
         const stored = localStorage.getItem('tapy_locale') as Locale;
         if (stored && ['vi', 'en', 'ja'].includes(stored)) {
             setLocaleState(stored);
@@ -41,23 +64,19 @@ export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
 
     const t = (keyStr: string): string => {
         const keys = keyStr.split('.');
-        const activeDictionary = dictionaries[locale] || viData;
+        const activeDictionary = dictionaries[locale] || dictionaries.vi;
         let result: any = activeDictionary;
         
         for (const k of keys) {
             if (result && typeof result === 'object' && k in result) {
                 result = result[k];
             } else {
-                return keyStr; // Fallback to key if not found
+                return keyStr;
             }
         }
         return typeof result === 'string' ? result : keyStr;
     };
 
-    // Before mounting, render nothing to avoid hydration mismatch, or render with default 'vi'
-    // but the safest for no hydration mismatch on server vs client is standard rendering 
-    // because translations might flicker otherwise. We will just render it with 'vi' initially 
-    // during SSR, then hydrate.
     return (
         <I18nContext.Provider value={{ locale, setLocale, t }}>
             {children}
@@ -68,10 +87,9 @@ export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
 export const useTranslation = () => {
     const context = useContext(I18nContext);
     if (!context) {
-        // Fallback for components used outside provider (e.g. static pages if any)
         const t = (keyStr: string): string => {
             const keys = keyStr.split('.');
-            let result: any = viData;
+            let result: any = dictionaries.vi;
             for (const k of keys) {
                 if (result && typeof result === 'object' && k in result) {
                     result = result[k];

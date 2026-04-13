@@ -1,0 +1,10 @@
+{
+    "instantBookSuccess": "Bạn đủ điều kiện để đặt chỗ ngay lập tức!",
+    "requestBookRequired": "Cần gửi yêu cầu cho chủ nhà hàng",
+    "missingLanguage": "Bạn chưa có kỹ năng ngôn ngữ yêu cầu",
+    "lowLanguageLevel": "Trình độ ngôn ngữ của bạn chưa đạt yêu cầu",
+    "lowReliability": "Điểm tin cậy của bạn chưa đạt yêu cầu",
+    "accountFrozen": "Tài khoản của bạn đang bị tạm khóa",
+    "notVerified": "Bạn cần hoàn tất xác minh danh tính (upload video giới thiệu)",
+    "needImprovement": "Bạn cần cải thiện:"
+}

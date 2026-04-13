@@ -1,0 +1,20 @@
+{
+    "workerTitle": "プロフィールを完了して応募する",
+    "workerDesc": "求人に応募するには、プロフィールの少なくとも80%を完了する必要があります",
+    "ownerTitle": "プロフィールを完了して求人を掲載する",
+    "ownerDesc": "求人を掲載するには、プロフィールの少なくとも70%を完了する必要があります",
+    "actionText": "プロフィールを完了する",
+    "progress": "完了状況",
+    "needed": "あと",
+    "apply": "応募可能に",
+    "post": "掲載可能に",
+    "stepsNeeded": "完了に必要なステップ：",
+    "addDob": "生年月日を追加",
+    "verifyLanguage": "語学力の確認",
+    "verifyIdentity": "本人確認（ID/パスポート）",
+    "addRestaurantInfo": "飲食店情報を追加",
+    "verifyLicense": "営業許可証の確認",
+    "profileComplete": "プロフィールが完了しました！",
+    "workerCompleteMsg": "Tapyのすべての求人に応募できるようになりました",
+    "ownerCompleteMsg": "求人情報の掲載と候補者の管理ができるようになりました"
+}

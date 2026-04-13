@@ -1,4 +1,5 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -57,6 +58,7 @@ const levelsByLanguage: Record<LanguageType, { value: LanguageLevel; label: stri
 };
 
 export default function WorkerLanguagesPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [languageSkills, setLanguageSkills] = useState<LanguageSkill[]>([
@@ -160,7 +162,7 @@ export default function WorkerLanguagesPage() {
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-semibold text-foreground">Bước 2/4</span>
-                        <span className="text-sm text-muted-foreground">Kỹ năng ngôn ngữ</span>
+                        <span className="text-sm text-muted-foreground">{t('onboarding.worker_langSkills')}</span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div className="h-full bg-primary w-1/2 transition-all duration-300"></div>
@@ -253,7 +255,7 @@ export default function WorkerLanguagesPage() {
                                     </label>
                                     <ImageUpload
                                         label=""
-                                        helperText="Upload ảnh/PDF chứng chỉ để được xác minh nhanh hơn"
+                                        helperText={t('onboarding.worker_uploadCertHint')}
                                         onFileSelect={(file) => updateLanguage(index, 'certificateFile', file)}
                                         onFileRemove={() => updateLanguage(index, 'certificateFile', null)}
                                         accept="image/*,.pdf"
@@ -278,7 +280,7 @@ export default function WorkerLanguagesPage() {
                     <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-start gap-3">
                         <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                         <p className="text-sm text-foreground">
-                            <strong>Mẹo:</strong> Upload chứng chỉ để được xác minh và tăng độ tin cậy của bạn lên đến 100%
+                            <strong>{t('onboarding.worker_tip')}</strong> Upload chứng chỉ để được xác minh và tăng độ tin cậy của bạn lên đến 100%
                         </p>
                     </div>
 

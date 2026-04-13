@@ -1,0 +1,20 @@
+{
+    "workerTitle": "Complete your profile to apply",
+    "workerDesc": "You need to complete at least 80% of your profile to apply for jobs",
+    "ownerTitle": "Complete your profile to post jobs",
+    "ownerDesc": "You need to complete at least 70% of your profile to post job openings",
+    "actionText": "Complete Profile",
+    "progress": "Completion Progress",
+    "needed": "more to",
+    "apply": "apply",
+    "post": "post",
+    "stepsNeeded": "Steps needed to complete:",
+    "addDob": "Add Date of Birth",
+    "verifyLanguage": "Verify Language Skills",
+    "verifyIdentity": "Verify Identity (ID/Passport)",
+    "addRestaurantInfo": "Add Restaurant Info",
+    "verifyLicense": "Verify Business License",
+    "profileComplete": "Profile Complete!",
+    "workerCompleteMsg": "You can now apply for all jobs on Tapy",
+    "ownerCompleteMsg": "You can now post job openings and manage candidates"
+}

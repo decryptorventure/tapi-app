@@ -1,4 +1,5 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -9,6 +10,7 @@ import { toast } from 'sonner';
 import { Loader2, Building2, MapPin, FileText } from 'lucide-react';
 
 export default function OwnerProfilePage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -206,7 +208,7 @@ export default function OwnerProfilePage() {
                             onChange={(e) => setFormData({ ...formData, cuisineType: e.target.value })}
                             className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                         >
-                            <option value="">Chọn loại ẩm thực</option>
+                            <option value="">{t('onboarding.owner_selectCuisineType')}</option>
                             <option value="japanese">🇯🇵 Nhật Bản</option>
                             <option value="korean">🇰🇷 Hàn Quốc</option>
                             <option value="vietnamese">🇻🇳 Việt Nam</option>
@@ -256,22 +258,22 @@ export default function OwnerProfilePage() {
                             onChange={(e) => setFormData({ ...formData, restaurantAddress: e.target.value })}
                             rows={2}
                             className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
-                            placeholder="Số nhà, đường, phường/xã, quận/huyện, TP.HCM"
+                            placeholder={t('onboarding.owner_addressPlaceholder')}
                         />
                     </div>
 
                     {/* Logo & Cover */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <ImageUpload
-                            label="Logo nhà hàng"
-                            helperText="Ảnh vuông, tối đa 5MB"
+                            label={t('onboarding.owner_restaurantLogo')}
+                            helperText={t('onboarding.owner_squareImageHint')}
                             onFileSelect={(file) => setLogoFile(file)}
                             onFileRemove={() => setLogoFile(null)}
                             accept="image/*"
                         />
                         <ImageUpload
-                            label="Ảnh bìa nhà hàng"
-                            helperText="Khổ ngang, tối đa 5MB"
+                            label={t('onboarding.owner_restaurantCover')}
+                            helperText={t('onboarding.owner_landscapeImageHint')}
                             onFileSelect={(file) => setCoverFile(file)}
                             onFileRemove={() => setCoverFile(null)}
                             accept="image/*"
@@ -282,7 +284,7 @@ export default function OwnerProfilePage() {
                     <div className="border-t border-slate-200 pt-6">
                         <div className="flex items-center gap-2 mb-4">
                             <FileText className="w-5 h-5 text-slate-600" />
-                            <h3 className="font-medium text-slate-900">Giấy phép kinh doanh</h3>
+                            <h3 className="font-medium text-slate-900">{t('onboarding.owner_businessLicense')}</h3>
                         </div>
 
                         <div>
@@ -300,8 +302,8 @@ export default function OwnerProfilePage() {
 
                         <div className="mt-4">
                             <ImageUpload
-                                label="Ảnh giấy phép kinh doanh (tùy chọn)"
-                                helperText="Tải lên ảnh hoặc bản scan rõ ràng"
+                                label={t('onboarding.owner_licenseImageOptional')}
+                                helperText={t('onboarding.owner_uploadClearScan')}
                                 onFileSelect={(file) => setLicenseFile(file)}
                                 onFileRemove={() => setLicenseFile(null)}
                                 accept="image/*,.pdf"
@@ -311,7 +313,7 @@ export default function OwnerProfilePage() {
 
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
                             <p className="text-sm text-blue-800">
-                                💡 <strong>Lưu ý:</strong> Giấy phép kinh doanh sẽ được xác minh trong 24-48 giờ.
+                                💡 <strong>{t('onboarding.owner_note')}</strong> Giấy phép kinh doanh sẽ được xác minh trong 24-48 giờ.
                                 Bạn vẫn có thể đăng tin tuyển dụng trong thời gian chờ xác minh.
                             </p>
                         </div>
@@ -339,7 +341,7 @@ export default function OwnerProfilePage() {
                                     Đang lưu...
                                 </>
                             ) : (
-                                'Lưu và tiếp tục'
+                                t('onboarding.owner_saveAndContinue')
                             )}
                         </Button>
                     </div>

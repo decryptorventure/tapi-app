@@ -1,0 +1,18 @@
+{
+    "title": "語学力",
+    "description": "就職のチャンスを増やすために資格を追加してください（応募に必須です）",
+    "addLanguage": "言語を追加",
+    "language": "言語",
+    "chooseLanguage": "言語を選択",
+    "level": "レベル",
+    "chooseLevel": "レベルを選択",
+    "certificateLabel": "証明書（PDFまたは画像）",
+    "certificateHelper": "言語資格の画像またはスキャンをアップロードしてください",
+    "saving": "保存中...",
+    "addSkill": "スキルを追加",
+    "fillAll": "すべての情報を入力してください",
+    "success": "語学力が追加されました！ 確認待ちです",
+    "rejectionReason": "理由",
+    "nextIdentity": "次へ: 本人確認",
+    "rejected": "却下"
+}

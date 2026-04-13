@@ -1,4 +1,5 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -8,6 +9,7 @@ import { toast } from 'sonner';
 import { Loader2, MapPin, Navigation, Search, CheckCircle2 } from 'lucide-react';
 
 export default function OwnerLocationPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [checkingAuth, setCheckingAuth] = useState(true);
@@ -118,7 +120,7 @@ export default function OwnerLocationPage() {
                     <div className="bg-orange-50 p-4 rounded-xl border border-orange-100 flex items-start gap-3">
                         <Navigation className="w-5 h-5 text-orange-600 mt-0.5" />
                         <div>
-                            <h4 className="text-sm font-bold text-orange-900">Thông tin vị trí</h4>
+                            <h4 className="text-sm font-bold text-orange-900">{t('onboarding.owner_locationInfo')}</h4>
                             <p className="text-xs text-orange-700 leading-relaxed">
                                 Vui lòng nhập địa chỉ chính xác của nhà hàng. Thông tin này sẽ giúp nhân viên tìm thấy bạn dễ dàng hơn.
                             </p>
@@ -138,7 +140,7 @@ export default function OwnerLocationPage() {
                                     value={address}
                                     onChange={(e) => setAddress(e.target.value)}
                                     className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                                    placeholder="Nhập số nhà, tên đường, quận/huyện..."
+                                    placeholder={t('onboarding.owner_addressPlaceholder')}
                                 />
                             </div>
                         </div>
@@ -165,7 +167,7 @@ export default function OwnerLocationPage() {
                                         Đang lưu...
                                     </>
                                 ) : (
-                                    'Hoàn tất & Tiếp tục'
+                                    t('onboarding.owner_finishAndContinue')
                                 )}
                             </Button>
                         </div>

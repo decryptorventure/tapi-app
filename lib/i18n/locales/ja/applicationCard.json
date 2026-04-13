@@ -1,0 +1,14 @@
+{
+    "approved": "承認されました",
+    "pending": "承認待ち",
+    "rejected": "却下されました",
+    "completed": "完了",
+    "cancelled": "キャンセル済み",
+    "restaurant": "飲食店",
+    "noAddress": "住所未登録",
+    "viewQr": "QRコードを表示",
+    "waitingOwner": "Ownerの承認待ち",
+    "viewDetails": "詳細を表示",
+    "viewOtherJobs": "他の求人を見る",
+    "instantBook": "Instant Book"
+}

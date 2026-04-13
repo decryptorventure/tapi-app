@@ -1,4 +1,5 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -53,6 +54,7 @@ interface OwnerProfile {
 }
 
 export default function OwnerDashboardPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState<OwnerProfile | null>(null);
@@ -430,19 +432,19 @@ export default function OwnerDashboardPage() {
                 <div className="grid grid-cols-3 gap-3 md:gap-6">
                     <OwnerStatCard
                         icon={Briefcase}
-                        label="Đang tuyển"
+                        label={t('owner.dashboard_hiring')}
                         value={stats.activeJobs}
                         iconColorClass="text-primary"
                     />
                     <OwnerStatCard
                         icon={Clock}
-                        label="Chờ duyệt"
+                        label={t('owner.dashboard_pending')}
                         value={stats.pendingApplications}
                         iconColorClass="text-warning"
                     />
                     <OwnerStatCard
                         icon={Users}
-                        label="Nhân viên"
+                        label={t('owner.dashboard_workers')}
                         value={stats.totalWorkers}
                         iconColorClass="text-success"
                     />
@@ -480,7 +482,7 @@ export default function OwnerDashboardPage() {
                                         <Users className="w-8 h-8 text-muted-foreground/50" />
                                     </div>
                                     <div>
-                                        <p className="text-foreground font-bold text-lg mb-1">Chưa có ứng tuyển nào</p>
+                                        <p className="text-foreground font-bold text-lg mb-1">{t('owner.dashboard_noApplications')}</p>
                                         <p className="text-sm text-muted-foreground">
                                             Đăng tin để đón những nhân viên chất lượng
                                         </p>
@@ -537,14 +539,14 @@ export default function OwnerDashboardPage() {
                                                             <button
                                                                 onClick={(e) => handleApproveApplication(app.id, e)}
                                                                 className="p-2 bg-success/10 text-success hover:bg-success/20 rounded-lg transition-colors"
-                                                                title="Duyệt"
+                                                                title={t('owner.dashboard_approve')}
                                                             >
                                                                 <CheckCircle2 className="w-4 h-4" />
                                                             </button>
                                                             <button
                                                                 onClick={(e) => handleRejectApplication(app.id, e)}
                                                                 className="p-2 bg-destructive/10 text-destructive hover:bg-destructive/20 rounded-lg transition-colors"
-                                                                title="Từ chối"
+                                                                title={t('owner.dashboard_reject')}
                                                             >
                                                                 <XCircle className="w-4 h-4" />
                                                             </button>
@@ -578,7 +580,7 @@ export default function OwnerDashboardPage() {
                                         <p className="text-3xl font-bold text-foreground">
                                             {profile.profile_completion_percentage}%
                                         </p>
-                                        <p className="text-xs text-muted-foreground">Hoàn tất</p>
+                                        <p className="text-xs text-muted-foreground">{t('owner.dashboard_completedTask')}</p>
                                     </div>
                                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                                         <div
@@ -641,7 +643,7 @@ export default function OwnerDashboardPage() {
                                 <div className="p-2 bg-cta/10 rounded-lg">
                                     <Zap className="w-4 h-4 text-cta" />
                                 </div>
-                                <p className="text-sm font-bold text-foreground">Tuyển dụng thần tốc</p>
+                                <p className="text-sm font-bold text-foreground">{t('owner.dashboard_hiringSpeed')}</p>
                             </div>
                             <p className="text-xs text-muted-foreground leading-relaxed mb-4">
                                 Nhân viên sẽ xuất hiện ngay khi có ứng tuyển mới.

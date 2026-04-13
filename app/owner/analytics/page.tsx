@@ -1,4 +1,5 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -37,6 +38,7 @@ interface AnalyticsData {
 }
 
 export default function AnalyticsPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -195,7 +197,7 @@ export default function AnalyticsPage() {
                                 <div className="p-2 bg-indigo-100 rounded-lg">
                                     <BarChart3 className="w-5 h-5 text-indigo-600" />
                                 </div>
-                                <h1 className="text-xl font-bold text-foreground">Thống kê</h1>
+                                <h1 className="text-xl font-bold text-foreground">{t('owner.analytics_statistics')}</h1>
                             </div>
                         </div>
                         <Button
@@ -219,7 +221,7 @@ export default function AnalyticsPage() {
                             <div className="p-2 bg-primary/10 rounded-lg">
                                 <Briefcase className="w-4 h-4 text-primary" />
                             </div>
-                            <span className="text-xs text-muted-foreground">Tổng tin</span>
+                            <span className="text-xs text-muted-foreground">{t('owner.analytics_totalJobs')}</span>
                         </div>
                         <AnimatedCounter value={data.totalJobs} className="text-3xl font-bold text-foreground block" />
                     </div>
@@ -229,7 +231,7 @@ export default function AnalyticsPage() {
                             <div className="p-2 bg-success/10 rounded-lg">
                                 <CheckCircle2 className="w-4 h-4 text-success" />
                             </div>
-                            <span className="text-xs text-muted-foreground">Hoàn thành</span>
+                            <span className="text-xs text-muted-foreground">{t('owner.analytics_completed')}</span>
                         </div>
                         <AnimatedCounter value={data.completedJobs} className="text-3xl font-bold text-success block" />
                     </div>
@@ -239,7 +241,7 @@ export default function AnalyticsPage() {
                             <div className="p-2 bg-warning/10 rounded-lg">
                                 <Users className="w-4 h-4 text-warning" />
                             </div>
-                            <span className="text-xs text-muted-foreground">Ứng tuyển</span>
+                            <span className="text-xs text-muted-foreground">{t('owner.analytics_applications')}</span>
                         </div>
                         <AnimatedCounter value={data.totalApplications} className="text-3xl font-bold text-warning block" />
                     </div>
@@ -249,9 +251,9 @@ export default function AnalyticsPage() {
                             <div className="p-2 bg-emerald-100 rounded-lg">
                                 <DollarSign className="w-4 h-4 text-emerald-600" />
                             </div>
-                            <span className="text-xs text-muted-foreground">Đã chi</span>
+                            <span className="text-xs text-muted-foreground">{t('owner.analytics_spent')}</span>
                         </div>
-                        <AnimatedCounter value={data.totalSpent} className="text-2xl font-bold text-emerald-600 block" suffix="đ" />
+                        <AnimatedCounter value={data.totalSpent} className="text-2xl font-bold text-emerald-600 block" suffix={t('owner.analytics_vnd')} />
                     </div>
                 </div>
 
@@ -279,11 +281,11 @@ export default function AnalyticsPage() {
                 {/* Application Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="bg-card rounded-2xl border border-border p-6">
-                        <h3 className="font-bold text-foreground mb-4">Tỷ lệ duyệt</h3>
+                        <h3 className="font-bold text-foreground mb-4">{t('owner.analytics_approvalRate')}</h3>
                         <div className="space-y-4">
                             <div>
                                 <div className="flex justify-between text-sm mb-2">
-                                    <span className="text-muted-foreground">Đã duyệt</span>
+                                    <span className="text-muted-foreground">{t('owner.analytics_approved')}</span>
                                     <span className="font-bold text-success">{data.approvedApplications}</span>
                                 </div>
                                 <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -295,7 +297,7 @@ export default function AnalyticsPage() {
                             </div>
                             <div>
                                 <div className="flex justify-between text-sm mb-2">
-                                    <span className="text-muted-foreground">Từ chối</span>
+                                    <span className="text-muted-foreground">{t('owner.analytics_rejected')}</span>
                                     <span className="font-bold text-destructive">{data.rejectedApplications}</span>
                                 </div>
                                 <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -309,14 +311,14 @@ export default function AnalyticsPage() {
                     </div>
 
                     <div className="bg-card rounded-2xl border border-border p-6">
-                        <h3 className="font-bold text-foreground mb-4">Chất lượng worker</h3>
+                        <h3 className="font-bold text-foreground mb-4">{t('owner.analytics_workerQuality')}</h3>
                         <div className="flex items-center justify-center h-32">
                             <div className="text-center">
                                 <AnimatedCounter
                                     value={data.averageWorkerScore || 0}
                                     className="text-5xl font-bold text-foreground block"
                                 />
-                                <p className="text-sm text-muted-foreground mt-2">Điểm tin cậy trung bình</p>
+                                <p className="text-sm text-muted-foreground mt-2">{t('owner.analytics_avgReliability')}</p>
                             </div>
                         </div>
                     </div>

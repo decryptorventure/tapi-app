@@ -1,0 +1,31 @@
+{
+    "createJob": "Đăng tin tuyển dụng",
+    "jobTitle": "Tiêu đề công việc",
+    "jobTitlePlaceholder": "Ví dụ: Phục vụ bàn nhà hàng Sushi...",
+    "description": "Mô tả công việc (Tùy chọn)",
+    "descriptionPlaceholder": "Mô tả yêu cầu chi tiết công việc...",
+    "thumbnail": "Ảnh đại diện công việc (Tùy chọn)",
+    "thumbnailHelper": "Upload ảnh nhà hàng hoặc môi trường làm việc",
+    "uploading": "Đang tải ảnh lên...",
+    "timeAndSalary": "Thời gian & Mức lương",
+    "date": "Ngày làm việc",
+    "startTime": "Giờ bắt đầu",
+    "endTime": "Giờ kết thúc",
+    "hourlyRate": "Mức lương theo giờ (VNĐ)",
+    "hourlyRatePlaceholder": "Ví dụ: 30000",
+    "requirements": "Yêu cầu ứng viên",
+    "language": "Ngôn ngữ yêu cầu",
+    "targetLevel": "Trình độ tối thiểu",
+    "reliabilityScore": "Điểm tin cậy tối thiểu",
+    "reliabilityHelper": "Ứng viên cần đạt số điểm này mới được áp dụng",
+    "hiringStats": "Thông tin tuyển dụng",
+    "maxWorkers": "Số lượng cần tuyển",
+    "maxWorkersPlaceholder": "Ví dụ: 2",
+    "dressCode": "Đồng phục / Trang phục (Tùy chọn)",
+    "dressCodePlaceholder": "Ví dụ: Áo phông sẫm màu, quần đen...",
+    "validation": {
+        "missingLanguage": "Vui lòng chọn ngôn ngữ yêu cầu",
+        "successJob": "Tin tuyển dụng đã được đăng!",
+        "errorJob": "Lỗi tạo tin tuyển dụng"
+    }
+}

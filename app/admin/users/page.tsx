@@ -1,4 +1,5 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -28,6 +29,7 @@ import { vi } from 'date-fns/locale';
 type TabType = 'all' | 'workers' | 'owners';
 
 export default function UsersPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<UserListItem[]>([]);
@@ -247,8 +249,8 @@ export default function UsersPage() {
         <div className="p-6 space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-foreground">Quản lý người dùng</h1>
-                <p className="text-sm text-muted-foreground">Xem, chỉnh sửa và quản lý tài khoản người dùng</p>
+                <h1 className="text-2xl font-bold text-foreground">{t('admin.users_manageUsers')}</h1>
+                <p className="text-sm text-muted-foreground">{t('admin.users_manageUsersDesc')}</p>
             </div>
 
             {/* Tabs */}
@@ -278,13 +280,13 @@ export default function UsersPage() {
                 columns={columns}
                 data={users}
                 loading={loading}
-                searchPlaceholder="Tìm theo tên, email, SĐT..."
+                searchPlaceholder={t('admin.users_searchUser')}
                 serverSidePagination
                 pageSize={pageSize}
                 currentPage={page}
                 totalItems={totalItems}
                 onPageChange={setPage}
-                emptyMessage="Không tìm thấy người dùng nào"
+                emptyMessage={t('admin.users_noUsersFound')}
             />
         </div>
     );

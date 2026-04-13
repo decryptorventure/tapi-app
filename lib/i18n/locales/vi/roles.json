@@ -1,0 +1,11 @@
+{
+    "worker": "Người lao động",
+    "owner": "Chủ nhà hàng",
+    "selectRole": "Chọn vai trò của bạn",
+    "workerDesc": "Tìm việc làm thêm tại nhà hàng Nhật/Hàn",
+    "ownerDesc": "Tuyển nhân viên part-time cho nhà hàng",
+    "selectedToast": "Vai trò đã được chọn:",
+    "loginRequired": "Vui lòng đăng nhập trước",
+    "dbError": "Lỗi database",
+    "error": "Lỗi chọn vai trò"
+}

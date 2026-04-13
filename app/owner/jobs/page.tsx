@@ -1,4 +1,5 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -28,13 +29,7 @@ import { Job, JobStatus } from '@/types/database.types';
 import { PageLoader } from '@/components/shared/page-loader';
 import { EmptyState } from '@/components/shared/empty-state';
 
-const statusLabels: Record<JobStatus, { label: string; color: string }> = {
-    open: { label: 'Đang mở', color: 'bg-success/10 text-success' },
-    filled: { label: 'Đã đủ người', color: 'bg-primary/10 text-primary' },
-    completed: { label: 'Hoàn thành', color: 'bg-slate-100 text-slate-700' },
-    cancelled: { label: 'Đã hủy', color: 'bg-destructive/10 text-destructive' },
-    expired: { label: 'Hết hạn', color: 'bg-slate-100 text-slate-500' },
-};
+
 
 // Language badge configuration with icons and colors (no emoji)
 const languageConfig: Record<string, { label: string; color: string; bgColor: string }> = {
@@ -44,6 +39,15 @@ const languageConfig: Record<string, { label: string; color: string; bgColor: st
 };
 
 export default function OwnerJobsPage() {
+    const { t } = useTranslation();
+    
+    const statusLabels: Record<JobStatus, { label: string; color: string }> = {
+        open: { label: t('owner.jobs_open'), color: 'bg-success/10 text-success' },
+        filled: { label: t('owner.jobs_enoughPeople'), color: 'bg-primary/10 text-primary' },
+        completed: { label: 'Hoàn thành', color: 'bg-slate-100 text-slate-700' },
+        cancelled: { label: 'Đã hủy', color: 'bg-destructive/10 text-destructive' },
+        expired: { label: 'Hết hạn', color: 'bg-slate-100 text-slate-500' },
+    };
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -183,7 +187,7 @@ export default function OwnerJobsPage() {
                                 <div className="p-2 bg-cta/10 rounded-lg">
                                     <Briefcase className="w-5 h-5 text-cta" />
                                 </div>
-                                <h1 className="text-xl font-bold text-foreground">Quản lý việc làm</h1>
+                                <h1 className="text-xl font-bold text-foreground">{t('owner.jobs_manageJobs')}</h1>
                             </div>
                         </div>
 
@@ -219,7 +223,7 @@ export default function OwnerJobsPage() {
                             <TrendingUp className="w-4 h-4 text-muted-foreground" />
                         </div>
                         <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-                        <p className="text-sm text-muted-foreground">Tổng tin tuyển</p>
+                        <p className="text-sm text-muted-foreground">{t('owner.jobs_totalJobs')}</p>
                     </div>
 
                     <div className="bg-card rounded-[2rem] border border-border p-6 card-hover">
@@ -229,7 +233,7 @@ export default function OwnerJobsPage() {
                             </div>
                         </div>
                         <p className="text-2xl font-bold text-success">{stats.open}</p>
-                        <p className="text-sm text-muted-foreground">Đang mở</p>
+                        <p className="text-sm text-muted-foreground">{t('owner.jobs_open')}</p>
                     </div>
 
                     <div className="bg-card rounded-[2rem] border border-border p-6 card-hover">
@@ -239,7 +243,7 @@ export default function OwnerJobsPage() {
                             </div>
                         </div>
                         <p className="text-2xl font-bold text-primary">{stats.filled}</p>
-                        <p className="text-sm text-muted-foreground">Đã đủ người</p>
+                        <p className="text-sm text-muted-foreground">{t('owner.jobs_enoughPeople')}</p>
                     </div>
 
                     <div className="bg-card rounded-[2rem] border border-border p-6 card-hover">
@@ -249,7 +253,7 @@ export default function OwnerJobsPage() {
                             </div>
                         </div>
                         <p className="text-2xl font-bold text-cta">{stats.applications}</p>
-                        <p className="text-sm text-muted-foreground">Ứng viên</p>
+                        <p className="text-sm text-muted-foreground">{t('owner.jobs_candidates')}</p>
                     </div>
                 </div>
 

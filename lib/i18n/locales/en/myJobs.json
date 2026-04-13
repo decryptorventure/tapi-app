@@ -1,0 +1,13 @@
+{
+    "title": "My Jobs",
+    "desc": "Manage your applied jobs",
+    "upcoming": "Upcoming",
+    "pending": "Pending",
+    "completed": "Completed",
+    "noUpcoming": "No upcoming jobs",
+    "noUpcomingDesc": "Jobs that have been approved will appear here",
+    "noPending": "No pending requests",
+    "noPendingDesc": "Apply for jobs to get started",
+    "noCompleted": "No completed jobs yet",
+    "noCompletedDesc": "Your work history will appear here"
+}

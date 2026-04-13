@@ -1,0 +1,9 @@
+{
+    "estimatedEarnings": "Estimated Earnings",
+    "hourlyRateLabel": "Hourly wage",
+    "totalEarnings": "Total Income",
+    "reliabilityLabel": "Reliability Score",
+    "slots": "Slots",
+    "scanQR": "Scan QR to Check-in",
+    "expiredWarning": "This job's application period has expired or the shift has passed."
+}
