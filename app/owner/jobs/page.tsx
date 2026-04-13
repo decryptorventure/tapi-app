@@ -66,7 +66,10 @@ export default function OwnerJobsPage() {
             }
 
             // Cleanup expired jobs first
-            await supabase.rpc('cleanup_expired_jobs');
+            const { error: rpcError } = await supabase.rpc('cleanup_expired_jobs');
+            if (rpcError) {
+                console.error("Error from cleanup_expired_jobs:", rpcError);
+            }
 
             const { data, error } = await supabase
                 .from('jobs')
@@ -75,7 +78,36 @@ export default function OwnerJobsPage() {
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
-            setJobs(data || []);
+
+            let jobsData = data || [];
+
+            // Khắc phục dự phòng: Tự động khóa việc chưa thể gọi qua RPC do quên update DB
+            const now = new Date();
+            const expiredJobIds = jobsData.filter(job => {
+                if (job.status !== 'open' && job.status !== 'filled') return false;
+                
+                // Construct Date object using Asia/Ho_Chi_Minh (+07:00) timezone
+                const endTimeStr = job.shift_end_time.split(':').slice(0, 2).join(':'); // ensure HH:mm format
+                const endDateTime = new Date(`${job.shift_date}T${endTimeStr}:00+07:00`);
+                
+                return endDateTime < now;
+            }).map(j => j.id);
+
+            if (expiredJobIds.length > 0) {
+                // Update on DB
+                await supabase.from('jobs').update({ status: 'expired' }).in('id', expiredJobIds);
+                // Cập nhật các đơn liên quan
+                await supabase.from('job_applications').update({ status: 'rejected' })
+                     .in('status', ['pending', 'approved', 'working'])
+                     .in('job_id', expiredJobIds);
+                     
+                // Update locally
+                jobsData = jobsData.map(job => 
+                    expiredJobIds.includes(job.id) ? { ...job, status: 'expired' } : job
+                );
+            }
+
+            setJobs(jobsData);
         } catch (error: unknown) {
             toast.error('Lỗi tải danh sách việc làm');
         } finally {

@@ -340,15 +340,20 @@ export default function JobDetailPage() {
                 <div className="max-w-2xl mx-auto flex gap-3">
                     <Button
                         onClick={handleApply}
-                        disabled={applyMutation.isPending || qualification?.hasApplied || job.status === 'expired'}
+                        disabled={
+                            applyMutation.isPending || 
+                            qualification?.hasApplied || 
+                            job.status === 'expired' || 
+                            (job.status === 'filled' && !qualification?.hasApplied)
+                        }
                         className={cn(
                             "font-bold py-6 rounded-xl flex items-center justify-center gap-2",
-                            qualification?.hasApplied || job.status === 'expired'
-                                ? "flex-1 cursor-default opacity-100" // Keep full width if applied but adapt style
+                            qualification?.hasApplied || job.status === 'expired' || (job.status === 'filled' && !qualification?.hasApplied)
+                                ? "flex-1 cursor-default opacity-100" 
                                 : "w-full",
                             qualification?.hasApplied
                                 ? "bg-muted text-muted-foreground hover:bg-muted"
-                                : job.status === 'expired'
+                                : (job.status === 'expired' || (job.status === 'filled' && !qualification?.hasApplied))
                                     ? "bg-slate-200 text-slate-500 hover:bg-slate-200 border-none"
                                     : isInstantBook
                                         ? "bg-success hover:bg-success/90 text-white"
@@ -364,6 +369,11 @@ export default function JobDetailPage() {
                             <>
                                 <Clock className="w-5 h-5 opacity-50" />
                                 Đã hết hạn
+                            </>
+                        ) : (job.status === 'filled' && !qualification?.hasApplied) ? (
+                            <>
+                                <CheckCircle2 className="w-5 h-5 opacity-50" />
+                                Đã đủ người
                             </>
                         ) : qualification?.hasApplied ? (
                             qualification.applicationStatus === 'pending' ? (

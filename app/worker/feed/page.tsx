@@ -66,12 +66,25 @@ export default function JobFeedPage() {
                         restaurant_cover_urls
                     )
                 `)
-                .eq('status', 'open')
+                .in('status', ['open', 'filled'])
                 .gte('shift_date', today)
                 .order('shift_date', { ascending: true });
 
             if (error) throw error;
-            return (data as any[]).map(job => ({
+            
+            // Khắc phục dự phòng: Loại bỏ job đã hết hạn trên UI nếu Database chưa kịp update
+            const now = new Date();
+            const validJobs = (data as any[]).filter(job => {
+                const shiftDateTime = new Date(`${job.shift_date}T${job.shift_end_time.substring(0, 5)}:00+07:00`);
+                if (shiftDateTime < now) {
+                    // Tự động dọn dẹp ngầm
+                    supabase.from('jobs').update({ status: 'expired' }).eq('id', job.id).then();
+                    return false;
+                }
+                return true;
+            });
+
+            return validJobs.map(job => ({
                 ...job,
                 restaurant_name: job.owner?.restaurant_name || (t('jobs.restaurant') || 'Nhà hàng')
             })) as (Job & { restaurant_name: string })[];

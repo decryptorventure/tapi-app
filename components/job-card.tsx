@@ -87,7 +87,12 @@ export const JobCard = memo(function JobCard({ job, variant = 'card', onClick }:
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <h3 className="font-semibold text-foreground truncate">{job.title}</h3>
-            {isInstantBook && (
+            {job.status === 'filled' ? (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                <CheckCircle2 className="w-3 h-3 mr-1" />
+                Đã đủ người
+              </span>
+            ) : isInstantBook && (
               <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-success/10 text-success text-xs font-medium">
                 <Sparkles className="w-3 h-3 mr-1" />
                 Instant
@@ -154,8 +159,13 @@ export const JobCard = memo(function JobCard({ job, variant = 'card', onClick }:
           </div>
         )}
 
-        {/* Instant Book Badge */}
-        {isInstantBook && (
+        {/* Instant Book / Filled Badge */}
+        {job.status === 'filled' ? (
+          <span className="absolute top-2 left-2 inline-flex items-center px-2 py-1 rounded-lg bg-primary text-white text-xs font-semibold shadow-lg">
+            <CheckCircle2 className="w-3 h-3 mr-1" />
+            Đã đủ người
+          </span>
+        ) : isInstantBook && (
           <span className="absolute top-2 left-2 inline-flex items-center px-2 py-1 rounded-lg bg-success text-white text-xs font-semibold shadow-lg">
             <Sparkles className="w-3 h-3 mr-1" />
             Instant
@@ -267,19 +277,23 @@ export const JobCard = memo(function JobCard({ job, variant = 'card', onClick }:
           </div>
         )}
 
-        {/* Action Button */}
         <Button
           onClick={handleApply}
-          disabled={applyMutation.isPending || qualification?.hasApplied || job.status === 'expired'}
+          disabled={
+            applyMutation.isPending || 
+            qualification?.hasApplied || 
+            job.status === 'expired' || 
+            (job.status === 'filled' && !qualification?.hasApplied)
+          }
           variant={
-            qualification?.hasApplied || job.status === 'expired'
+            qualification?.hasApplied || job.status === 'expired' || (job.status === 'filled' && !qualification?.hasApplied)
               ? "outline"
               : isInstantBook ? "success" : "cta"
           }
           size="lg"
           className={cn(
             "w-full",
-            job.status === 'expired' && "bg-slate-100 text-slate-400 border-none"
+            (job.status === 'expired' || (job.status === 'filled' && !qualification?.hasApplied)) && "bg-slate-100 text-slate-400 border-none"
           )}
         >
           {applyMutation.isPending ? (
@@ -289,6 +303,8 @@ export const JobCard = memo(function JobCard({ job, variant = 'card', onClick }:
             </>
           ) : job.status === 'expired' ? (
             'Đã hết hạn'
+          ) : (job.status === 'filled' && !qualification?.hasApplied) ? (
+            'Đã đủ người'
           ) : qualification?.hasApplied ? (
             qualification.applicationStatus === 'pending' ? (
               <>
