@@ -28,16 +28,20 @@ export function NotificationBell() {
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
 
+    // Use a ref to track the active channel and prevent multiple subscriptions
+    // especially in React Strict Mode or during frequent re-renders
     useEffect(() => {
         if (!user?.id) return;
 
         // Initial fetch
         fetchNotifications();
 
-        // Realtime subscription
         const supabase = createClient();
+        const uniqueId = Math.random().toString(36).substring(7);
+        const channelName = `notifications_${user.id}_${uniqueId}`;
+        
         const channel = supabase
-            .channel(`notifications_${user.id}`)
+            .channel(channelName)
             .on(
                 'postgres_changes',
                 {
@@ -58,14 +62,12 @@ export function NotificationBell() {
                     });
                 }
             )
-            .subscribe((status) => {
-                if (status === 'SUBSCRIBED') {
-                    console.log('Successfully subscribed to notifications');
-                }
-            });
+            .subscribe();
 
         return () => {
-            supabase.removeChannel(channel);
+            if (channel) {
+                supabase.removeChannel(channel);
+            }
         };
     }, [user?.id]);
 

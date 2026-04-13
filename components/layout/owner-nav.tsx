@@ -35,7 +35,8 @@ export function OwnerNav() {
     const handleLogout = async () => {
         const supabase = createClient();
         await supabase.auth.signOut();
-        router.push('/login');
+        // Use window.location for a harder reset to clear all client states/cookies
+        window.location.href = '/login';
     };
 
     const navItems = [
