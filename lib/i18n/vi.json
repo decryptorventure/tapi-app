@@ -50,23 +50,30 @@
         "joinNow": "Tham gia cùng hàng nghìn người lao động và nhà hàng trên Tapy"
     },
     "auth": {
-        "login": "Đăng nhập",
-        "signup": "Đăng ký",
-        "logout": "Đăng xuất",
+        "loginTitle": "Đăng nhập",
+        "loginSubtitle": "Chào mừng trở lại Tapy",
+        "signupTitle": "Tạo tài khoản",
+        "signupSubtitle": "Bắt đầu với Tapy",
         "email": "Email",
+        "emailPlaceholder": "name@example.com",
         "password": "Mật khẩu",
+        "passwordPlaceholder": "Nhập mật khẩu",
         "confirmPassword": "Xác nhận mật khẩu",
         "fullName": "Họ và tên",
-        "phoneNumber": "Số điện thoại",
-        "forgotPassword": "Quên mật khẩu?",
+        "role": "Bạn là ai?",
+        "roleWorker": "Người tìm việc (Worker)",
+        "roleOwner": "Chủ nhà hàng (Owner)",
+        "loginAction": "Đăng nhập",
+        "signupAction": "Đăng ký",
+        "signingIn": "Đang đăng nhập...",
+        "signingUp": "Đang đăng ký...",
         "noAccount": "Chưa có tài khoản?",
         "hasAccount": "Đã có tài khoản?",
-        "registerNow": "Đăng ký ngay",
-        "loginNow": "Đăng nhập ngay",
-        "welcomeBack": "Chào mừng bạn quay trở lại",
-        "createAccount": "Tạo tài khoản mới",
-        "loginToTapy": "Đăng nhập Tapy",
-        "signupToTapy": "Đăng ký Tapy"
+        "errors": {
+            "passwordMismatch": "Mật khẩu không khớp",
+            "loginFailed": "Email hoặc mật khẩu không đúng",
+            "signupFailed": "Lỗi đăng ký tài khoản"
+        }
     },
     "roles": {
         "worker": "Người lao động",
@@ -470,5 +477,45 @@
         "rmit": "RMIT Vietnam",
         "ftu": "Đại học Ngoại thương",
         "other": "Khác"
+    },
+    "forms": {
+        "createJob": "Đăng tin tuyển dụng",
+        "jobTitle": "Tiêu đề công việc",
+        "jobTitlePlaceholder": "Ví dụ: Phục vụ bàn nhà hàng Sushi...",
+        "description": "Mô tả công việc (Tùy chọn)",
+        "descriptionPlaceholder": "Mô tả yêu cầu chi tiết công việc...",
+        "thumbnail": "Ảnh đại diện công việc (Tùy chọn)",
+        "thumbnailHelper": "Upload ảnh nhà hàng hoặc môi trường làm việc",
+        "uploading": "Đang tải ảnh lên...",
+        "timeAndSalary": "Thời gian & Mức lương",
+        "date": "Ngày làm việc",
+        "startTime": "Giờ bắt đầu",
+        "endTime": "Giờ kết thúc",
+        "hourlyRate": "Mức lương theo giờ (VNĐ)",
+        "hourlyRatePlaceholder": "Ví dụ: 30000",
+        "requirements": "Yêu cầu ứng viên",
+        "language": "Ngôn ngữ yêu cầu",
+        "targetLevel": "Trình độ tối thiểu",
+        "reliabilityScore": "Điểm tin cậy tối thiểu",
+        "reliabilityHelper": "Ứng viên cần đạt số điểm này mới được áp dụng",
+        "hiringStats": "Thông tin tuyển dụng",
+        "maxWorkers": "Số lượng cần tuyển",
+        "maxWorkersPlaceholder": "Ví dụ: 2",
+        "dressCode": "Đồng phục / Trang phục (Tùy chọn)",
+        "dressCodePlaceholder": "Ví dụ: Áo phông sẫm màu, quần đen...",
+        "validation": {
+            "missingLanguage": "Vui lòng chọn ngôn ngữ yêu cầu",
+            "successJob": "Tin tuyển dụng đã được đăng!",
+            "errorJob": "Lỗi tạo tin tuyển dụng"
+        }
+    },
+    "jobDetails": {
+        "estimatedEarnings": "Thu nhập dự kiến",
+        "hourlyRateLabel": "Lương theo giờ",
+        "totalEarnings": "Tổng thu nhập",
+        "reliabilityLabel": "Điểm tin cậy",
+        "slots": "Vị trí",
+        "scanQR": "Quét QR để Check-in",
+        "expiredWarning": "Công việc này đã hết hạn đăng ký hoặc đã qua thời gian làm việc."
     }
 }

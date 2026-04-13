@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import {
@@ -206,11 +208,10 @@ export default function EditProfilePage() {
                             <User className="w-4 h-4 inline mr-1" />
                             {locale === 'vi' ? 'Họ và tên *' : 'Full Name *'}
                         </label>
-                        <input
+                        <Input
                             type="text"
                             value={profile.full_name}
                             onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
-                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             placeholder={locale === 'vi' ? 'Nguyễn Văn A' : 'John Doe'}
                             required
                         />
@@ -222,10 +223,9 @@ export default function EditProfilePage() {
                             <Mail className="w-4 h-4 inline mr-1" />
                             Email
                         </label>
-                        <input
+                        <Input
                             type="email"
                             value={profile.email}
-                            className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-500 cursor-not-allowed"
                             disabled
                         />
                     </div>
@@ -236,11 +236,10 @@ export default function EditProfilePage() {
                             <Phone className="w-4 h-4 inline mr-1" />
                             {locale === 'vi' ? 'Số điện thoại' : 'Phone Number'}
                         </label>
-                        <input
+                        <Input
                             type="tel"
                             value={profile.phone_number}
                             onChange={(e) => setProfile({ ...profile, phone_number: e.target.value })}
-                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             placeholder="0912345678"
                         />
                     </div>
@@ -251,12 +250,11 @@ export default function EditProfilePage() {
                             <Calendar className="w-4 h-4 inline mr-1" />
                             {locale === 'vi' ? 'Ngày sinh' : 'Date of Birth'}
                         </label>
-                        <input
+                        <Input
                             type="date"
                             value={profile.date_of_birth}
                             onChange={(e) => setProfile({ ...profile, date_of_birth: e.target.value })}
                             max={new Date().toISOString().split('T')[0]}
-                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         />
                     </div>
 
@@ -266,11 +264,10 @@ export default function EditProfilePage() {
                             <GraduationCap className="w-4 h-4 inline mr-1" />
                             {locale === 'vi' ? 'Trường đại học' : 'University'}
                         </label>
-                        <input
+                        <Input
                             type="text"
                             value={profile.university_name}
                             onChange={(e) => setProfile({ ...profile, university_name: e.target.value })}
-                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             placeholder={locale === 'vi' ? 'VD: Đại học Bách khoa Hà Nội' : 'e.g. MIT'}
                         />
                     </div>
@@ -281,11 +278,10 @@ export default function EditProfilePage() {
                             <FileText className="w-4 h-4 inline mr-1" />
                             {locale === 'vi' ? 'Giới thiệu bản thân' : 'Bio'}
                         </label>
-                        <textarea
+                        <Textarea
                             value={profile.bio}
                             onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                             rows={4}
-                            className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
                             placeholder={locale === 'vi' ? 'Viết một vài dòng về bản thân...' : 'Write a few lines about yourself...'}
                         />
                     </div>

@@ -51,23 +51,30 @@
         "joinNow": "Tapyを利用している何千人ものWorkerと飲食店に加わりましょう"
     },
     "auth": {
-        "login": "ログイン",
-        "signup": "新規登録",
-        "logout": "ログアウト",
+        "loginTitle": "ログイン",
+        "loginSubtitle": "Tapyへお帰りなさい",
+        "signupTitle": "アカウント作成",
+        "signupSubtitle": "Tapyを始める",
         "email": "メールアドレス",
+        "emailPlaceholder": "name@example.com",
         "password": "パスワード",
+        "passwordPlaceholder": "パスワードを入力",
         "confirmPassword": "パスワード（確認用）",
         "fullName": "氏名",
-        "phoneNumber": "電話番号",
-        "forgotPassword": "パスワードをお忘れですか？",
+        "role": "私は...",
+        "roleWorker": "求職者 (Worker)",
+        "roleOwner": "レストランオーナー (Owner)",
+        "loginAction": "ログイン",
+        "signupAction": "登録",
+        "signingIn": "ログイン中...",
+        "signingUp": "登録中...",
         "noAccount": "アカウントをお持ちでないですか？",
-        "hasAccount": "既にアカウントをお持ちですか？",
-        "registerNow": "今すぐ登録",
-        "loginNow": "今すぐログイン",
-        "welcomeBack": "おかえりなさい",
-        "createAccount": "新規アカウント作成",
-        "loginToTapy": "Tapyにログイン",
-        "signupToTapy": "Tapyに登録"
+        "hasAccount": "すでにアカウントをお持ちですか？",
+        "errors": {
+            "passwordMismatch": "パスワードが一致しません",
+            "loginFailed": "メールアドレスまたはパスワードが無効です",
+            "signupFailed": "アカウントの作成に失敗しました"
+        }
     },
     "roles": {
         "worker": "Worker",
@@ -471,5 +478,45 @@
         "rmit": "RMIT ベトナム",
         "ftu": "貿易大学",
         "other": "その他"
+    },
+    "forms": {
+        "createJob": "求人を掲載",
+        "jobTitle": "求人タイトル",
+        "jobTitlePlaceholder": "例: 寿司レストランのホールスタッフ...",
+        "description": "仕事内容説明 (任意)",
+        "descriptionPlaceholder": "詳細な仕事の要件などを入力...",
+        "thumbnail": "サムネイル画像 (任意)",
+        "thumbnailHelper": "レストランや職場の写真をアップロード",
+        "uploading": "画像をアップロード中...",
+        "timeAndSalary": "時間と給与",
+        "date": "勤務日",
+        "startTime": "開始時間",
+        "endTime": "終了時間",
+        "hourlyRate": "時給 (VND)",
+        "hourlyRatePlaceholder": "例: 30000",
+        "requirements": "応募要件",
+        "language": "必須言語",
+        "targetLevel": "必須レベル",
+        "reliabilityScore": "最低限の信頼性スコア",
+        "reliabilityHelper": "応募者はこのスコアに達する必要があります",
+        "hiringStats": "採用情報",
+        "maxWorkers": "募集人数",
+        "maxWorkersPlaceholder": "例: 2",
+        "dressCode": "服装・髪型 (任意)",
+        "dressCodePlaceholder": "例: 暗い色のシャツ、黒いズボン...",
+        "validation": {
+            "missingLanguage": "必須言語を選択してください",
+            "successJob": "求人を掲載しました！",
+            "errorJob": "求人掲載エラー"
+        }
+    },
+    "jobDetails": {
+        "estimatedEarnings": "予想収入",
+        "hourlyRateLabel": "時給",
+        "totalEarnings": "総収入",
+        "reliabilityLabel": "信頼性スコア",
+        "slots": "募集枠",
+        "scanQR": "QRをスキャンしてチェックイン",
+        "expiredWarning": "この求人の応募期間は終了したか、勤務時間が過ぎています。"
     }
 }

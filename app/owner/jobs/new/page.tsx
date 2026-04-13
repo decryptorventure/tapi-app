@@ -24,35 +24,38 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { LanguageType, LanguageLevel } from '@/types/database.types';
+import { useTranslation } from '@/lib/i18n';
 
-const languageLevels: Record<LanguageType, { value: LanguageLevel; label: string }[]> = {
+// We map dynamic translation keys instead of hardcoded strings
+const languageLevels: Record<LanguageType, { value: LanguageLevel; key: string }[]> = {
     japanese: [
-        { value: 'n5', label: 'N5 - Sơ cấp' },
-        { value: 'n4', label: 'N4 - Sơ trung' },
-        { value: 'n3', label: 'N3 - Trung cấp' },
-        { value: 'n2', label: 'N2 - Trung cao' },
-        { value: 'n1', label: 'N1 - Cao cấp' },
+        { value: 'n5', key: 'languageLevels.japanese.n5' },
+        { value: 'n4', key: 'languageLevels.japanese.n4' },
+        { value: 'n3', key: 'languageLevels.japanese.n3' },
+        { value: 'n2', key: 'languageLevels.japanese.n2' },
+        { value: 'n1', key: 'languageLevels.japanese.n1' },
     ],
     korean: [
-        { value: 'topik_1', label: 'TOPIK 1' },
-        { value: 'topik_2', label: 'TOPIK 2' },
-        { value: 'topik_3', label: 'TOPIK 3' },
-        { value: 'topik_4', label: 'TOPIK 4' },
-        { value: 'topik_5', label: 'TOPIK 5' },
-        { value: 'topik_6', label: 'TOPIK 6' },
+        { value: 'topik_1', key: 'languageLevels.korean.topik_1' },
+        { value: 'topik_2', key: 'languageLevels.korean.topik_2' },
+        { value: 'topik_3', key: 'languageLevels.korean.topik_3' },
+        { value: 'topik_4', key: 'languageLevels.korean.topik_4' },
+        { value: 'topik_5', key: 'languageLevels.korean.topik_5' },
+        { value: 'topik_6', key: 'languageLevels.korean.topik_6' },
     ],
     english: [
-        { value: 'a1', label: 'A1 - Beginner' },
-        { value: 'a2', label: 'A2 - Elementary' },
-        { value: 'b1', label: 'B1 - Intermediate' },
-        { value: 'b2', label: 'B2 - Upper Intermediate' },
-        { value: 'c1', label: 'C1 - Advanced' },
-        { value: 'c2', label: 'C2 - Proficiency' },
+        { value: 'a1', key: 'languageLevels.english.a1' },
+        { value: 'a2', key: 'languageLevels.english.a2' },
+        { value: 'b1', key: 'languageLevels.english.b1' },
+        { value: 'b2', key: 'languageLevels.english.b2' },
+        { value: 'c1', key: 'languageLevels.english.c1' },
+        { value: 'c2', key: 'languageLevels.english.c2' },
     ],
 };
 
 export default function NewJobPage() {
     const router = useRouter();
+    const { t } = useTranslation();
     const thumbnailInputRef = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -154,7 +157,7 @@ export default function NewJobPage() {
 
             // Validate
             if (!formData.requiredLanguage || !formData.requiredLanguageLevel) {
-                throw new Error('Vui lòng chọn ngôn ngữ yêu cầu');
+                throw new Error(t('forms.validation.missingLanguage'));
             }
 
             // Create job
@@ -182,11 +185,11 @@ export default function NewJobPage() {
 
             if (error) throw error;
 
-            toast.success('Tin tuyển dụng đã được đăng!');
+            toast.success(t('forms.validation.successJob'));
             router.push('/owner/jobs');
         } catch (error: any) {
             console.error('Job creation error:', error);
-            toast.error(error.message || 'Lỗi tạo tin tuyển dụng');
+            toast.error(error.message || t('forms.validation.errorJob'));
         } finally {
             setLoading(false);
         }
@@ -231,7 +234,7 @@ export default function NewJobPage() {
                             <div className="p-2 bg-cta/10 rounded-lg">
                                 <Briefcase className="w-5 h-5 text-cta" />
                             </div>
-                            <h1 className="text-xl font-bold text-foreground">Đăng tin tuyển dụng</h1>
+                            <h1 className="text-xl font-bold text-foreground">{t('forms.createJob')}</h1>
                         </div>
                         {/* Progress Indicator */}
                         <div className="hidden sm:flex items-center gap-2">
@@ -258,15 +261,15 @@ export default function NewJobPage() {
                                 <FileText className="w-5 h-5 text-primary" />
                             </div>
                             <div>
-                                <h2 className="text-lg font-bold text-foreground">Thông tin cơ bản</h2>
-                                <p className="text-sm text-muted-foreground">Chi tiết về công việc</p>
+                                <h2 className="text-lg font-bold text-foreground">{t("forms.hiringStats")}</h2>
+                                <p className="text-sm text-muted-foreground">{t("forms.descriptionPlaceholder")}</p>
                             </div>
                         </div>
 
                         {/* Job Title */}
                         <div>
                             <label className="block text-sm font-semibold text-foreground mb-2">
-                                Tiêu đề công việc <span className="text-destructive">*</span>
+                                {t('forms.jobTitle')} <span className="text-destructive">*</span>
                             </label>
                             <input
                                 type="text"
@@ -274,14 +277,14 @@ export default function NewJobPage() {
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                 className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground placeholder:text-muted-foreground"
-                                placeholder="VD: Nhân viên phục vụ ca tối"
+                                placeholder={t('forms.jobTitlePlaceholder')}
                             />
                         </div>
 
                         {/* Description */}
                         <div>
                             <label className="block text-sm font-semibold text-foreground mb-2">
-                                Mô tả công việc
+                                {t('forms.description')}
                             </label>
                             <textarea
                                 value={formData.description}
@@ -361,15 +364,15 @@ export default function NewJobPage() {
                                 <Calendar className="w-5 h-5 text-success" />
                             </div>
                             <div>
-                                <h2 className="text-lg font-bold text-foreground">Lịch làm việc</h2>
-                                <p className="text-sm text-muted-foreground">Ngày giờ ca làm</p>
+                                <h2 className="text-lg font-bold text-foreground">{t("forms.timeAndSalary")}</h2>
+                                <p className="text-sm text-muted-foreground">...</p>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label className="block text-sm font-semibold text-foreground mb-2">
-                                    Ngày làm <span className="text-destructive">*</span>
+                                    {t("forms.date")} <span className="text-destructive">*</span>
                                 </label>
                                 <div className="relative">
                                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
@@ -385,7 +388,7 @@ export default function NewJobPage() {
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-foreground mb-2">
-                                    Giờ bắt đầu <span className="text-destructive">*</span>
+                                    {t("forms.startTime")} <span className="text-destructive">*</span>
                                 </label>
                                 <div className="relative">
                                     <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
@@ -400,7 +403,7 @@ export default function NewJobPage() {
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-foreground mb-2">
-                                    Giờ kết thúc <span className="text-destructive">*</span>
+                                    {t("forms.endTime")} <span className="text-destructive">*</span>
                                 </label>
                                 <div className="relative">
                                     <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
@@ -423,8 +426,8 @@ export default function NewJobPage() {
                                 <Star className="w-5 h-5 text-warning" />
                             </div>
                             <div>
-                                <h2 className="text-lg font-bold text-foreground">Yêu cầu ứng viên</h2>
-                                <p className="text-sm text-muted-foreground">Kỹ năng và điều kiện</p>
+                                <h2 className="text-lg font-bold text-foreground">{t("forms.requirements")}</h2>
+                                
                             </div>
                         </div>
 
@@ -432,7 +435,7 @@ export default function NewJobPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-semibold text-foreground mb-2">
-                                    Ngôn ngữ yêu cầu <span className="text-destructive">*</span>
+                                    {t("forms.language")} <span className="text-destructive">*</span>
                                 </label>
                                 <div className="relative">
                                     <Languages className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none z-10" />
@@ -446,8 +449,8 @@ export default function NewJobPage() {
                                         })}
                                         className="w-full pl-11 pr-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground appearance-none"
                                     >
-                                        <option value="">Chọn ngôn ngữ</option>
-                                        <option value="japanese">Tiếng Nhật</option>
+                                        <option value="">{t("forms.language")}</option>
+                                        <option value="japanese">{t("languageLevels.japanese.n5")}</option>
                                         <option value="korean">Tiếng Hàn</option>
                                         <option value="english">Tiếng Anh</option>
                                     </select>
@@ -455,7 +458,7 @@ export default function NewJobPage() {
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-foreground mb-2">
-                                    Trình độ tối thiểu <span className="text-destructive">*</span>
+                                    {t("forms.targetLevel")} <span className="text-destructive">*</span>
                                 </label>
                                 <select
                                     required
@@ -464,10 +467,10 @@ export default function NewJobPage() {
                                     disabled={!formData.requiredLanguage}
                                     className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
                                 >
-                                    <option value="">Chọn trình độ</option>
+                                    <option value="">--</option>
                                     {availableLevels.map((level) => (
                                         <option key={level.value} value={level.value}>
-                                            {level.label}
+                                            {t(level.key)}
                                         </option>
                                     ))}
                                 </select>
@@ -478,7 +481,7 @@ export default function NewJobPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-semibold text-foreground mb-2">
-                                    Điểm tin cậy tối thiểu
+                                    {t("forms.reliabilityScore")}
                                 </label>
                                 <input
                                     type="range"
