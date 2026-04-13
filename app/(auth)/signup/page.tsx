@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -25,7 +25,7 @@ export default function SignupPage() {
     e.preventDefault();
     setLoading(true);
 
-    const supabase = createUntypedClient();
+    const supabase = createClient();
 
     try {
       // Create auth user (trigger will auto-create profile with email)

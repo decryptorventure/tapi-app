@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { adminService, UserDetail } from '@/lib/services/admin.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -78,7 +78,7 @@ export default function UserDetailPage() {
     };
 
     const fetchUserStats = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         // Applications count
         const { count: totalApplications } = await supabase
@@ -142,7 +142,7 @@ export default function UserDetailPage() {
         if (!confirm('Bạn có chắc muốn xóa người dùng này?')) return;
         setActionLoading('delete');
         try {
-            const supabase = createUntypedClient();
+            const supabase = createClient();
             const { data: { user: admin } } = await supabase.auth.getUser();
             if (admin) {
                 await adminService.deleteUser(userId, admin.id);
@@ -166,7 +166,7 @@ export default function UserDetailPage() {
 
         setActionLoading('reset');
         try {
-            const supabase = createUntypedClient();
+            const supabase = createClient();
             const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
                 redirectTo: `${window.location.origin}/reset-password`,
             });

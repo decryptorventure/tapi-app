@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ImageUpload } from '@/components/shared/image-upload';
 import { toast } from 'sonner';
@@ -109,7 +109,7 @@ export default function WorkerLanguagesPage() {
         e.preventDefault();
         setLoading(true);
 
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { data: { user } } = await supabase.auth.getUser();

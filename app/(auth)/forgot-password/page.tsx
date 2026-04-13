@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -17,7 +17,7 @@ export default function ForgotPasswordPage() {
         e.preventDefault();
         setLoading(true);
 
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { error } = await supabase.auth.resetPasswordForEmail(email, {

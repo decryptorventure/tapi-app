@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -30,8 +30,7 @@ import { cn } from '@/lib/utils';
 import { useJobQualification, useApplyToJob } from '@/hooks/use-job-matching';
 import { useAuth } from '@/hooks/use-auth';
 import { ImageCarousel } from '@/components/ui/image-carousel';
-import { ChatWindow } from '@/components/chat/chat-window';
-import { MessageCircle } from 'lucide-react';
+
 
 interface Job {
     id: string;
@@ -69,27 +68,19 @@ export default function JobDetailPage() {
 
     const [loading, setLoading] = useState(true);
     const [job, setJob] = useState<Job | null>(null);
-    const [isChatOpen, setIsChatOpen] = useState(false);
 
     const { data: qualification } = useJobQualification(jobId, user?.id || null);
     const applyMutation = useApplyToJob();
 
     const isInstantBook = qualification?.qualification.qualifiesForInstantBook;
 
-    // Check if chat should be auto-opened from URL params (e.g., from notification)
-    useEffect(() => {
-        const chatParam = searchParams.get('chat');
-        if (chatParam === 'open' && qualification?.hasApplied) {
-            setIsChatOpen(true);
-        }
-    }, [searchParams, qualification?.hasApplied]);
 
     useEffect(() => {
         fetchJob();
     }, [jobId]);
 
     const fetchJob = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { data, error } = await supabase
                 .from('jobs')
@@ -101,6 +92,7 @@ export default function JobDetailPage() {
                 .single();
 
             if (error) throw error;
+            // @ts-expect-error - Expected due to missing null checks or db strict types
             setJob(data as Job);
         } catch (error: any) {
             console.error('Fetch error:', error);
@@ -334,18 +326,6 @@ export default function JobDetailPage() {
             {/* Floating Action Button */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-card border-t border-border shadow-lg space-y-3">
                 <div className="max-w-2xl mx-auto flex gap-3">
-                    {/* Chat Button - Only show if applied */}
-                    {qualification?.hasApplied && qualification.applicationId && (
-                        <Button
-                            variant="outline"
-                            className="flex-1 py-6 rounded-xl border-2 hover:bg-muted/50"
-                            onClick={() => setIsChatOpen(true)}
-                        >
-                            <MessageCircle className="w-5 h-5 mr-2" />
-                            Nhắn tin
-                        </Button>
-                    )}
-
                     <Button
                         onClick={handleApply}
                         disabled={applyMutation.isPending || qualification?.hasApplied}
@@ -394,17 +374,6 @@ export default function JobDetailPage() {
                 </div>
             </div>
 
-            {/* Chat Window */}
-            {qualification?.hasApplied && qualification.applicationId && user && (
-                <ChatWindow
-                    isOpen={isChatOpen}
-                    onClose={() => setIsChatOpen(false)}
-                    applicationId={qualification.applicationId}
-                    currentUserId={user.id}
-                    recipientName={job?.owner?.restaurant_name || 'Nhà hàng'}
-                    recipientAvatar={job?.owner?.restaurant_logo_url}
-                />
-            )}
         </div>
     );
 }

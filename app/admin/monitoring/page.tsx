@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import {
     Users,
     Briefcase,
@@ -31,7 +31,7 @@ export default function MonitoringDashboard() {
 
     const fetchMetrics = async () => {
         setLoading(true);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Active workers (registered, not frozen)

@@ -3,7 +3,7 @@
  * Centralized file upload handling with comprehensive error management
  */
 
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 // Bucket configuration
 export const STORAGE_BUCKETS = {
@@ -181,7 +181,7 @@ export const StorageService = {
             return { success: false, error: validationError };
         }
 
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         const config = STORAGE_BUCKETS[bucket];
 
         // Generate file path
@@ -292,7 +292,7 @@ export const StorageService = {
      * Delete a file from storage
      */
     async delete(bucket: BucketName, filePath: string): Promise<{ success: boolean; error?: string }> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         const config = STORAGE_BUCKETS[bucket];
 
         try {
@@ -321,7 +321,7 @@ export const StorageService = {
      * Check if bucket exists
      */
     async checkBucketExists(bucket: BucketName): Promise<boolean> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         const config = STORAGE_BUCKETS[bucket];
 
         try {

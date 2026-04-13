@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -46,7 +46,7 @@ export default function FavoriteWorkersPage() {
     }, []);
 
     const fetchFavorites = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         setLoading(true);
 
         try {
@@ -92,7 +92,7 @@ export default function FavoriteWorkersPage() {
     };
 
     const handleRemoveFavorite = async (id: string) => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { error } = await supabase
                 .from('favorite_workers')

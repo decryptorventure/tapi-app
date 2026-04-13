@@ -2,13 +2,12 @@ import crypto from 'crypto';
 import QRCode from 'qrcode';
 
 /**
- * QR Code data structure for job check-in (NEW FLOW)
- * Owner generates QR per job → Worker scans to check-in
+ * QR Code data structure for job check-in (NEW OWNER FLOW)
+ * Owner has 1 static QR → Worker scans to check-in for any job at this restaurant
  */
-interface JobQRCodeData {
-  job_id: string;
+interface OwnerQRCodeData {
   owner_id: string;
-  secret_key: string;
+  type: 'owner_checkin';
   created_at: string;
 }
 
@@ -17,10 +16,9 @@ interface JobQRCodeData {
  */
 interface CheckinValidationResult {
   valid: boolean;
-  jobId?: string;
   ownerId?: string;
   error?: string;
-  errorCode?: 'INVALID_FORMAT' | 'INVALID_SIGNATURE' | 'EXPIRED' | 'GPS_OUT_OF_RANGE' | 'NOT_APPROVED' | 'ALREADY_CHECKED_IN';
+  errorCode?: 'INVALID_FORMAT' | 'INVALID_SIGNATURE' | 'EXPIRED';
 }
 
 /**
@@ -62,44 +60,39 @@ export class QRCodeService {
   }
 
   // ==========================================
-  // NEW FLOW: Owner generates QR for Job
+  // NEW FLOW: Static Owner QR
   // ==========================================
 
   /**
-   * Generate QR code for a job (Owner side)
-   * @param jobId - Job ID
+   * Generate static QR code for an Owner
    * @param ownerId - Owner user ID
    * @returns QR code as Data URL (base64 PNG image)
    */
-  static async generateJobQR(jobId: string, ownerId: string): Promise<{
+  static async generateOwnerQR(ownerId: string): Promise<{
     qrDataUrl: string;
     qrData: string;
-    secretKey: string;
   }> {
-    const secretKey = crypto.randomBytes(16).toString('hex');
-
-    const data: JobQRCodeData = {
-      job_id: jobId,
+    const data: OwnerQRCodeData = {
       owner_id: ownerId,
-      secret_key: secretKey,
+      type: 'owner_checkin',
       created_at: new Date().toISOString(),
     };
 
     // Generate signature for tamper protection
-    const signature = this.generateJobQRSignature(data);
+    const signature = this.generateOwnerQRSignature(data);
     const qrPayload = {
       ...data,
       signature,
-      version: 2, // New flow version
+      version: 3, // Version 3 for Owner-level static QR
     };
 
     const qrString = JSON.stringify(qrPayload);
 
     try {
       const qrCodeDataURL = await QRCode.toDataURL(qrString, {
-        errorCorrectionLevel: 'M',
+        errorCorrectionLevel: 'H',
         type: 'image/png',
-        width: 400,
+        width: 500,
         margin: 2,
         color: {
           dark: '#1e293b', // slate-800
@@ -110,88 +103,51 @@ export class QRCodeService {
       return {
         qrDataUrl: qrCodeDataURL,
         qrData: qrString,
-        secretKey,
       };
     } catch (error) {
       console.error('QR code generation error:', error);
-      throw new Error('Failed to generate QR code');
+      throw new Error('Failed to generate Owner QR code');
     }
   }
 
   /**
-   * Validate scanned QR code (Worker side)
+   * Validate scanned Owner QR code (Worker side)
    * @param qrString - Scanned QR code data
-   * @param expectedSecretKey - Secret key from database to verify
    */
-  static validateJobQR(qrString: string, expectedSecretKey?: string): CheckinValidationResult {
+  static validateOwnerQR(qrString: string): CheckinValidationResult {
     try {
       const qrData = JSON.parse(qrString);
 
       // Check signature first
       const { signature, version, ...data } = qrData;
 
-      // Try validating with current signature logic (V2)
       let isValidSignature = false;
       try {
-        const expectedSignature = this.generateJobQRSignature(data as any);
+        const expectedSignature = this.generateOwnerQRSignature(data as any);
         if (signature === expectedSignature) {
           isValidSignature = true;
         }
       } catch (e) { }
-
-      // If V2 signature fail, try legacy signature logic (if available)
-      if (!isValidSignature) {
-        try {
-          const legacySignature = this.generateLegacySignature(data);
-          if (signature === legacySignature) {
-            isValidSignature = true;
-          }
-        } catch (e) { }
-      }
 
       if (!isValidSignature) {
         return { valid: false, error: 'Mã QR không hợp lệ hoặc đã bị thay đổi', errorCode: 'INVALID_SIGNATURE' };
       }
 
       // Check mandatory fields
-      if (!data.job_id || !data.owner_id) {
-        // Fallback verify for legacy QR which might have differnt field names
-        // Legacy check: application_id, worker_id, job_id, expires_at
-        if (data.job_id && (data.worker_id || data.application_id)) {
-          // Legacy QR is for specific worker/application, but NEW FLOW requires Generic Job QR.
-          // Ensure this QR is NOT used for Check-in if it's a Worker QR.
-          // Wait: Original issue was Worker QR page generated codes.
-          // If worker scans an OLD Worker QR, it should fail because it's not an Owner QR.
-          // But if worker scans an OLD Owner QR (if any existed?), we accept.
-
-          // However, previous code generated QR with `job_id` and `owner_id`.
-          // If legacy QR has these, we accept.
-        }
-
-        if (!data.job_id) {
-          return { valid: false, error: 'Dữ liệu QR không đầy đủ', errorCode: 'INVALID_FORMAT' };
-        }
-        // If no owner_id but has job_id, we might accept but warning?
-        // For now, require both as generateJobQR always adds them.
-        if (!data.owner_id) {
-          return { valid: false, error: 'QR thiếu thông tin chủ sở hữu', errorCode: 'INVALID_FORMAT' };
-        }
-      }
-
-      // Verify secret key if provided (V2 feature)
-      if (expectedSecretKey && data.secret_key && data.secret_key !== expectedSecretKey) {
-        return { valid: false, error: 'Mã QR không khớp với job', errorCode: 'INVALID_SIGNATURE' };
+      if (data.type !== 'owner_checkin' || !data.owner_id) {
+        return { valid: false, error: 'Dữ liệu QR không đúng định dạng nhà hàng', errorCode: 'INVALID_FORMAT' };
       }
 
       return {
         valid: true,
-        jobId: data.job_id,
         ownerId: data.owner_id,
       };
     } catch (error) {
       return { valid: false, error: 'Định dạng QR không đúng', errorCode: 'INVALID_FORMAT' };
     }
   }
+
+
 
   /**
    * Validate GPS location is within allowed radius
@@ -235,9 +191,9 @@ export class QRCodeService {
   }
 
   /**
-   * Generate HMAC-SHA256 signature for job QR data
+   * Generate HMAC-SHA256 signature for Owner QR data
    */
-  private static generateJobQRSignature(data: JobQRCodeData): string {
+  private static generateOwnerQRSignature(data: OwnerQRCodeData): string {
     this.ensureSecretValidated();
     const dataString = JSON.stringify(data);
     return crypto.createHmac('sha256', this.SECRET).update(dataString).digest('hex');

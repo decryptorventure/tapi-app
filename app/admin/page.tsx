@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { adminService, AdminStats, GrowthData, TopPerformer, ADMIN_EMAILS } from '@/lib/services/admin.service';
 import { StatCard } from '@/components/admin/stat-card';
 import { ChartContainer, ConversionFunnel, FunnelData } from '@/components/admin/chart-container';

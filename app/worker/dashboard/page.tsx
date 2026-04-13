@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import {
     Loader2,
@@ -34,7 +34,7 @@ export default function WorkerDashboardPage() {
     const { t, locale } = useTranslation();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<any>(null);
-    const supabase = createUntypedClient();
+    const supabase = createClient();
     const dateLocale = locale === 'vi' ? vi : enUS;
 
     useEffect(() => {

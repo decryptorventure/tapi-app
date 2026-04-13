@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { VerificationService } from '@/lib/services/verification.service';
 import { Button } from '@/components/ui/button';
 import { ImageUpload } from '@/components/shared/image-upload';
@@ -34,7 +34,7 @@ export default function IdentityVerificationPage() {
   useEffect(() => {
     const fetchExistingVerification = async () => {
       try {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {
@@ -67,7 +67,7 @@ export default function IdentityVerificationPage() {
     setLoading(true);
 
     try {
-      const supabase = createUntypedClient();
+      const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 

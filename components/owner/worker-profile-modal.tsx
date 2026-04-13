@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 
 interface WorkerProfileModalProps {
@@ -45,7 +45,7 @@ export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: 
     }, [worker?.id, isOpen]);
 
     const checkFavoriteStatus = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
@@ -64,7 +64,7 @@ export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: 
     };
 
     const toggleFavorite = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         setSavingFavorite(true);
         try {
             const { data: { user } } = await supabase.auth.getUser();

@@ -12,12 +12,15 @@ export const metadata: Metadata = {
   title: "Tapy - Just-in-Time Recruitment",
   description: "Kết nối nhà hàng Nhật/Hàn với nhân viên part-time tại Việt Nam",
   manifest: "/manifest.json",
-  themeColor: "#1e3a8a",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "Tapy",
   },
+};
+
+export const viewport = {
+  themeColor: "#1e3a8a",
 };
 
 export default function RootLayout({

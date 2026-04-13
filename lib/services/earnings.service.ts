@@ -4,7 +4,7 @@
  * Preparation for "Instant Salary" feature
  */
 
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 /**
  * Platform fee configuration
@@ -99,7 +99,7 @@ export class EarningsService {
         jobId: string,
         earnings: { gross: number; platformFee: number; net: number }
     ): Promise<{ success: boolean; transactionId?: string; error?: string }> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Get job info for description
@@ -143,7 +143,7 @@ export class EarningsService {
      * Get wallet balance for a worker
      */
     static async getWalletBalance(userId: string): Promise<WalletBalance> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Get all transactions
@@ -219,7 +219,7 @@ export class EarningsService {
         userId: string,
         limit: number = 20
     ): Promise<Transaction[]> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { data, error } = await supabase
@@ -259,7 +259,7 @@ export class EarningsService {
         thisMonth: number;
         pendingCount: number;
     }> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const now = new Date();

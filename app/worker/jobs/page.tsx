@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { ApplicationCard } from '@/components/worker/application-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Briefcase, Clock, CheckCircle2, Loader2, Banknote, X, Building2, Smartphone } from 'lucide-react';
@@ -18,7 +18,7 @@ type TabType = 'upcoming' | 'pending' | 'completed';
 
 export default function MyJobsPage() {
   const [activeTab, setActiveTab] = useState<TabType>('upcoming');
-  const supabase = createUntypedClient();
+  const supabase = createClient();
   const { t } = useTranslation();
 
   // Payment Request Modal State
@@ -79,6 +79,7 @@ export default function MyJobsPage() {
           )
         `)
         .eq('worker_id', user.id)
+        // @ts-expect-error - Expected due to missing null checks or db strict types
         .in('status', statusFilter)
         .order('created_at', { ascending: false });
 

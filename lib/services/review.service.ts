@@ -4,7 +4,7 @@
  * Inspired by Timee's rating and review system
  */
 
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 export interface Review {
     id: string;
@@ -72,7 +72,7 @@ export const ReviewService = {
         reviewerId: string,
         input: CreateReviewInput
     ): Promise<{ success: boolean; review?: Review; error?: string }> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Check if already reviewed
@@ -136,7 +136,7 @@ export const ReviewService = {
         userId: string,
         limit: number = 20
     ): Promise<Review[]> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const { data, error } = await supabase
             .from('reviews')
@@ -167,7 +167,7 @@ export const ReviewService = {
         userId: string,
         limit: number = 20
     ): Promise<Review[]> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const { data, error } = await supabase
             .from('reviews')
@@ -193,7 +193,7 @@ export const ReviewService = {
      * Get review stats for a user
      */
     async getReviewStats(userId: string): Promise<ReviewStats> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         // Get all reviews
         const { data: reviews } = await supabase
@@ -249,7 +249,7 @@ export const ReviewService = {
         applicationId: string,
         reviewerId: string
     ): Promise<boolean> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const { data } = await supabase
             .from('reviews')
@@ -271,7 +271,7 @@ export const ReviewService = {
         revieweeName: string;
         completedAt: Date;
     }>> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         // Get user role
         const { data: profile } = await supabase
@@ -355,7 +355,7 @@ export const ReviewService = {
      * Notify reviewee about new review
      */
     async notifyReviewee(revieweeId: string, rating: number): Promise<void> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const stars = '⭐'.repeat(rating);
         await supabase.from('notifications').insert({

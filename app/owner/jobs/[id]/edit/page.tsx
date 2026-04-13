@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import {
@@ -81,7 +81,7 @@ export default function EditJobPage() {
     }, [jobId]);
 
     const fetchJob = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
@@ -125,7 +125,7 @@ export default function EditJobPage() {
     };
 
     const uploadThumbnail = async (file: File): Promise<string | null> => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return null;
 
@@ -172,7 +172,7 @@ export default function EditJobPage() {
         e.preventDefault();
         setSaving(true);
 
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { error } = await supabase

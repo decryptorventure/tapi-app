@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -51,7 +51,7 @@ export default function EditProfilePage() {
     }, []);
 
     const fetchProfile = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { data: { user } } = await supabase.auth.getUser();
@@ -87,7 +87,7 @@ export default function EditProfilePage() {
 
     const handleSave = async () => {
         setSaving(true);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { data: { user } } = await supabase.auth.getUser();

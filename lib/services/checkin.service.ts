@@ -1,4 +1,4 @@
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 interface CheckInData {
     applicationId: string;
@@ -31,7 +31,7 @@ export const CheckinService = {
      * Record a worker check-in
      */
     async processCheckIn(data: CheckInData): Promise<CheckInResult> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Get job details to check shift time
@@ -138,7 +138,7 @@ export const CheckinService = {
      * Record a worker check-out
      */
     async processCheckOut(data: CheckInData): Promise<CheckOutResult> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Get check-in record
@@ -222,7 +222,7 @@ export const CheckinService = {
         change: number,
         reason: string
     ): Promise<void> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Get current score
@@ -261,7 +261,7 @@ export const CheckinService = {
      * Process no-show (worker didn't check in)
      */
     async processNoShow(applicationId: string): Promise<{ success: boolean; message: string }> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Get application details

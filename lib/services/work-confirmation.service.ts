@@ -4,7 +4,7 @@
  * Status: working → completed after owner confirmation
  */
 
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { GradeService } from './grade.service';
 import { BadgeService } from './badge.service';
 
@@ -33,7 +33,7 @@ export const WorkConfirmationService = {
      * Get all work sessions pending owner confirmation
      */
     async getPendingConfirmations(ownerId: string): Promise<WorkSession[]> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         // Get applications that are 'working' and have checkout record
         const { data, error } = await supabase
@@ -104,7 +104,7 @@ export const WorkConfirmationService = {
         adjustedPay?: number,
         notes?: string
     ): Promise<ConfirmWorkResult> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Verify owner owns this job
@@ -208,7 +208,7 @@ export const WorkConfirmationService = {
         ownerId: string,
         reason: string
     ): Promise<{ success: boolean; message: string }> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Verify owner
@@ -241,7 +241,7 @@ export const WorkConfirmationService = {
      * Auto-confirm old sessions (cron job - 24h after checkout)
      */
     async autoConfirmOldSessions(): Promise<number> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         let confirmed = 0;
 
         // Get working applications with checkout > 24h ago

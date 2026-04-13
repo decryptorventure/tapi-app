@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import {
     Loader2,
@@ -117,7 +117,7 @@ export default function WorkerScanQRPage() {
     };
 
     const processCheckin = async (qrData: string) => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         // Get current user
         const { data: { user } } = await supabase.auth.getUser();
@@ -125,40 +125,50 @@ export default function WorkerScanQRPage() {
             throw new Error('Vui lòng đăng nhập');
         }
 
-        // Validate QR code
-        const validation = QRCodeService.validateJobQR(qrData);
+        // Validate Owner QR code
+        const validation = QRCodeService.validateOwnerQR(qrData);
         if (!validation.valid) {
             throw new Error(validation.error || 'Mã QR không hợp lệ');
         }
 
-        const jobId = validation.jobId;
-        if (!jobId) {
-            throw new Error('Không tìm thấy thông tin job');
+        const ownerId = validation.ownerId;
+        if (!ownerId) {
+            throw new Error('Dữ liệu QR thiếu thông tin nhà hàng');
         }
 
-        // Check if worker has approved application for this job
-        const { data: application, error: appError } = await supabase
+        const today = new Date().toISOString().split('T')[0];
+
+        // Find worker's application for this owner TODAY
+        const { data: applications, error: appError } = await supabase
             .from('job_applications')
             .select(`
                 id, 
                 status, 
-                job:jobs(
+                job:jobs!inner(
                     id,
                     title, 
                     owner_id,
+                    shift_date,
+                    shift_start_time,
+                    shift_end_time,
                     owner:profiles!owner_id(restaurant_name, restaurant_lat, restaurant_lng)
                 )
             `)
-            .eq('job_id', jobId)
             .eq('worker_id', user.id)
-            .single();
+            .eq('job.owner_id', ownerId)
+            // .eq('job.shift_date', today) // You might need this if checking strictly for today's job
+            .in('status', ['approved', 'working'])
+            .order('created_at', { ascending: false });
 
-        if (appError || !application) {
-            throw new Error('Bạn chưa được duyệt cho job này');
+        if (appError || !applications || applications.length === 0) {
+            throw new Error('Bạn không có ca làm việc nào đang chờ tại nhà hàng này.');
         }
 
-        if (application.status !== 'approved') {
-            throw new Error('Đơn ứng tuyển của bạn chưa được duyệt');
+        // Just pick the first relevant one
+        const application = applications[0];
+
+        if (application.status !== 'approved' && application.status !== 'working') {
+            throw new Error('Trạng thái ca làm việc không hợp lệ');
         }
 
         const job = application.job as any;
@@ -176,7 +186,6 @@ export default function WorkerScanQRPage() {
                 // TEMPORARILY DISABLED: Allow check-in even if far from location
                 // throw new Error(gpsValidation.error);
                 console.warn('GPS validation failed:', gpsValidation.error);
-                toast.warning('Cảnh báo: Vị trí của bạn ở xa nhà hàng');
             }
         }
 
@@ -191,30 +200,16 @@ export default function WorkerScanQRPage() {
         const lastCheckin = existingCheckins?.[0];
         const checkinType = lastCheckin?.type === 'checkin' ? 'checkout' : 'checkin';
 
-        // Get QR code ID
-        const { data: qrCodeRecord } = await supabase
-            .from('job_qr_codes')
-            .select('id')
-            .eq('job_id', jobId)
-            .single();
-
-        // Record check-in/check-out
         const { error: checkinError } = await supabase
             .from('checkins')
             .insert({
                 application_id: application.id,
+                worker_id: user.id,
+                job_id: job.id,
                 type: checkinType,
                 checkin_time: new Date().toISOString(),
-                latitude: userLocation?.latitude,
-                longitude: userLocation?.longitude,
-                distance_from_restaurant_meters: userLocation && owner?.restaurant_lat ?
-                    QRCodeService.calculateDistanceMeters(
-                        userLocation,
-                        { latitude: owner.restaurant_lat, longitude: owner.restaurant_lng }
-                    ) : null,
-                is_valid: true,
-                qr_code_id: qrCodeRecord?.id,
-                scanned_at: new Date().toISOString(),
+                location_lat: userLocation?.latitude,
+                location_lng: userLocation?.longitude,
             });
 
         if (checkinError) {

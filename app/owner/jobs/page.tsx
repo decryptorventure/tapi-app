@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -55,7 +55,7 @@ export default function OwnerJobsPage() {
     }, []);
 
     const fetchJobs = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { data: { user } } = await supabase.auth.getUser();
@@ -87,7 +87,7 @@ export default function OwnerJobsPage() {
     };
 
     const handleCancelJob = async (jobId: string) => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { error } = await supabase
@@ -327,7 +327,7 @@ export default function OwnerJobsPage() {
                                                     Xem đơn ứng tuyển
                                                 </Link>
                                                 <Link
-                                                    href={`/owner/jobs/${job.id}/qr`}
+                                                    href="/owner/qr-management"
                                                     className="flex items-center gap-2 px-4 py-2.5 text-sm text-success hover:bg-success/10 transition-colors"
                                                     onClick={() => setOpenMenu(null)}
                                                 >
@@ -361,7 +361,7 @@ export default function OwnerJobsPage() {
                                 {/* Quick Actions */}
                                 {(job.status === 'open' || job.status === 'filled') && (
                                     <div className="mt-4 pt-4 border-t border-border flex flex-wrap gap-2">
-                                        <Link href={`/owner/jobs/${job.id}/qr`}>
+                                        <Link href="/owner/qr-management">
                                             <Button variant="default" size="sm" className="bg-success hover:bg-success/90">
                                                 <QrCode className="w-4 h-4 mr-2" />
                                                 QR Check-in

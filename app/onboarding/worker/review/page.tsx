@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import {
@@ -41,7 +41,7 @@ export default function WorkerReviewPage() {
     }, []);
 
     const fetchData = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
@@ -76,7 +76,7 @@ export default function WorkerReviewPage() {
         }
 
         setLoading(true);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('Not authenticated');

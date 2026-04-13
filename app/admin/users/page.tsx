@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { adminService, UserListItem, ADMIN_EMAILS } from '@/lib/services/admin.service';
 import { DataTable } from '@/components/admin/data-table';
 import { Button } from '@/components/ui/button';
@@ -81,7 +81,7 @@ export default function UsersPage() {
 
         setActionLoading(userId);
         try {
-            const supabase = createUntypedClient();
+            const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 await adminService.deleteUser(userId, user.id);

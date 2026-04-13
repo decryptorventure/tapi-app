@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Header } from '@/components/landing/header';
 import { Hero } from '@/components/landing/hero';
 import { JobCategories } from '@/components/landing/job-categories';
@@ -18,7 +18,7 @@ export default function LandingPage() {
   useEffect(() => {
     // PERFORMANCE FIX: Non-blocking auth check in background
     const checkAuth = async () => {
-      const supabase = createUntypedClient();
+      const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
 
       if (user) {

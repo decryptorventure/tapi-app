@@ -4,7 +4,7 @@
  * Inspired by Timee's CRM and blacklist system
  */
 
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 export type RelationType = 'block' | 'favorite';
 
@@ -37,7 +37,7 @@ export const RelationService = {
         reason?: string,
         jobId?: string
     ): Promise<{ success: boolean; error?: string }> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Upsert to handle existing favorite -> block
@@ -70,7 +70,7 @@ export const RelationService = {
         workerId: string,
         jobId?: string
     ): Promise<{ success: boolean; error?: string }> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Check if already blocked
@@ -112,7 +112,7 @@ export const RelationService = {
         ownerId: string,
         workerId: string
     ): Promise<{ success: boolean; error?: string }> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { error } = await supabase
@@ -136,7 +136,7 @@ export const RelationService = {
         ownerId: string,
         workerId: string
     ): Promise<RelationType | null> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const { data } = await supabase
             .from('owner_worker_relations')
@@ -152,7 +152,7 @@ export const RelationService = {
      * Get all blocked workers for an owner
      */
     async getBlockedWorkers(ownerId: string): Promise<WorkerRelation[]> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const { data, error } = await supabase
             .from('owner_worker_relations')
@@ -194,7 +194,7 @@ export const RelationService = {
      * Get all favorite workers for an owner
      */
     async getFavoriteWorkers(ownerId: string): Promise<WorkerRelation[]> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const { data, error } = await supabase
             .from('owner_worker_relations')
@@ -234,7 +234,7 @@ export const RelationService = {
      * Get relation stats for an owner
      */
     async getStats(ownerId: string): Promise<RelationStats> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const { data } = await supabase
             .from('owner_worker_relations')
@@ -252,7 +252,7 @@ export const RelationService = {
      * Get list of owners who blocked a worker (for job filtering)
      */
     async getBlockingOwners(workerId: string): Promise<string[]> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const { data } = await supabase
             .from('owner_worker_relations')
@@ -283,7 +283,7 @@ export const RelationService = {
      * Notify favorite workers when new job posted
      */
     async notifyFavoriteWorkers(ownerId: string, jobId: string): Promise<void> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         // Get favorite worker IDs
         const { data: favorites } = await supabase

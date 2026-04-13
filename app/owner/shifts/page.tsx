@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import {
     Loader2,
@@ -55,7 +55,7 @@ export default function OwnerShiftsPage() {
     }, [selectedDate]);
 
     const fetchShifts = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         setLoading(true);
 
         try {
@@ -87,7 +87,7 @@ export default function OwnerShiftsPage() {
 
     // Fetch shift counts for entire week
     const fetchWeekShifts = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user || weekDays.length === 0) return;
@@ -316,7 +316,7 @@ export default function OwnerShiftsPage() {
                                         </div>
 
                                         <div className="flex items-center gap-2">
-                                            <Link href={`/owner/jobs/${shift.id}/qr`}>
+                                            <Link href="/owner/qr-management">
                                                 <Button variant="outline" size="sm">
                                                     <QrCode className="w-4 h-4 mr-1" />
                                                     QR

@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Notification, NotificationService } from '@/lib/services/notification.service';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -35,7 +35,7 @@ export function NotificationBell() {
         fetchNotifications();
 
         // Realtime subscription
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         const channel = supabase
             .channel('notifications_channel')
             .on(
@@ -99,7 +99,7 @@ export function NotificationBell() {
         if (notification.type === 'chat_message' && notification.related_id) {
             // related_id contains application_id, need to fetch job_id
             try {
-                const supabase = createUntypedClient();
+                const supabase = createClient();
                 const { data: application } = await supabase
                     .from('job_applications')
                     .select('job_id')
@@ -116,7 +116,7 @@ export function NotificationBell() {
         } else if (notification.type === 'application_update' && notification.related_id) {
             // Navigate to job page
             try {
-                const supabase = createUntypedClient();
+                const supabase = createClient();
                 const { data: application } = await supabase
                     .from('job_applications')
                     .select('job_id')

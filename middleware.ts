@@ -1,4 +1,4 @@
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
+import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -8,24 +8,41 @@ const protectedRoutes = ['/owner', '/worker', '/onboarding', '/admin'];
 // Routes that should redirect to dashboard if authenticated
 const authRoutes = ['/login', '/signup'];
 
+export async function middleware(request: NextRequest) {
+    let supabaseResponse = NextResponse.next({
+        request,
+    });
 
-export async function middleware(req: NextRequest) {
-    const res = NextResponse.next();
-    const supabase = createMiddlewareClient({ req, res });
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                getAll() {
+                    return request.cookies.getAll();
+                },
+                setAll(cookiesToSet) {
+                    cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value));
+                    supabaseResponse = NextResponse.next({
+                        request,
+                    });
+                    cookiesToSet.forEach(({ name, value, options }) =>
+                        supabaseResponse.cookies.set(name, value, options)
+                    );
+                },
+            },
+        }
+    );
 
     // Check auth session
     const {
         data: { session },
     } = await supabase.auth.getSession();
 
-    const { pathname } = req.nextUrl;
-
-    // Remove homepage redirect - allowing public access
-    // if (pathname === '/' && !session) { ... }
+    const { pathname } = request.nextUrl;
 
     // If on auth routes and already authenticated, redirect based on role and onboarding status
     if (authRoutes.some(route => pathname.startsWith(route)) && session) {
-        // Get user profile to check role and onboarding status
         const { data: profile } = await supabase
             .from('profiles')
             .select('role, onboarding_completed')
@@ -34,93 +51,75 @@ export async function middleware(req: NextRequest) {
 
         if (profile?.role === 'owner') {
             if (profile.onboarding_completed) {
-                return NextResponse.redirect(new URL('/owner/dashboard', req.url));
+                return NextResponse.redirect(new URL('/owner/dashboard', request.url));
             } else {
-                return NextResponse.redirect(new URL('/onboarding/owner/profile', req.url));
+                return NextResponse.redirect(new URL('/onboarding/owner/profile', request.url));
             }
         } else if (profile?.role === 'worker') {
             if (profile.onboarding_completed) {
-                return NextResponse.redirect(new URL('/worker/dashboard', req.url));
+                return NextResponse.redirect(new URL('/worker/dashboard', request.url));
             } else {
-                return NextResponse.redirect(new URL('/onboarding/worker/profile', req.url));
+                return NextResponse.redirect(new URL('/onboarding/worker/profile', request.url));
             }
         } else {
-            // No role yet, go to role selection
-            return NextResponse.redirect(new URL('/onboarding/role', req.url));
+            return NextResponse.redirect(new URL('/onboarding/role', request.url));
         }
     }
 
     // Check protected routes
     if (protectedRoutes.some(route => pathname.startsWith(route))) {
         if (!session) {
-            // Not authenticated - redirect to login
-            const redirectUrl = new URL('/login', req.url);
+            const redirectUrl = new URL('/login', request.url);
             redirectUrl.searchParams.set('redirect', pathname);
             return NextResponse.redirect(redirectUrl);
         }
 
-        // Get user profile for role-based access and onboarding check
         const { data: profile } = await supabase
             .from('profiles')
             .select('role, onboarding_completed, is_admin')
             .eq('id', session.user.id)
             .single();
 
-        // Redirect away from onboarding if already completed
         if (pathname.startsWith('/onboarding') && profile?.onboarding_completed) {
             if (profile.role === 'owner') {
-                return NextResponse.redirect(new URL('/owner/dashboard', req.url));
+                return NextResponse.redirect(new URL('/owner/dashboard', request.url));
             } else if (profile.role === 'worker') {
-                return NextResponse.redirect(new URL('/worker/dashboard', req.url));
+                return NextResponse.redirect(new URL('/worker/dashboard', request.url));
             }
         }
 
-        // Force onboarding if not completed and trying to access dashboard/other protected areas
-        // Exception: allow accessing onboarding routes themselves
         if (!pathname.startsWith('/onboarding') && !profile?.onboarding_completed) {
             if (profile?.role === 'owner') {
-                return NextResponse.redirect(new URL('/onboarding/owner/profile', req.url));
+                return NextResponse.redirect(new URL('/onboarding/owner/profile', request.url));
             } else if (profile?.role === 'worker') {
-                return NextResponse.redirect(new URL('/onboarding/worker/profile', req.url));
+                return NextResponse.redirect(new URL('/onboarding/worker/profile', request.url));
             } else {
-                return NextResponse.redirect(new URL('/onboarding/role', req.url));
+                return NextResponse.redirect(new URL('/onboarding/role', request.url));
             }
         }
 
-        // Owner routes - require owner role
         if (pathname.startsWith('/owner') && profile?.role !== 'owner') {
-            return NextResponse.redirect(new URL('/worker/dashboard', req.url));
+            return NextResponse.redirect(new URL('/worker/dashboard', request.url));
         }
 
-        // Worker routes - require worker role
         if (pathname.startsWith('/worker') && profile?.role !== 'worker') {
-            return NextResponse.redirect(new URL('/owner/dashboard', req.url));
+            return NextResponse.redirect(new URL('/owner/dashboard', request.url));
         }
 
-        // Admin routes - require is_admin flag
         if (pathname.startsWith('/admin') && !profile?.is_admin) {
-            // Redirect non-admins to their dashboard
             if (profile?.role === 'owner') {
-                return NextResponse.redirect(new URL('/owner/dashboard', req.url));
+                return NextResponse.redirect(new URL('/owner/dashboard', request.url));
             } else {
-                return NextResponse.redirect(new URL('/worker/dashboard', req.url));
+                return NextResponse.redirect(new URL('/worker/dashboard', request.url));
             }
         }
     }
 
-    return res;
+    return supabaseResponse;
 }
 
 export const config = {
     matcher: [
-        /*
-         * Match all request paths except:
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * - public folder
-         * - api routes
-         */
         '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
     ],
 };

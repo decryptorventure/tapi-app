@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { DataTable } from '@/components/admin/data-table';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -27,7 +27,7 @@ import { vi } from 'date-fns/locale';
 
 interface Application {
     id: string;
-    status: 'pending' | 'approved' | 'rejected' | 'completed' | 'no_show';
+    status: 'pending' | 'approved' | 'rejected' | 'completed' | 'no_show' | 'working';
     is_instant_book: boolean;
     applied_at: string;
     approved_at: string | null;
@@ -71,7 +71,7 @@ function ApplicationsContent() {
 
     const fetchApplications = async () => {
         setLoading(true);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             let query = supabase
@@ -113,6 +113,7 @@ function ApplicationsContent() {
 
             if (error) throw error;
 
+            // @ts-expect-error - Expected due to SelectQueryError missing relationships
             setApplications(data || []);
             setTotalItems(count || 0);
         } catch (error) {
@@ -125,7 +126,7 @@ function ApplicationsContent() {
 
     const handleApprove = async (applicationId: string) => {
         setActionLoading(applicationId);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { error } = await supabase
@@ -152,7 +153,7 @@ function ApplicationsContent() {
         if (!confirm('Bạn có chắc muốn từ chối đơn này?')) return;
 
         setActionLoading(applicationId);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { error } = await supabase

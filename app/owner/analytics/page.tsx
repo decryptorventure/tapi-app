@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -58,7 +58,7 @@ export default function AnalyticsPage() {
     }, []);
 
     const fetchAnalytics = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         setLoading(true);
 
         try {

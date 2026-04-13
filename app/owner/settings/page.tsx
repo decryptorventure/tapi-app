@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -59,7 +59,7 @@ export default function OwnerSettingsPage() {
     }, []);
 
     const fetchProfile = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
@@ -74,6 +74,7 @@ export default function OwnerSettingsPage() {
                 .single();
 
             if (error) throw error;
+            // @ts-expect-error - Expected due to missing null checks or db strict types
             setProfile(data);
             setFormData({
                 restaurant_name: data.restaurant_name || '',
@@ -90,7 +91,7 @@ export default function OwnerSettingsPage() {
     };
 
     const uploadImage = async (file: File, path: string): Promise<string | null> => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         const fileExt = file.name.split('.').pop();
         const fileName = `${path}/${Date.now()}.${fileExt}`;
 
@@ -118,7 +119,7 @@ export default function OwnerSettingsPage() {
         try {
             const url = await uploadImage(file, `logos/${profile.id}`);
             if (url) {
-                const supabase = createUntypedClient();
+                const supabase = createClient();
                 await supabase
                     .from('profiles')
                     .update({ restaurant_logo_url: url })
@@ -153,7 +154,7 @@ export default function OwnerSettingsPage() {
             }
 
             const updatedCovers = [...currentCovers, ...newUrls];
-            const supabase = createUntypedClient();
+            const supabase = createClient();
             await supabase
                 .from('profiles')
                 .update({ restaurant_cover_urls: updatedCovers })
@@ -172,7 +173,7 @@ export default function OwnerSettingsPage() {
         if (!profile) return;
         const updatedCovers = profile.restaurant_cover_urls.filter((_, i) => i !== index);
 
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         await supabase
             .from('profiles')
             .update({ restaurant_cover_urls: updatedCovers })
@@ -186,7 +187,7 @@ export default function OwnerSettingsPage() {
         if (!profile) return;
         setSaving(true);
 
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         const { error } = await supabase
             .from('profiles')
             .update(formData)

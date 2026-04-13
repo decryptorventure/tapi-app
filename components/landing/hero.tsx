@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Smartphone, CheckCircle, Star, Users, Briefcase, Clock } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 export function Hero() {
     const { t, locale } = useTranslation();
@@ -14,7 +14,7 @@ export function Hero() {
 
     useEffect(() => {
         const checkAuth = async () => {
-            const supabase = createUntypedClient();
+            const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
 
             if (user) {

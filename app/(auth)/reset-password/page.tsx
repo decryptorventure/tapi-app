@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -19,7 +19,7 @@ export default function ResetPasswordPage() {
     useEffect(() => {
         // Check if we have a valid session from the email link
         const checkSession = async () => {
-            const supabase = createUntypedClient();
+            const supabase = createClient();
             const { data: { session } } = await supabase.auth.getSession();
 
             if (!session) {
@@ -44,7 +44,7 @@ export default function ResetPasswordPage() {
         }
 
         setLoading(true);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { error } = await supabase.auth.updateUser({

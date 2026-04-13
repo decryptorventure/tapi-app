@@ -4,7 +4,7 @@
  * Inspired by Timee Badge system for skill/experience visibility
  */
 
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 export interface Badge {
     id: string;
@@ -32,7 +32,7 @@ export const BadgeService = {
      * Get all available badges
      */
     async getAllBadges(): Promise<Badge[]> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const { data, error } = await supabase
             .from('badges')
@@ -49,7 +49,7 @@ export const BadgeService = {
      * Get badges by category
      */
     async getBadgesByCategory(category: string): Promise<Badge[]> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const { data, error } = await supabase
             .from('badges')
@@ -67,7 +67,7 @@ export const BadgeService = {
      * Get worker's earned badges
      */
     async getWorkerBadges(workerId: string): Promise<WorkerBadge[]> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const { data, error } = await supabase
             .from('worker_badges')
@@ -101,7 +101,7 @@ export const BadgeService = {
         newBadges: Badge[];
         totalBadges: number;
     }> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         // Get worker stats
         const { data: profile } = await supabase
@@ -155,7 +155,7 @@ export const BadgeService = {
     ): Promise<boolean> {
         if (!badge.criteria) return false;
 
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         // Check min_completed criteria
         if (badge.criteria.min_completed) {
@@ -210,7 +210,7 @@ export const BadgeService = {
         badgeId: string,
         jobId?: string
     ): Promise<boolean> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const { error } = await supabase
             .from('worker_badges')
@@ -251,7 +251,7 @@ export const BadgeService = {
      * Get badge count for worker
      */
     async getBadgeCount(workerId: string): Promise<number> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const { count } = await supabase
             .from('worker_badges')

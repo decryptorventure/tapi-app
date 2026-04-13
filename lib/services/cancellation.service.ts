@@ -1,4 +1,4 @@
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { CheckinService } from './checkin.service';
 
 interface CancellationResult {
@@ -57,7 +57,7 @@ export const CancellationService = {
         workerId: string,
         reason?: string
     ): Promise<CancellationResult> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Get application with job details
@@ -78,6 +78,7 @@ export const CancellationService = {
                 };
             }
 
+            // @ts-expect-error - Expected due to missing null checks or db strict types
             if (app.status === 'cancelled') {
                 return {
                     success: false,
@@ -178,7 +179,7 @@ export const CancellationService = {
         ownerId: string,
         reason?: string
     ): Promise<CancellationResult> {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Get application with job details

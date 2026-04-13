@@ -1,4 +1,4 @@
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 export interface Notification {
     id: string;
@@ -14,7 +14,7 @@ export interface Notification {
 export const NotificationService = {
     // Fetch notifications for the current user
     getNotifications: async (userId: string) => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         // Sort by created_at desc
         const { data, error } = await supabase
@@ -30,7 +30,7 @@ export const NotificationService = {
 
     // Mark a specific notification as read
     markAsRead: async (notificationId: string) => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const { error } = await supabase
             .from('notifications')
@@ -42,7 +42,7 @@ export const NotificationService = {
 
     // Mark all notifications as read for a user
     markAllAsRead: async (userId: string) => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const { error } = await supabase
             .from('notifications')
@@ -55,7 +55,7 @@ export const NotificationService = {
 
     // Get unread count
     getUnreadCount: async (userId: string) => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         const { count, error } = await supabase
             .from('notifications')

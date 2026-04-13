@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { LayoutDashboard, Briefcase, QrCode, Settings, LogOut, Plus, Store } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { NotificationBell } from '@/components/notifications/notification-bell';
 
@@ -18,7 +18,7 @@ export function OwnerNav() {
 
     useEffect(() => {
         const fetchProfile = async () => {
-            const supabase = createUntypedClient();
+            const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 const { data } = await supabase
@@ -33,7 +33,7 @@ export function OwnerNav() {
     }, []);
 
     const handleLogout = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         await supabase.auth.signOut();
         router.push('/login');
     };
