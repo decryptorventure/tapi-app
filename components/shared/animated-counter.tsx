@@ -54,6 +54,7 @@ export function AnimatedCounter({
                 cancelAnimationFrame(rafRef.current);
             }
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value, duration]);
 
     return (
