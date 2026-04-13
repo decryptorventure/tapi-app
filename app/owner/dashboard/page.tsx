@@ -107,6 +107,9 @@ export default function OwnerDashboardPage() {
                 return;
             }
 
+            // Cleanup expired jobs
+            await supabase.rpc('cleanup_expired_jobs');
+
             // Fetch owner profile
             const { data: profileData, error: profileError } = await supabase
                 .from('profiles')

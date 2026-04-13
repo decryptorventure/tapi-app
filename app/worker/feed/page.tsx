@@ -51,18 +51,24 @@ export default function JobFeedPage() {
     const { data: jobs, isLoading, isFetching, refetch } = useQuery({
         queryKey: ['jobs'],
         queryFn: async () => {
+            // Cleanup expired jobs
+            await supabase.rpc('cleanup_expired_jobs');
+
+            // Fetch only open and future jobs
+            const today = new Date().toISOString().split('T')[0];
             const { data, error } = await supabase
                 .from('jobs')
                 .select(`
-          *,
-          owner:profiles!owner_id (
-            restaurant_name,
-            restaurant_logo_url,
-            restaurant_cover_urls
-          )
-        `)
+                    *,
+                    owner:profiles!owner_id (
+                        restaurant_name,
+                        restaurant_logo_url,
+                        restaurant_cover_urls
+                    )
+                `)
                 .eq('status', 'open')
-                .order('created_at', { ascending: false });
+                .gte('shift_date', today)
+                .order('shift_date', { ascending: true });
 
             if (error) throw error;
             return (data as any[]).map(job => ({

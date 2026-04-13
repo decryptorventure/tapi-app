@@ -270,20 +270,25 @@ export const JobCard = memo(function JobCard({ job, variant = 'card', onClick }:
         {/* Action Button */}
         <Button
           onClick={handleApply}
-          disabled={applyMutation.isPending || qualification?.hasApplied}
+          disabled={applyMutation.isPending || qualification?.hasApplied || job.status === 'expired'}
           variant={
-            qualification?.hasApplied
+            qualification?.hasApplied || job.status === 'expired'
               ? "outline"
               : isInstantBook ? "success" : "cta"
           }
           size="lg"
-          className="w-full"
+          className={cn(
+            "w-full",
+            job.status === 'expired' && "bg-slate-100 text-slate-400 border-none"
+          )}
         >
           {applyMutation.isPending ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
               Đang xử lý...
             </>
+          ) : job.status === 'expired' ? (
+            'Đã hết hạn'
           ) : qualification?.hasApplied ? (
             qualification.applicationStatus === 'pending' ? (
               <>

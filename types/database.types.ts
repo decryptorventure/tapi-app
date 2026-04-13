@@ -8,7 +8,7 @@ export type LanguageLevel =
   | 'topik_1' | 'topik_2' | 'topik_3' | 'topik_4' | 'topik_5' | 'topik_6'
   | 'a1' | 'a2' | 'b1' | 'b2' | 'c1' | 'c2';
 export type VerificationStatus = 'pending' | 'verified' | 'rejected';
-export type JobStatus = 'open' | 'filled' | 'completed' | 'cancelled';
+export type JobStatus = 'open' | 'filled' | 'completed' | 'cancelled' | 'expired';
 export type ApplicationStatus = 'pending' | 'approved' | 'working' | 'rejected' | 'completed' | 'no_show';
 export type CheckinType = 'checkin' | 'checkout';
 export type NotificationType = 'application_update' | 'chat_message' | 'system' | 'reminder';

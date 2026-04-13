@@ -21,7 +21,9 @@ import {
     Users,
     Sparkles,
     CheckCircle2,
-    Phone
+    Phone,
+    AlertCircle,
+    XCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi, enUS } from 'date-fns/locale';
@@ -46,6 +48,7 @@ interface Job {
     min_reliability_score: number;
     max_workers: number;
     current_workers: number;
+    status: string;
     thumbnail_url?: string;
     owner: {
         restaurant_name: string;
@@ -155,6 +158,15 @@ export default function JobDetailPage() {
             </div>
 
             <div className="container mx-auto px-4 py-6 max-w-2xl space-y-6">
+                {/* Expired Job Warning */}
+                {job.status === 'expired' && (
+                    <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3 text-destructive">
+                        <AlertCircle className="w-5 h-5" />
+                        <div className="text-sm font-bold">
+                            Công việc này đã hết hạn đăng ký hoặc đã qua thời gian làm việc.
+                        </div>
+                    </div>
+                )}
                 {/* Restaurant Images Carousel */}
                 {(job.thumbnail_url || (job.owner?.restaurant_cover_urls && job.owner.restaurant_cover_urls.length > 0)) && (
                     <div className="relative rounded-2xl overflow-hidden aspect-video bg-muted shadow-md">
@@ -328,25 +340,30 @@ export default function JobDetailPage() {
                 <div className="max-w-2xl mx-auto flex gap-3">
                     <Button
                         onClick={handleApply}
-                        disabled={applyMutation.isPending || qualification?.hasApplied}
+                        disabled={applyMutation.isPending || qualification?.hasApplied || job.status === 'expired'}
                         className={cn(
                             "font-bold py-6 rounded-xl flex items-center justify-center gap-2",
-                            qualification?.hasApplied
+                            qualification?.hasApplied || job.status === 'expired'
                                 ? "flex-1 cursor-default opacity-100" // Keep full width if applied but adapt style
                                 : "w-full",
                             qualification?.hasApplied
                                 ? "bg-muted text-muted-foreground hover:bg-muted"
-                                : isInstantBook
-                                    ? "bg-success hover:bg-success/90 text-white"
-                                    // If chat button shown, this button shares width? No, handleApply is disabled/status.
-                                    // If applied, handleApply button shows status. We want Chat button + Status button side by side.
-                                    : "bg-cta hover:bg-cta/90 text-white"
+                                : job.status === 'expired'
+                                    ? "bg-slate-200 text-slate-500 hover:bg-slate-200 border-none"
+                                    : isInstantBook
+                                        ? "bg-success hover:bg-success/90 text-white"
+                                        : "bg-cta hover:bg-cta/90 text-white"
                         )}
                     >
                         {applyMutation.isPending ? (
                             <>
                                 <Loader2 className="w-5 h-5 animate-spin" />
                                 Đang xử lý...
+                            </>
+                        ) : job.status === 'expired' ? (
+                            <>
+                                <Clock className="w-5 h-5 opacity-50" />
+                                Đã hết hạn
                             </>
                         ) : qualification?.hasApplied ? (
                             qualification.applicationStatus === 'pending' ? (

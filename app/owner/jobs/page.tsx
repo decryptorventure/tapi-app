@@ -33,6 +33,7 @@ const statusLabels: Record<JobStatus, { label: string; color: string }> = {
     filled: { label: 'Đã đủ người', color: 'bg-primary/10 text-primary' },
     completed: { label: 'Hoàn thành', color: 'bg-slate-100 text-slate-700' },
     cancelled: { label: 'Đã hủy', color: 'bg-destructive/10 text-destructive' },
+    expired: { label: 'Hết hạn', color: 'bg-slate-100 text-slate-500' },
 };
 
 // Language badge configuration with icons and colors (no emoji)
@@ -63,6 +64,9 @@ export default function OwnerJobsPage() {
                 router.push('/login');
                 return;
             }
+
+            // Cleanup expired jobs first
+            await supabase.rpc('cleanup_expired_jobs');
 
             const { data, error } = await supabase
                 .from('jobs')
@@ -219,7 +223,7 @@ export default function OwnerJobsPage() {
 
                 {/* Filter Pills - ENHANCED DESIGN */}
                 <div className="flex gap-2 overflow-x-auto pb-2">
-                    {(['all', 'open', 'filled', 'completed', 'cancelled'] as const).map((status) => (
+                    {(['all', 'open', 'filled', 'completed', 'expired', 'cancelled'] as const).map((status) => (
                         <button
                             key={status}
                             onClick={() => setFilter(status)}

@@ -22,7 +22,9 @@ import {
     Star,
     Users,
     QrCode,
-    Sparkles
+    Sparkles,
+    AlertCircle,
+    XCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi, enUS } from 'date-fns/locale';
@@ -124,17 +126,20 @@ export default function WorkerJobDetailsPage() {
                     application.status === 'approved' ? "bg-success/10 border-success/20 text-success" :
                         application.status === 'pending' ? "bg-warning/10 border-warning/20 text-warning" :
                             application.status === 'completed' ? "bg-primary/10 border-primary/20 text-primary" :
-                                "bg-muted border-border text-muted-foreground"
+                                application.status === 'rejected' ? "bg-destructive/10 border-destructive/20 text-destructive" :
+                                    "bg-muted border-border text-muted-foreground"
                 )}>
                     <div className="flex items-center gap-3">
                         {application.status === 'approved' && <CheckCircle2 className="w-5 h-5" />}
                         {application.status === 'pending' && <Clock className="w-5 h-5" />}
                         {application.status === 'completed' && <CheckCircle2 className="w-5 h-5" />}
+                        {application.status === 'rejected' && <XCircle className="w-5 h-5" />}
                         <span className="font-bold uppercase tracking-wider text-sm">
                             {application.status === 'approved' ? t('jobs.approved') :
                                 application.status === 'pending' ? t('jobs.pending') :
                                     application.status === 'completed' ? t('common.status.completed') :
-                                        application.status}
+                                        application.status === 'rejected' ? t('common.status.rejected') :
+                                            application.status}
                         </span>
                     </div>
                     {application.is_instant_book && (
@@ -144,6 +149,16 @@ export default function WorkerJobDetailsPage() {
                         </span>
                     )}
                 </div>
+
+                {/* Expired Job Warning */}
+                {job.status === 'expired' && (
+                    <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3 text-destructive">
+                        <AlertCircle className="w-5 h-5" />
+                        <div className="text-sm font-bold">
+                            Công việc này đã hết hạn đăng ký hoặc đã qua thời gian làm việc.
+                        </div>
+                    </div>
+                )}
 
                 {/* Job Info Card */}
                 <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
