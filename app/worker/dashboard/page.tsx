@@ -163,8 +163,8 @@ export default function WorkerDashboardPage() {
                                     <QrCode className="w-8 h-8 text-white" />
                                 </div>
                                 <div className="flex-1">
-                                    <p className="font-bold text-lg">Scan QR Check-in</p>
-                                    <p className="text-white/80 text-sm">Quét mã QR tại cửa hàng để check-in</p>
+                                    <p className="font-bold text-lg">{t('dashboard.scanQR')}</p>
+                                    <p className="text-white/80 text-sm">{t('dashboard.scanQRDesc')}</p>
                                 </div>
                                 <ChevronRight className="w-6 h-6 text-white/80" />
                             </div>
@@ -190,7 +190,7 @@ export default function WorkerDashboardPage() {
                                 <Search className="w-5 h-5 text-primary" />
                             </div>
                             <p className="font-semibold text-sm text-foreground">Tìm việc</p>
-                            <p className="text-xs text-muted-foreground mt-1">Khám phá jobs mới</p>
+                            <p className="text-xs text-muted-foreground mt-1">{t('dashboard.findJobs')}</p>
                         </div>
                     </Link>
 
@@ -199,8 +199,8 @@ export default function WorkerDashboardPage() {
                             <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-500/20 transition-colors">
                                 <Briefcase className="w-5 h-5 text-blue-500" />
                             </div>
-                            <p className="font-semibold text-sm text-foreground">Đơn của tôi</p>
-                            <p className="text-xs text-muted-foreground mt-1">{data?.stats?.total || 0} đơn</p>
+                            <p className="font-semibold text-sm text-foreground">{t('worker.myJobsBtn')}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{data?.stats?.total || 0} {t('dashboard.appsCount')}</p>
                         </div>
                     </Link>
 
@@ -209,8 +209,8 @@ export default function WorkerDashboardPage() {
                             <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-purple-500/20 transition-colors">
                                 <User className="w-5 h-5 text-purple-500" />
                             </div>
-                            <p className="font-semibold text-sm text-foreground">Hồ sơ</p>
-                            <p className="text-xs text-muted-foreground mt-1">{profile?.profile_completion_percentage || 0}% hoàn thành</p>
+                            <p className="font-semibold text-sm text-foreground">{t('worker.myProfile')}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{profile?.profile_completion_percentage || 0}% {t('dashboard.completionCount')}</p>
                         </div>
                     </Link>
 
@@ -219,8 +219,8 @@ export default function WorkerDashboardPage() {
                             <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-green-500/20 transition-colors">
                                 <FileText className="w-5 h-5 text-green-500" />
                             </div>
-                            <p className="font-semibold text-sm text-foreground">Hướng dẫn</p>
-                            <p className="text-xs text-muted-foreground mt-1">Cách sử dụng</p>
+                            <p className="font-semibold text-sm text-foreground">{t('common.help')}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{t('dashboard.guideDesc')}</p>
                         </div>
                     </Link>
                 </div>
@@ -230,7 +230,7 @@ export default function WorkerDashboardPage() {
                     <div className="bg-card rounded-xl border border-border p-4">
                         <div className="flex items-center gap-2 mb-2">
                             <FileText className="w-4 h-4 text-muted-foreground" />
-                            <p className="text-xs font-medium text-muted-foreground">Tổng đơn</p>
+                            <p className="text-xs font-medium text-muted-foreground">Tổng {t('dashboard.appsCount')}</p>
                         </div>
                         <p className="text-2xl font-bold text-foreground">{data?.stats?.total || 0}</p>
                     </div>
@@ -238,7 +238,7 @@ export default function WorkerDashboardPage() {
                     <div className="bg-card rounded-xl border border-border p-4">
                         <div className="flex items-center gap-2 mb-2">
                             <Clock className="w-4 h-4 text-warning" />
-                            <p className="text-xs font-medium text-muted-foreground">Chờ duyệt</p>
+                            <p className="text-xs font-medium text-muted-foreground">{t('dashboard.pendingApps')}</p>
                         </div>
                         <p className="text-2xl font-bold text-warning">{data?.stats?.pending || 0}</p>
                     </div>
@@ -246,7 +246,7 @@ export default function WorkerDashboardPage() {
                     <div className="bg-card rounded-xl border border-border p-4">
                         <div className="flex items-center gap-2 mb-2">
                             <CheckCircle2 className="w-4 h-4 text-success" />
-                            <p className="text-xs font-medium text-muted-foreground">Đã duyệt</p>
+                            <p className="text-xs font-medium text-muted-foreground">{t('dashboard.approvedApps')}</p>
                         </div>
                         <p className="text-2xl font-bold text-success">{data?.stats?.approved || 0}</p>
                     </div>
@@ -254,7 +254,7 @@ export default function WorkerDashboardPage() {
                     <div className="bg-card rounded-xl border border-border p-4">
                         <div className="flex items-center gap-2 mb-2">
                             <Award className="w-4 h-4 text-primary" />
-                            <p className="text-xs font-medium text-muted-foreground">Hoàn thành</p>
+                            <p className="text-xs font-medium text-muted-foreground">{t('dashboard.completedApps')}</p>
                         </div>
                         <p className="text-2xl font-bold text-primary">{data?.stats?.completed || 0}</p>
                     </div>
@@ -265,10 +265,10 @@ export default function WorkerDashboardPage() {
                     <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-muted/30">
                         <h3 className="font-bold text-foreground flex items-center gap-2">
                             <Calendar className="w-5 h-5 text-primary" />
-                            Ca làm sắp tới
+                            {t('dashboard.upcomingShifts')}
                         </h3>
                         <Link href="/worker/jobs" className="text-xs font-semibold text-primary hover:text-primary/80 flex items-center gap-1">
-                            Xem tất cả <ChevronRight className="w-3.5 h-3.5" />
+                            {t('dashboard.seeAll')} <ChevronRight className="w-3.5 h-3.5" />
                         </Link>
                     </div>
 

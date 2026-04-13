@@ -166,12 +166,12 @@ export default function WorkerProfilePage() {
 
             // Calculate profile completion
             const completionChecks = [
-                { key: 'avatar', condition: !!profileData.avatar_url, label: locale === 'vi' ? 'Thêm ảnh đại diện' : 'Add profile photo', link: '/worker/profile/edit' },
-                { key: 'phone', condition: !!profileData.phone_number, label: locale === 'vi' ? 'Thêm số điện thoại' : 'Add phone number', link: '/worker/profile/edit' },
-                { key: 'bio', condition: !!profileData.bio, label: locale === 'vi' ? 'Thêm giới thiệu bản thân' : 'Add bio', link: '/worker/profile/edit' },
-                { key: 'identity', condition: idStatus === 'verified' || idStatus === 'pending', label: locale === 'vi' ? 'Xác minh danh tính' : 'Verify identity', link: '/worker/profile/identity' },
-                { key: 'language', condition: (skillsData || []).length > 0, label: locale === 'vi' ? 'Thêm kỹ năng ngôn ngữ' : 'Add language skills', link: '/worker/profile/languages' },
-                { key: 'experience', condition: (workExpData || []).length > 0, label: locale === 'vi' ? 'Thêm kinh nghiệm làm việc' : 'Add work experience', link: '/worker/profile' },
+                { key: 'avatar', condition: !!profileData.avatar_url, label: t('profile.addAvatar'), link: '/worker/profile/edit' },
+                { key: 'phone', condition: !!profileData.phone_number, label: t('profile.addPhone'), link: '/worker/profile/edit' },
+                { key: 'bio', condition: !!profileData.bio, label: t('profile.addBio'), link: '/worker/profile/edit' },
+                { key: 'identity', condition: idStatus === 'verified' || idStatus === 'pending', label: t('profile.verifyIdentity'), link: '/worker/profile/identity' },
+                { key: 'language', condition: (skillsData || []).length > 0, label: t('profile.addLanguage'), link: '/worker/profile/languages' },
+                { key: 'experience', condition: (workExpData || []).length > 0, label: t('profile.addExperience'), link: '/worker/profile' },
             ];
 
             const completedItems = completionChecks.filter(c => c.condition).length;
@@ -258,11 +258,11 @@ export default function WorkerProfilePage() {
             });
 
         if (error) {
-            toast.error(locale === 'vi' ? 'Lỗi lưu kinh nghiệm' : 'Error saving experience');
+            toast.error(t('profile.errorSaveExp'));
             return;
         }
 
-        toast.success(locale === 'vi' ? 'Đã thêm kinh nghiệm' : 'Experience added');
+        toast.success(t('profile.successSaveExp'));
         setShowWorkExpForm(false);
         fetchProfileData(); // Refresh data
     };
@@ -276,11 +276,11 @@ export default function WorkerProfilePage() {
             .eq('id', id);
 
         if (error) {
-            toast.error(locale === 'vi' ? 'Lỗi xóa kinh nghiệm' : 'Error deleting experience');
+            toast.error(t('profile.errorDelExp'));
             return;
         }
 
-        toast.success(locale === 'vi' ? 'Đã xóa kinh nghiệm' : 'Experience deleted');
+        toast.success(t('profile.successDelExp'));
         setWorkExperiences(workExperiences.filter(exp => exp.id !== id));
     };
 
@@ -338,12 +338,10 @@ export default function WorkerProfilePage() {
                             </div>
                             <div className="flex-1">
                                 <h3 className="font-semibold text-orange-900">
-                                    {locale === 'vi' ? 'Hoàn thiện hồ sơ của bạn' : 'Complete Your Profile'}
+                                    {t('profile.completeProfile')}
                                 </h3>
                                 <p className="text-sm text-orange-700">
-                                    {locale === 'vi'
-                                        ? 'Hồ sơ hoàn thiện giúp bạn nhận được nhiều cơ hội làm việc hơn'
-                                        : 'A complete profile helps you get more job opportunities'}
+                                    {t('profile.completeProfileDesc')}
                                 </p>
                             </div>
                             <div className="text-2xl font-bold text-orange-600">
@@ -419,11 +417,11 @@ export default function WorkerProfilePage() {
                         <Link href={`/p/${profile.id}`} target="_blank">
                             <Button variant="outline" className="w-full gap-2">
                                 <ExternalLink className="w-4 h-4" />
-                                Xem hồ sơ công khai
+                                {t('profile.publicProfile')}
                             </Button>
                         </Link>
                         <p className="text-xs text-muted-foreground text-center mt-2">
-                            Chia sẻ link này cho nhà tuyển dụng
+                            {t('profile.shareProfile')}
                         </p>
                     </div>
                 </div>
@@ -538,13 +536,13 @@ export default function WorkerProfilePage() {
                         <div className="flex items-center gap-2">
                             <Building2 className="w-5 h-5 text-primary" />
                             <h3 className="font-semibold text-foreground">
-                                {locale === 'vi' ? 'Kinh nghiệm làm việc' : 'Work Experience'}
+                                {t('profile.workExperience')}
                             </h3>
                         </div>
                         {!showWorkExpForm && (
                             <Button variant="outline" size="sm" onClick={() => setShowWorkExpForm(true)}>
                                 <Plus className="h-4 w-4 mr-1" />
-                                {locale === 'vi' ? 'Thêm' : 'Add'}
+                                {t('profile.add')}
                             </Button>
                         )}
                     </div>
@@ -578,7 +576,7 @@ export default function WorkerProfilePage() {
                                                     {formatMonthYear(exp.start_date)}
                                                     {' - '}
                                                     {exp.is_current
-                                                        ? (locale === 'vi' ? 'Hiện tại' : 'Present')
+                                                        ? (t('profile.present'))
                                                         : formatMonthYear(exp.end_date)
                                                     }
                                                 </p>
@@ -603,11 +601,11 @@ export default function WorkerProfilePage() {
                         <div className="text-center py-6">
                             <Building2 className="w-10 h-10 mx-auto text-muted-foreground mb-2" />
                             <p className="text-muted-foreground text-sm mb-3">
-                                {locale === 'vi' ? 'Chưa có kinh nghiệm làm việc' : 'No work experience added'}
+                                {t('profile.noExperience')}
                             </p>
                             <Button size="sm" onClick={() => setShowWorkExpForm(true)}>
                                 <Plus className="w-4 h-4 mr-1" />
-                                {locale === 'vi' ? 'Thêm kinh nghiệm' : 'Add Experience'}
+                                {t('profile.addExperience')}
                             </Button>
                         </div>
                     )}

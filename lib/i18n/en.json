@@ -328,7 +328,7 @@
         "viewMap": "VIEW MAP",
         "newOpportunities": "New opportunities waiting for you!",
         "noUpcomingShift": "You have no upcoming shifts. Apply now to maximize your income.",
-        "findJobs": "FIND JOBS NOW",
+        "findJobs": "Discover new jobs",
         "recentApplications": "RECENT APPLICATIONS",
         "viewAll": "VIEW ALL",
         "noApplications": "No applications yet",
@@ -351,7 +351,19 @@
             "boost": "100% profile boosts approval rate by 3x!",
             "description": "Update fully your certificates and video to become an elite candidate.",
             "updateNow": "UPDATE NOW"
-        }
+        },
+        "scanQR": "Scan QR Check-in",
+        "scanQRDesc": "Scan QR code at store to check in",
+        "myApps": "My Applications",
+        "appsCount": "apps",
+        "completionCount": "% completed",
+        "guideDesc": "How to use",
+        "totalApps": "Total",
+        "pendingApps": "Pending",
+        "approvedApps": "Approved",
+        "completedApps": "Completed",
+        "upcomingShifts": "Upcoming Shifts",
+        "seeAll": "See all"
     },
     "feed": {
         "jobs": "Jobs",
@@ -518,5 +530,26 @@
         "slots": "Slots",
         "scanQR": "Scan QR to Check-in",
         "expiredWarning": "This job's application period has expired or the shift has passed."
+    },
+    "profile": {
+        "completeProfile": "Complete Your Profile",
+        "completeProfileDesc": "A complete profile helps you get more job opportunities",
+        "completion": "completed",
+        "addAvatar": "Add profile photo",
+        "addPhone": "Add phone number",
+        "addBio": "Add bio",
+        "verifyIdentity": "Verify identity",
+        "addLanguage": "Add language skills",
+        "addExperience": "Add work experience",
+        "publicProfile": "View public profile",
+        "shareProfile": "Share this link with employers",
+        "workExperience": "Work Experience",
+        "add": "Add",
+        "present": "Present",
+        "noExperience": "No work experience added",
+        "errorSaveExp": "Error saving experience",
+        "successSaveExp": "Experience added",
+        "errorDelExp": "Error deleting experience",
+        "successDelExp": "Experience deleted"
     }
 }
