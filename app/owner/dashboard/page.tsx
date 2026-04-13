@@ -43,13 +43,13 @@ interface OwnerProfile {
     full_name: string;
     restaurant_name: string | null;
     restaurant_logo_url: string | null;
-    restaurant_cover_urls: string[];
+    restaurant_cover_urls: string[] | null;
     phone_number: string | null;
     email: string | null;
-    profile_completion_percentage: number;
-    can_post_jobs: boolean;
-    role: string;
-    avatar_url?: string;
+    profile_completion_percentage: number | null;
+    can_post_jobs: boolean | null;
+    role: string | null;
+    avatar_url?: string | null;
 }
 
 export default function OwnerDashboardPage() {
@@ -124,8 +124,7 @@ export default function OwnerDashboardPage() {
                 return;
             }
 
-            // @ts-expect-error - Expected due to missing null checks or db strict types
-            setProfile(profileData);
+            setProfile(profileData as OwnerProfile);
 
             // Fetch active jobs count
             const { count: activeJobsCount } = await supabase
