@@ -37,7 +37,7 @@ export function NotificationBell() {
         // Realtime subscription
         const supabase = createClient();
         const channel = supabase
-            .channel('notifications_channel')
+            .channel(`notifications_${user.id}`)
             .on(
                 'postgres_changes',
                 {
@@ -58,7 +58,11 @@ export function NotificationBell() {
                     });
                 }
             )
-            .subscribe();
+            .subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                    console.log('Successfully subscribed to notifications');
+                }
+            });
 
         return () => {
             supabase.removeChannel(channel);

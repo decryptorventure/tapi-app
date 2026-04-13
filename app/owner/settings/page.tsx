@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/lib/i18n';
-import { MapPicker } from '@/components/map/map-picker';
+
 
 interface OwnerProfile {
     id: string;
@@ -355,26 +355,6 @@ export default function OwnerSettingsPage() {
                             rows={2}
                             className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground resize-none"
                             placeholder="Nhập địa chỉ"
-                        />
-                    </div>
-
-                    {/* Map Picker */}
-                    <div>
-                        <label className="text-sm font-medium text-foreground block mb-2">Vị trí trên bản đồ (Để nhân viên tìm đường)</label>
-                        <MapPicker
-                            value={formData.restaurant_lat && formData.restaurant_lng ? {
-                                lat: formData.restaurant_lat,
-                                lng: formData.restaurant_lng,
-                                address: formData.restaurant_address
-                            } : undefined}
-                            onChange={(location) => {
-                                setFormData(prev => ({
-                                    ...prev,
-                                    restaurant_lat: location.lat,
-                                    restaurant_lng: location.lng,
-                                    restaurant_address: location.address || prev.restaurant_address
-                                }));
-                            }}
                         />
                     </div>
 
