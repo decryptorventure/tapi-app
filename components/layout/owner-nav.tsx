@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { NotificationBell } from '@/components/notifications/notification-bell';
+import { LanguageSwitcher } from '@/components/shared/language-switcher';
 
 export function OwnerNav() {
     const pathname = usePathname();
@@ -130,6 +131,7 @@ export function OwnerNav() {
                         </span>
                     </Link>
                     <div className="flex gap-2 items-center">
+                        <LanguageSwitcher />
                         <NotificationBell />
                         <Link href="/owner/jobs/new">
                             <Button size="sm" variant="outline" className="h-8 w-8 p-0 rounded-full border-dashed border-orange-300">
@@ -142,6 +144,7 @@ export function OwnerNav() {
 
                 <div className="hidden md:flex flex-1 items-center justify-between space-x-2 md:justify-end">
                     <div className="w-full flex-1 md:w-auto md:flex-none flex justify-end gap-2">
+                        <LanguageSwitcher />
                         <NotificationBell />
                     </div>
                     <Button
