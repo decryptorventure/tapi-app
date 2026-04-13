@@ -139,6 +139,10 @@ export default function WorkerScanQRPage() {
         const today = new Date().toISOString().split('T')[0];
 
         // Find worker's application for this owner TODAY
+        // 1. Fetch relevant applications for this owner
+        console.log('[Checkin] Searching applications for owner:', ownerId);
+        
+        // Use a more robust join syntax
         const { data: applications, error: appError } = await supabase
             .from('job_applications')
             .select(`
@@ -156,13 +160,20 @@ export default function WorkerScanQRPage() {
             `)
             .eq('worker_id', user.id)
             .eq('job.owner_id', ownerId)
-            // .eq('job.shift_date', today) // You might need this if checking strictly for today's job
             .in('status', ['approved', 'working'])
             .order('created_at', { ascending: false });
 
-        if (appError || !applications || applications.length === 0) {
-            throw new Error('Bạn không có ca làm việc nào đang chờ tại nhà hàng này.');
+        if (appError) {
+            console.error('[Checkin] App search error:', appError);
+            throw new Error(`Lỗi tìm kiếm công việc: ${appError.message}`);
         }
+
+        if (!applications || applications.length === 0) {
+            console.warn('[Checkin] No applications found for owner:', ownerId);
+            throw new Error('Bạn không có ca làm việc nào đang chờ tại nhà hàng này. Vui lòng kiểm tra lại trạng thái ứng tuyển hoặc ngày làm việc.');
+        }
+
+        console.log('[Checkin] Found applications:', applications.length);
 
         // Just pick the first relevant one
         const application = applications[0];
@@ -208,12 +219,13 @@ export default function WorkerScanQRPage() {
                 job_id: job.id,
                 type: checkinType,
                 checkin_time: new Date().toISOString(),
-                location_lat: userLocation?.latitude,
-                location_lng: userLocation?.longitude,
+                location_lat: userLocation?.latitude || null,
+                location_lng: userLocation?.longitude || null,
             });
 
         if (checkinError) {
-            throw new Error('Lỗi ghi nhận check-in');
+            console.error('[Checkin] Insert error:', checkinError);
+            throw new Error(`Lỗi ghi nhận check-in: ${checkinError.message}`);
         }
 
         // Update application status based on check-in type

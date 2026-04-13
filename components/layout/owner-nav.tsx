@@ -33,10 +33,17 @@ export function OwnerNav() {
     }, []);
 
     const handleLogout = async () => {
-        const supabase = createClient();
-        await supabase.auth.signOut();
-        // Use window.location for a harder reset to clear all client states/cookies
-        window.location.href = '/login';
+        try {
+            console.log('Logging out...');
+            const supabase = createClient();
+            await supabase.auth.signOut();
+            // Use window.location for a harder reset to clear all client states/cookies
+            window.location.href = '/login';
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Fallback: even if signOut fails, redirect to login
+            window.location.href = '/login';
+        }
     };
 
     const navItems = [
