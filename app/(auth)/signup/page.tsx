@@ -81,7 +81,7 @@ export default function SignupPage() {
             <UserPlus className="w-8 h-8 text-blue-600" />
           </div>
           <h1 className="text-3xl font-bold text-slate-900 mb-2">
-            {t('auth.signupToTapy')}
+            {t('auth.signupTitle')}
           </h1>
           <p className="text-slate-600">
             {t('auth.createAccount')}
@@ -90,9 +90,7 @@ export default function SignupPage() {
 
         <form onSubmit={handleSignup} className="space-y-4 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Họ và tên
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">{t('auth.fullName', { defaultValue: 'Họ và tên' })}</label>
             <input
               type="text"
               required
@@ -104,9 +102,7 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Số điện thoại
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">{t('auth.signup_phoneNumber', { defaultValue: 'Số điện thoại' })}</label>
             <input
               type="tel"
               required
@@ -118,9 +114,7 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Email
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">{t('auth.email', { defaultValue: 'Email' })}</label>
             <input
               type="email"
               required
@@ -132,9 +126,7 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Mật khẩu
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">{t('auth.password', { defaultValue: 'Mật khẩu' })}</label>
             <input
               type="password"
               required
@@ -166,10 +158,8 @@ export default function SignupPage() {
         </form>
 
         <p className="text-center text-sm text-slate-600 mt-6">
-          Đã có tài khoản?{' '}
-          <Link href="/login" className="text-blue-600 font-medium hover:underline">
-            Đăng nhập
-          </Link>
+          {t('auth.hasAccount', { defaultValue: 'Đã có tài khoản?' })}{' '}
+          <Link href="/login" className="text-blue-600 font-medium hover:underline">{t('auth.signup_login', { defaultValue: 'Đăng nhập' })}</Link>
         </p>
       </div>
     </div>

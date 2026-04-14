@@ -102,10 +102,10 @@ export default function LoginPage() {
                         <LogIn className="w-8 h-8 text-blue-600" />
                     </div>
                     <h1 className="text-3xl font-bold text-slate-900 mb-2">
-                        {t('auth.loginToTapy')}
+                        {t('auth.loginTitle')}
                     </h1>
                     <p className="text-slate-600">
-                        {t('auth.welcomeBack')}
+                        {t('auth.loginSubtitle')}
                     </p>
                 </div>
 
@@ -113,7 +113,7 @@ export default function LoginPage() {
                 <form onSubmit={handleLogin} className="space-y-4 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">
-                            Email
+                            {t('auth.email', { defaultValue: 'Email' })}
                         </label>
                         <input
                             type="email"
@@ -128,7 +128,7 @@ export default function LoginPage() {
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">
-                            Mật khẩu
+                            {t('auth.password', { defaultValue: 'Mật khẩu' })}
                         </label>
                         <input
                             type="password"
@@ -144,7 +144,7 @@ export default function LoginPage() {
                     {/* Forgot password link */}
                     <div className="text-right">
                         <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
-                            Quên mật khẩu?
+                            {t('auth.login_forgotPassword', { defaultValue: 'Quên mật khẩu?' })}
                         </Link>
                     </div>
 
@@ -156,7 +156,7 @@ export default function LoginPage() {
                         {loading ? (
                             <>
                                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                Đang đăng nhập...
+                                {t('auth.login_loggingIn', { defaultValue: 'Đang đăng nhập...' })}
                             </>
                         ) : (
                             t('auth.login_login')
@@ -166,9 +166,9 @@ export default function LoginPage() {
 
                 {/* Sign up link */}
                 <p className="text-center text-sm text-slate-600 mt-6">
-                    Chưa có tài khoản?{' '}
+                    {t('auth.noAccount', { defaultValue: 'Chưa có tài khoản?' })}{' '}
                     <Link href="/signup" className="text-blue-600 font-medium hover:underline">
-                        Đăng ký ngay
+                        {t('auth.login_registerNow', { defaultValue: 'Đăng ký ngay' })}
                     </Link>
                 </p>
             </div>
