@@ -33,7 +33,7 @@
         "description": "Hãy cập nhật đầy đủ chứng chỉ và video để trở thành ứng viên ưu tú.",
         "updateNow": "CẬP NHẬT NGAY"
     },
-    "scanQR": "Scan QR Check-in",
+    "scanQR": "Quét QR",
     "scanQRDesc": "Quét mã QR tại cửa hàng để check-in",
     "myApps": "Đơn của tôi",
     "appsCount": "đơn",
@@ -44,5 +44,13 @@
     "approvedApps": "Đã duyệt",
     "completedApps": "Hoàn thành",
     "upcomingShifts": "Ca làm sắp tới",
-    "seeAll": "Xem tất cả"
+    "seeAll": "Xem tất cả",
+    "viewCheckinQR": "Xem QR Check-in",
+    "noShiftsYet": "Chưa có ca làm nào",
+    "discoverJobsDesc": "Khám phá các công việc phù hợp với kỹ năng của bạn ngay!",
+    "findJobsNow": "Tìm việc ngay",
+    "completeProfileTitle": "Hoàn thiện hồ sơ",
+    "completeProfileDesc": "Hồ sơ đầy đủ giúp bạn có nhiều cơ hội được nhận việc hơn!",
+    "updateNow": "Cập nhật ngay",
+    "checkInOut": "Check-in/out"
 }

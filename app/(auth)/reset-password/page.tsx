@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { Loader2, Lock, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
 export default function ResetPasswordPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -162,7 +163,7 @@ export default function ResetPasswordPage() {
                                 Đang xử lý...
                             </>
                         ) : (
-                            'Đặt lại mật khẩu'
+                            t('auth.resetPassword_resetPassword')
                         )}
                     </Button>
                 </form>

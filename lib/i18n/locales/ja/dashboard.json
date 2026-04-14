@@ -33,16 +33,24 @@
         "description": "資格と自己紹介動画を完全に更新して、エリート候補者になりましょう。",
         "updateNow": "今すぐ更新"
     },
-    "scanQR": "QRスキャンでチェックイン",
+    "scanQR": "QRスキャン",
     "scanQRDesc": "店舗でQRコードをスキャンしてチェックインします",
     "myApps": "マイ応募",
     "appsCount": "件",
     "completionCount": "% 完了",
     "guideDesc": "使い方",
-    "totalApps": "総応募",
+    "totalApps": "応募総数",
     "pendingApps": "承認待ち",
     "approvedApps": "承認済み",
     "completedApps": "完了",
     "upcomingShifts": "今後のシフト",
-    "seeAll": "すべて見る"
+    "seeAll": "すべて見る",
+    "viewCheckinQR": "チェックインQRを表示",
+    "noShiftsYet": "シフトがまだありません",
+    "discoverJobsDesc": "スキルに合った求人を今すぐ見つけよう！",
+    "findJobsNow": "今すぐ探す",
+    "completeProfileTitle": "プロフィールを完成させる",
+    "completeProfileDesc": "プロフィールを完成させると採用される確率が高まります！",
+    "updateNow": "今すぐ更新",
+    "checkInOut": "出勤/退勤"
 }

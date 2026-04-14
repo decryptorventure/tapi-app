@@ -35,7 +35,7 @@ export default function LoginPage() {
             if (authError) throw authError;
 
             if (!authData.user) {
-                throw new Error('Đăng nhập thất bại');
+                throw new Error(t('auth.login_loginFailed'));
             }
 
             // Fetch user profile to determine redirect
@@ -73,11 +73,11 @@ export default function LoginPage() {
             console.error('Login error:', error);
 
             // User-friendly error messages in Vietnamese
-            let errorMessage = 'Đăng nhập thất bại';
+            let errorMessage = t('auth.login_loginFailed');
             if (error.message?.includes('Invalid login credentials')) {
-                errorMessage = 'Email hoặc mật khẩu không đúng';
+                errorMessage = t('auth.login_invalidCredentials');
             } else if (error.message?.includes('Email not confirmed')) {
-                errorMessage = 'Vui lòng xác nhận email trước khi đăng nhập';
+                errorMessage = t('auth.login_confirmEmailPrompt');
             } else if (error.message) {
                 errorMessage = error.message;
             }
@@ -159,7 +159,7 @@ export default function LoginPage() {
                                 Đang đăng nhập...
                             </>
                         ) : (
-                            'Đăng nhập'
+                            t('auth.login_login')
                         )}
                     </Button>
                 </form>

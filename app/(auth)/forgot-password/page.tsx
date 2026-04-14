@@ -9,6 +9,7 @@ import { Loader2, Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
 
 export default function ForgotPasswordPage() {
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [sent, setSent] = useState(false);
     const [email, setEmail] = useState('');
@@ -93,7 +94,7 @@ export default function ForgotPasswordPage() {
                                         Đang gửi...
                                     </>
                                 ) : (
-                                    'Gửi link đặt lại mật khẩu'
+                                    t('auth.forgotPassword_sendResetLink')
                                 )}
                             </Button>
                         </form>
