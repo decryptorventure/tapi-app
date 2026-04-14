@@ -10,7 +10,6 @@ import {
     Camera,
     CheckCircle2,
     XCircle,
-    MapPin,
     Clock,
     ArrowLeft,
     RefreshCw,
@@ -35,8 +34,6 @@ export default function WorkerScanQRPage() {
     const [scanState, setScanState] = useState<ScanState>('idle');
     const [error, setError] = useState<string | null>(null);
     const [result, setResult] = useState<CheckinResult | null>(null);
-    const [gpsStatus, setGpsStatus] = useState<'checking' | 'success' | 'error' | null>(null);
-    const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
     const scannerRef = useRef<any>(null);
     const [cameraPermission, setCameraPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
 
@@ -45,22 +42,6 @@ export default function WorkerScanQRPage() {
         navigator.permissions?.query({ name: 'camera' as PermissionName })
             .then(result => setCameraPermission(result.state as any))
             .catch(() => setCameraPermission('prompt'));
-
-        // Get GPS location
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    setUserLocation({
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                    });
-                    setGpsStatus('success');
-                },
-                () => {
-                    setGpsStatus('error');
-                }
-            );
-        }
 
         return () => {
             stopScanner();
@@ -186,20 +167,6 @@ export default function WorkerScanQRPage() {
         // Flatten owner data if it's an array
         const owner = Array.isArray(job.owner) ? job.owner[0] : job.owner;
 
-        // Validate GPS if location available
-        if (userLocation && owner?.restaurant_lat && owner?.restaurant_lng) {
-            const gpsValidation = QRCodeService.validateGPSLocation(
-                userLocation,
-                { latitude: owner.restaurant_lat, longitude: owner.restaurant_lng }
-            );
-
-            if (!gpsValidation.valid) {
-                // TEMPORARILY DISABLED: Allow check-in even if far from location
-                // throw new Error(gpsValidation.error);
-                console.warn('GPS validation failed:', gpsValidation.error);
-            }
-        }
-
         // Check existing check-in status
         const { data: existingCheckins } = await supabase
             .from('checkins')
@@ -219,8 +186,8 @@ export default function WorkerScanQRPage() {
                 job_id: job.id,
                 type: checkinType,
                 checkin_time: new Date().toISOString(),
-                location_lat: userLocation?.latitude || null,
-                location_lng: userLocation?.longitude || null,
+                location_lat: null,
+                location_lng: null,
             });
 
         if (checkinError) {
@@ -292,27 +259,6 @@ export default function WorkerScanQRPage() {
             </div>
 
             <div className="max-w-lg mx-auto px-4 -mt-8 space-y-6">
-                {/* GPS Status */}
-                <div className={`p-4 rounded-xl flex items-center gap-3 ${gpsStatus === 'success' ? 'bg-success/10 border border-success/20' :
-                    gpsStatus === 'error' ? 'bg-warning/10 border border-warning/20' :
-                        'bg-muted'
-                    }`}>
-                    <MapPin className={`w-5 h-5 ${gpsStatus === 'success' ? 'text-success' :
-                        gpsStatus === 'error' ? 'text-warning' :
-                            'text-muted-foreground'
-                        }`} />
-                    <div className="flex-1">
-                        <p className="text-sm font-medium text-foreground">
-                            {gpsStatus === 'success' ? 'Vị trí đã xác định' :
-                                gpsStatus === 'error' ? 'Không lấy được vị trí' :
-                                    'Đang xác định vị trí...'}
-                        </p>
-                        {gpsStatus === 'error' && (
-                            <p className="text-xs text-muted-foreground">Check-in vẫn hoạt động nhưng không xác minh vị trí</p>
-                        )}
-                    </div>
-                </div>
-
                 {/* Scanner / Result Area */}
                 <div className="bg-card rounded-2xl border border-border overflow-hidden">
                     {scanState === 'idle' && (
