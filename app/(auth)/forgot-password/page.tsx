@@ -1,4 +1,5 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';

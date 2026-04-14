@@ -60,7 +60,7 @@ const features = [
 ];
 
 export function StatsSection() {
-    const { locale } = useTranslation();
+    const { t, locale } = useTranslation();
 
     return (
         <section className="py-20 bg-gradient-to-b from-primary/5 to-background">

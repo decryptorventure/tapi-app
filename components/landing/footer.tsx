@@ -5,7 +5,7 @@ import { Zap, Mail, Phone, MapPin, Facebook, Instagram, Youtube } from 'lucide-r
 import { useTranslation } from '@/lib/i18n';
 
 export function Footer() {
-    const { locale } = useTranslation();
+    const { t, locale } = useTranslation();
 
     const footerLinks = {
         forWorkers: {

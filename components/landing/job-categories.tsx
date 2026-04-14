@@ -101,7 +101,7 @@ const categories: Category[] = [
 ];
 
 export function JobCategories() {
-    const { locale } = useTranslation();
+    const { t, locale } = useTranslation();
 
     return (
         <section className="py-20 bg-muted/30">
@@ -109,7 +109,7 @@ export function JobCategories() {
                 {/* Section Header */}
                 <div className="text-center mb-12">
                     <h2 className="text-3xl sm:text-4xl font-black text-foreground mb-4">
-                        {locale === 'vi' ? 'Khám phá việc làm' : 'Explore Jobs'}
+                        {t('landing.exploreJobs')}
                     </h2>
                     <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                         {locale === 'vi'
@@ -154,7 +154,7 @@ export function JobCategories() {
                         href="/worker/feed"
                         className="inline-flex items-center gap-2 text-primary font-semibold hover:underline group"
                     >
-                        {locale === 'vi' ? 'Xem tất cả việc làm' : 'View all jobs'}
+                        {t('landing.viewAllJobs')}
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </div>

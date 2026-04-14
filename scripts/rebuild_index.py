@@ -29,10 +29,20 @@ const dictionaries: Record<Locale, any> = {{
 interface I18nContextType {{
     locale: Locale;
     setLocale: (locale: Locale) => void;
-    t: (keyStr: string, options?: Record<string, string>) => string;
+    t: (keyStr: string, options?: Record<string, any>) => string;
 }}
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
+
+const interpolate = (text: string, options: Record<string, any>) => {{
+    let result = text;
+    for (const key in options) {{
+        if (key !== 'defaultValue') {{
+            result = result.replace(new RegExp(`{{{{${{key}}}}}}`, 'g'), String(options[key]));
+        }}
+    }}
+    return result;
+}};
 
 export const I18nProvider = ({{ children }}: {{ children: React.ReactNode }}) => {{
     const [locale, setLocaleState] = useState<Locale>('vi'); // Default
@@ -51,19 +61,26 @@ export const I18nProvider = ({{ children }}: {{ children: React.ReactNode }}) =>
         localStorage.setItem('tapy_locale', newLocale);
     }};
 
-    const t = (keyStr: string): string => {{
+    const t = (keyStr: string, options?: Record<string, any>): string => {{
         const keys = keyStr.split('.');
         const activeDictionary = dictionaries[locale] || dictionaries.vi;
         let result: any = activeDictionary;
         
         for (const k of keys) {{
+            // handle raw default export from webpack if needed
+            if (result && typeof result === 'object') {{
+                if (result.default) result = result.default;
+            }}
             if (result && typeof result === 'object' && k in result) {{
                 result = result[k];
             }} else {{
-                return keyStr;
+                return options?.defaultValue ? interpolate(options.defaultValue, options || {{}}) : keyStr;
             }}
         }}
-        return typeof result === 'string' ? result : keyStr;
+        if (typeof result === 'string') {{
+            return interpolate(result, options || {{}});
+        }}
+        return options?.defaultValue ? interpolate(options.defaultValue, options || {{}}) : keyStr;
     }};
 
     return (
@@ -76,17 +93,23 @@ export const I18nProvider = ({{ children }}: {{ children: React.ReactNode }}) =>
 export const useTranslation = () => {{
     const context = useContext(I18nContext);
     if (!context) {{
-        const t = (keyStr: string): string => {{
+        const t = (keyStr: string, options?: Record<string, any>): string => {{
             const keys = keyStr.split('.');
             let result: any = dictionaries.vi;
             for (const k of keys) {{
+                if (result && typeof result === 'object') {{
+                    if (result.default) result = result.default;
+                }}
                 if (result && typeof result === 'object' && k in result) {{
                     result = result[k];
                 }} else {{
-                    return keyStr;
+                    return options?.defaultValue ? interpolate(options.defaultValue, options || {{}}) : keyStr;
                 }}
             }}
-            return typeof result === 'string' ? result : keyStr;
+            if (typeof result === 'string') {{
+                return interpolate(result, options || {{}});
+            }}
+            return options?.defaultValue ? interpolate(options.defaultValue, options || {{}}) : keyStr;
         }};
         return {{ t, locale: 'vi' as Locale, setLocale: () => {{}} }};
     }}
