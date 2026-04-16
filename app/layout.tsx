@@ -35,10 +35,9 @@ export default function RootLayout({
           <MainNav />
           {children}
           <PWAInstallPrompt />
-          <Toaster position="top-center" />
+          <Toaster position="top-right" />
         </Providers>
       </body>
     </html>
   );
 }
-

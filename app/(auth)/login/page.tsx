@@ -90,10 +90,6 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white p-4 relative">
-            {/* Language Switcher - Top Right */}
-            <div className="absolute top-4 right-4">
-                <LanguageSwitcher />
-            </div>
 
             <div className="w-full max-w-md">
                 {/* Header */}

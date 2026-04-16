@@ -25,6 +25,30 @@ export default function WorkerVideoPage() {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    useEffect(() => {
+        checkExistingVideo();
+    }, []);
+
+    const checkExistingVideo = async () => {
+        const supabase = createClient();
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('intro_video_url')
+                .eq('id', user.id)
+                .single();
+
+            if (profile?.intro_video_url) {
+                setPreviewUrl(profile.intro_video_url);
+            }
+        } catch (error) {
+            console.error('Video check error:', error);
+        }
+    };
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -44,11 +68,20 @@ export default function WorkerVideoPage() {
         }
     };
 
-    const removeVideo = () => {
+    const removeVideo = async () => {
         setVideoFile(null);
         if (previewUrl) {
-            URL.revokeObjectURL(previewUrl);
+            if (previewUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(previewUrl);
+            }
             setPreviewUrl(null);
+        }
+
+        // If we want to clear it from the DB when removed during onboarding
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            await supabase.from('profiles').update({ intro_video_url: null }).eq('id', user.id);
         }
     };
 

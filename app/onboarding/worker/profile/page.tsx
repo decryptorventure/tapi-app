@@ -182,6 +182,7 @@ export default function WorkerProfilePage() {
                     setAvatarFile(null);
                     setAvatarPreview(null);
                   }}
+                  existingUrl={avatarPreview || undefined}
                   accept="image/*"
                   maxSize={5}
                 />

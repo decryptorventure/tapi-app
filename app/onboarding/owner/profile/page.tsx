@@ -25,15 +25,20 @@ export default function OwnerProfilePage() {
         email: '',
     });
 
+    const [existingLogoUrl, setExistingLogoUrl] = useState<string | null>(null);
+    const [existingCoverUrl, setExistingCoverUrl] = useState<string | null>(null);
+    const [existingLicenseUrl, setExistingLicenseUrl] = useState<string | null>(null);
+
     // Fetch existing data if any
     useEffect(() => {
         const fetchInitialData = async () => {
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
+                // Fetch profile data
                 const { data: profile } = await supabase
                     .from('profiles')
-                    .select('phone_number, email, restaurant_name, cuisine_type, restaurant_address, business_license_number')
+                    .select('phone_number, email, restaurant_name, cuisine_type, restaurant_address, business_license_number, restaurant_logo_url, restaurant_cover_urls')
                     .eq('id', user.id)
                     .single();
 
@@ -46,6 +51,23 @@ export default function OwnerProfilePage() {
                         phone: profile.phone_number || '',
                         email: profile.email || '',
                     });
+                    setExistingLogoUrl(profile.restaurant_logo_url || null);
+                    if (profile.restaurant_cover_urls && Array.isArray(profile.restaurant_cover_urls) && profile.restaurant_cover_urls.length > 0) {
+                        setExistingCoverUrl(profile.restaurant_cover_urls[0]);
+                    }
+                }
+
+                // Fetch license verification if exists
+                const { data: verification } = await supabase
+                    .from('business_verifications')
+                    .select('license_url')
+                    .eq('owner_id', user.id)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .single();
+                
+                if (verification) {
+                    setExistingLicenseUrl(verification.license_url);
                 }
             }
         };
@@ -268,14 +290,22 @@ export default function OwnerProfilePage() {
                             label={t('onboarding.owner_restaurantLogo')}
                             helperText={t('onboarding.owner_squareImageHint')}
                             onFileSelect={(file) => setLogoFile(file)}
-                            onFileRemove={() => setLogoFile(null)}
+                            onFileRemove={() => {
+                                setLogoFile(null);
+                                setExistingLogoUrl(null);
+                            }}
+                            existingUrl={existingLogoUrl || undefined}
                             accept="image/*"
                         />
                         <ImageUpload
                             label={t('onboarding.owner_restaurantCover')}
                             helperText={t('onboarding.owner_landscapeImageHint')}
                             onFileSelect={(file) => setCoverFile(file)}
-                            onFileRemove={() => setCoverFile(null)}
+                            onFileRemove={() => {
+                                setCoverFile(null);
+                                setExistingCoverUrl(null);
+                            }}
+                            existingUrl={existingCoverUrl || undefined}
                             accept="image/*"
                         />
                     </div>
@@ -305,7 +335,11 @@ export default function OwnerProfilePage() {
                                 label={t('onboarding.owner_licenseImageOptional')}
                                 helperText={t('onboarding.owner_uploadClearScan')}
                                 onFileSelect={(file) => setLicenseFile(file)}
-                                onFileRemove={() => setLicenseFile(null)}
+                                onFileRemove={() => {
+                                    setLicenseFile(null);
+                                    setExistingLicenseUrl(null);
+                                }}
+                                existingUrl={existingLicenseUrl || undefined}
                                 accept="image/*,.pdf"
                                 maxSize={10}
                             />
@@ -326,6 +360,7 @@ export default function OwnerProfilePage() {
                             variant="outline"
                             onClick={() => router.push('/owner/dashboard')}
                             className="flex-1"
+                            disabled={loading}
                         >
                             Bỏ qua - hoàn thiện sau
                         </Button>

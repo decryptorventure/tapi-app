@@ -61,9 +61,37 @@ export default function WorkerLanguagesPage() {
     const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const [languageSkills, setLanguageSkills] = useState<LanguageSkill[]>([
+    const [languageSkills, setLanguageSkills] = useState<(LanguageSkill & { existingUrl?: string })[]>([
         { language: 'japanese', level: 'n5', certificateFile: null }
     ]);
+
+    useEffect(() => {
+        checkExistingLanguages();
+    }, []);
+
+    const checkExistingLanguages = async () => {
+        const supabase = createClient();
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            const { data: skills } = await supabase
+                .from('language_skills')
+                .select('*')
+                .eq('user_id', user.id);
+
+            if (skills && skills.length > 0) {
+                setLanguageSkills(skills.map(s => ({
+                    language: s.language as LanguageType,
+                    level: s.level as LanguageLevel,
+                    certificateFile: null,
+                    existingUrl: s.certificate_url || undefined
+                })));
+            }
+        } catch (error) {
+            console.error('Languages check error:', error);
+        }
+    };
 
     const addLanguage = () => {
         if (languageSkills.length >= 3) {
@@ -257,7 +285,13 @@ export default function WorkerLanguagesPage() {
                                         label=""
                                         helperText={t('onboarding.worker_uploadCertHint')}
                                         onFileSelect={(file) => updateLanguage(index, 'certificateFile', file)}
-                                        onFileRemove={() => updateLanguage(index, 'certificateFile', null)}
+                                        onFileRemove={() => {
+                                            updateLanguage(index, 'certificateFile', null);
+                                            const updated = [...languageSkills];
+                                            updated[index].existingUrl = undefined;
+                                            setLanguageSkills(updated);
+                                        }}
+                                        existingUrl={skill.existingUrl}
                                         accept="image/*,.pdf"
                                         maxSize={10}
                                     />
