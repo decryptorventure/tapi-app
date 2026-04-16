@@ -129,10 +129,25 @@ export default function OwnerPaymentsPage() {
             if (error) throw error;
 
             toast.success('Đã xác nhận thanh toán!');
+
+            // Send notification to worker if selectedRequest is available
+            if (selectedRequest) {
+                try {
+                    const { NotificationService } = await import('@/lib/services/notification.service');
+                    await NotificationService.createNotification({
+                        user_id: selectedRequest.worker_id,
+                        title: 'Đã nhận thanh toán',
+                        message: `Nhà hàng đã đánh dấu thanh toán cho công việc ${selectedRequest.job_title}`,
+                        type: 'system',
+                        related_id: selectedRequest.id
+                    });
+                } catch (notifError) {
+                    console.error('Failed to send notification', notifError);
+                }
+            }
+            
             fetchRequests();
             setSelectedRequest(null);
-
-            // TODO: Send notification to worker
         } catch (error) {
             toast.error('Có lỗi xảy ra');
         } finally {

@@ -94,7 +94,8 @@ class AdminService {
 
         let query = this.supabase
             .from('profiles')
-            .select('*', { count: 'exact' });
+            .select('*', { count: 'exact' })
+            .is('deleted_at', null);
 
         if (role) {
             query = query.eq('role', role);
@@ -181,27 +182,25 @@ class AdminService {
         if (error) throw error;
     }
 
-    // Soft delete user - TODO: Add deleted_at column to profiles table
+    // Soft delete user
     async deleteUser(userId: string, _adminId: string): Promise<void> {
-        // Note: Soft delete not implemented yet - deleted_at column doesn't exist
-        // For now, freeze the account instead
         const { error } = await this.supabase
             .from('profiles')
             .update({
-                is_account_frozen: true,
+                deleted_at: new Date().toISOString(),
+                is_account_frozen: true, // Also freeze them to prevent any token usage
             })
             .eq('id', userId);
 
         if (error) throw error;
     }
 
-    // Restore deleted user - TODO: Add deleted_at column to profiles table
+    // Restore deleted user
     async restoreUser(userId: string): Promise<void> {
-        // Note: Soft delete not implemented yet - deleted_at column doesn't exist
-        // For now, unfreeze the account instead
         const { error } = await this.supabase
             .from('profiles')
             .update({
+                deleted_at: null,
                 is_account_frozen: false,
             })
             .eq('id', userId);
@@ -216,17 +215,20 @@ class AdminService {
         // Users counts
         const { count: totalUsers } = await supabase
             .from('profiles')
-            .select('*', { count: 'exact', head: true });
+            .select('*', { count: 'exact', head: true })
+            .is('deleted_at', null);
 
         const { count: totalWorkers } = await supabase
             .from('profiles')
             .select('*', { count: 'exact', head: true })
-            .eq('role', 'worker');
+            .eq('role', 'worker')
+            .is('deleted_at', null);
 
         const { count: totalOwners } = await supabase
             .from('profiles')
             .select('*', { count: 'exact', head: true })
-            .eq('role', 'owner');
+            .eq('role', 'owner')
+            .is('deleted_at', null);
 
         // Jobs counts
         const { count: totalJobs } = await supabase

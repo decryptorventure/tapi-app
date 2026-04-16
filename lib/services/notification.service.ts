@@ -65,5 +65,29 @@ export const NotificationService = {
 
         if (error) throw error;
         return count || 0;
+    },
+
+    // Create a new notification
+    createNotification: async (payload: Omit<Notification, 'id' | 'is_read' | 'created_at'>) => {
+        const supabase = createClient();
+        
+        const { data, error } = await supabase
+            .from('notifications')
+            .insert({
+                user_id: payload.user_id,
+                title: payload.title,
+                message: payload.message,
+                type: payload.type,
+                related_id: payload.related_id
+            })
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Create notification error:', error);
+            throw error;
+        }
+
+        return data as Notification;
     }
 };

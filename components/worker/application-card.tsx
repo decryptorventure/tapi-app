@@ -29,6 +29,7 @@ interface Application {
   created_at: string;
   is_instant_book?: boolean;
   checkin_qr_code?: string;
+  contract_accepted_at?: string | null;
   jobs: Job;
 }
 
@@ -182,12 +183,21 @@ export function ApplicationCard({ application, paymentRequests, onRequestPayment
       <div className="flex gap-3 mt-4 pt-4 border-t border-border">
         {status === 'approved' && (
           <>
-            <Link href={`/worker/jobs/${application.id}/qr`} className="flex-1">
-              <Button className="w-full bg-primary hover:bg-primary/90">
-                <QrCode className="h-4 w-4 mr-2" />
-                {t('applicationCard.viewQr')}
-              </Button>
-            </Link>
+            {!application.contract_accepted_at ? (
+              <Link href={`/worker/contracts/${application.id}`} className="flex-1">
+                <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white shadow-md">
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Ký Hợp Đồng
+                </Button>
+              </Link>
+            ) : (
+              <Link href={`/worker/jobs/${application.id}/qr`} className="flex-1">
+                <Button className="w-full bg-primary hover:bg-primary/90">
+                  <QrCode className="h-4 w-4 mr-2" />
+                  {t('applicationCard.viewQr')}
+                </Button>
+              </Link>
+            )}
           </>
         )}
 
