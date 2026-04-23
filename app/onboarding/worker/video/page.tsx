@@ -1,7 +1,7 @@
 'use client';
 import { useTranslation } from '@/lib/i18n';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';

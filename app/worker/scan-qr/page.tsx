@@ -106,8 +106,8 @@ export default function WorkerScanQRPage() {
             throw new Error('Vui lòng đăng nhập');
         }
 
-        // Validate Owner QR code
-        const validation = QRCodeService.validateOwnerQR(qrData);
+        // Validate Owner QR code (async — uses Web Crypto API in browser)
+        const validation = await QRCodeService.validateOwnerQRAsync(qrData);
         if (!validation.valid) {
             throw new Error(validation.error || 'Mã QR không hợp lệ');
         }

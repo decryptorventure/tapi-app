@@ -38,7 +38,7 @@ export default function SignContractPage({ params }: { params: { applicationId: 
                 .single();
 
             if (error) throw error;
-            if (data.contract_accepted_at) {
+            if ((data as any).contract_accepted_at) {
                 // Already signed
                 router.replace(`/worker/jobs/${data.id}`);
                 return;
