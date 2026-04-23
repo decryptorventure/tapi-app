@@ -186,8 +186,6 @@ export default function WorkerScanQRPage() {
                 job_id: job.id,
                 type: checkinType,
                 checkin_time: new Date().toISOString(),
-                location_lat: null,
-                location_lng: null,
             });
 
         if (checkinError) {
