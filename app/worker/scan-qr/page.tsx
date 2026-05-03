@@ -136,7 +136,8 @@ export default function WorkerScanQRPage() {
             throw new Error('Không tìm thấy thông tin job');
         }
 
-        // Check if worker has approved application for this job
+        // Check if worker has an active application for this job
+        // Accept both 'approved' (for check-in) and 'working' (for check-out)
         const { data: application, error: appError } = await supabase
             .from('job_applications')
             .select(`
@@ -151,14 +152,11 @@ export default function WorkerScanQRPage() {
             `)
             .eq('job_id', jobId)
             .eq('worker_id', user.id)
+            .in('status', ['approved', 'working'])
             .single();
 
         if (appError || !application) {
-            throw new Error('Bạn chưa được duyệt cho job này');
-        }
-
-        if (application.status !== 'approved') {
-            throw new Error('Đơn ứng tuyển của bạn chưa được duyệt');
+            throw new Error('Bạn chưa được duyệt cho job này hoặc đã hoàn thành');
         }
 
         const job = application.job as any;
@@ -180,25 +178,39 @@ export default function WorkerScanQRPage() {
             }
         }
 
-        // Check existing check-in status
-        const { data: existingCheckins } = await supabase
-            .from('checkins')
-            .select('id, type, checkin_time')
-            .eq('application_id', application.id)
-            .order('checkin_time', { ascending: false })
-            .limit(1);
+        // Determine check-in type based on application status
+        // 'approved' → check-in, 'working' → check-out
+        let checkinType: 'checkin' | 'checkout';
 
-        const lastCheckin = existingCheckins?.[0];
-        const checkinType = lastCheckin?.type === 'checkin' ? 'checkout' : 'checkin';
+        if (application.status === 'approved') {
+            // No existing check-in yet → this is a check-in
+            checkinType = 'checkin';
+        } else if (application.status === 'working') {
+            // Already checked in → this is a check-out
+            // Verify there's no existing checkout
+            const { data: existingCheckout } = await supabase
+                .from('checkins')
+                .select('id')
+                .eq('application_id', application.id)
+                .eq('type', 'checkout')
+                .limit(1);
 
-        // Get QR code ID
+            if (existingCheckout && existingCheckout.length > 0) {
+                throw new Error('Bạn đã check-out trước đó rồi');
+            }
+            checkinType = 'checkout';
+        } else {
+            throw new Error('Trạng thái đơn ứng tuyển không hợp lệ');
+        }
+
+        // Get QR code ID for reference
         const { data: qrCodeRecord } = await supabase
             .from('job_qr_codes')
             .select('id')
             .eq('job_id', jobId)
             .single();
 
-        // Record check-in/check-out
+        // Record check-in/check-out using correct column names matching DB schema
         const { error: checkinError } = await supabase
             .from('checkins')
             .insert({
@@ -218,7 +230,8 @@ export default function WorkerScanQRPage() {
             });
 
         if (checkinError) {
-            throw new Error('Lỗi ghi nhận check-in');
+            console.error('Checkin insert error:', checkinError);
+            throw new Error(`Lỗi ghi nhận ${checkinType === 'checkin' ? 'check-in' : 'check-out'}`);
         }
 
         // Update application status based on check-in type
@@ -228,20 +241,9 @@ export default function WorkerScanQRPage() {
                 .from('job_applications')
                 .update({ status: 'working' })
                 .eq('id', application.id);
-        } else {
-            // Set status to 'completed' when worker checks out
-            const { error: updateError } = await supabase
-                .from('job_applications')
-                .update({
-                    status: 'completed',
-                    completed_at: new Date().toISOString()
-                })
-                .eq('id', application.id);
-
-            if (updateError) {
-                console.error('Failed to update application status:', updateError);
-            }
         }
+        // NOTE: On checkout, status remains 'working' until owner confirms (Timee flow)
+        // Owner will call WorkConfirmationService.confirmWork() to change to 'completed'
 
         // Success
         setResult({
@@ -251,7 +253,7 @@ export default function WorkerScanQRPage() {
             time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
             message: checkinType === 'checkin'
                 ? 'Đã check-in thành công! Chúc bạn làm việc vui vẻ.'
-                : 'Đã check-out thành công! Cảm ơn bạn đã làm việc.',
+                : 'Đã check-out thành công! Chờ xác nhận từ chủ nhà hàng.',
         });
         setScanState('success');
         toast.success(checkinType === 'checkin' ? 'Check-in thành công!' : 'Check-out thành công!');

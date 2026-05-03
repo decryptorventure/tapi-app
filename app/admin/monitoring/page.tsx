@@ -77,8 +77,8 @@ export default function MonitoringDashboard() {
             // Check-in success rate
             const { data: checkinsData } = await supabase
                 .from('checkins')
-                .select('is_valid, checkin_type')
-                .eq('checkin_type', 'check_in')
+                .select('is_valid, type')
+                .eq('type', 'checkin')
                 .gte('checkin_time', weekAgo.toISOString());
 
             const validCheckins = checkinsData?.filter(c => c.is_valid !== false).length || 0;

@@ -24,7 +24,7 @@ interface CheckInResult {
     workerName?: string;
     jobTitle?: string;
     message: string;
-    applicationId?: string;
+    type?: 'checkin' | 'checkout';
 }
 
 export default function OwnerScanQRPage() {
@@ -132,10 +132,41 @@ export default function OwnerScanQRPage() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('Not authenticated');
 
+            // Try parsing the QR data
+            let qrData: any;
+            try {
+                qrData = JSON.parse(qrText);
+            } catch {
+                setResult({
+                    success: false,
+                    message: 'Mã QR không hợp lệ - định dạng sai',
+                });
+                return;
+            }
 
-            // Validate QR code
+            // Determine QR type and handle accordingly
+            // NEW FLOW: Owner's Job QR (version 2) - Worker should scan this, not owner
+            // LEGACY FLOW: Worker's personal QR - Owner scans to check-in worker
+            if (qrData.version === 2) {
+                // This is an Owner-generated Job QR - owner shouldn't scan their own QR
+                setResult({
+                    success: false,
+                    message: 'Đây là mã QR của bạn. Worker cần quét mã này, không phải bạn.',
+                });
+                return;
+            }
+
+            // Legacy QR: Worker-generated QR with application_id, worker_id, job_id
+            if (!qrData.application_id && !qrData.worker_id) {
+                setResult({
+                    success: false,
+                    message: 'Mã QR không chứa thông tin worker',
+                });
+                return;
+            }
+
+            // Validate signature for legacy QR
             const validation = QRCodeService.validateQRCode(qrText);
-
             if (!validation.valid) {
                 setResult({
                     success: false,
@@ -144,16 +175,16 @@ export default function OwnerScanQRPage() {
                 return;
             }
 
-            const qrData = validation.data!;
+            const validatedData = validation.data!;
 
             // Verify application belongs to owner's job
             const { data: app, error: appError } = await supabase
                 .from('job_applications')
                 .select(`
-          *,
-          job:jobs(*)
-        `)
-                .eq('id', qrData.application_id)
+                    id, status, worker_id, job_id,
+                    job:jobs(id, title, owner_id)
+                `)
+                .eq('id', validatedData.application_id)
                 .single();
 
             if (appError || !app) {
@@ -164,8 +195,10 @@ export default function OwnerScanQRPage() {
                 return;
             }
 
+            const job = app.job as any;
+
             // Check if job belongs to owner
-            if (app.job.owner_id !== user.id) {
+            if (job.owner_id !== user.id) {
                 setResult({
                     success: false,
                     message: 'Công việc này không thuộc nhà hàng của bạn',
@@ -173,11 +206,32 @@ export default function OwnerScanQRPage() {
                 return;
             }
 
-            // Check application status
-            if (app.status !== 'approved') {
+            // Determine check-in or check-out based on application status
+            let checkinType: 'checkin' | 'checkout';
+
+            if (app.status === 'approved') {
+                checkinType = 'checkin';
+            } else if (app.status === 'working') {
+                // Check if already checked out
+                const { data: existingCheckout } = await supabase
+                    .from('checkins')
+                    .select('id')
+                    .eq('application_id', app.id)
+                    .eq('type', 'checkout')
+                    .limit(1);
+
+                if (existingCheckout && existingCheckout.length > 0) {
+                    setResult({
+                        success: false,
+                        message: 'Worker đã check-out trước đó',
+                    });
+                    return;
+                }
+                checkinType = 'checkout';
+            } else {
                 setResult({
                     success: false,
-                    message: 'Đơn ứng tuyển chưa được duyệt',
+                    message: `Trạng thái đơn không hợp lệ: ${app.status}`,
                 });
                 return;
             }
@@ -189,32 +243,44 @@ export default function OwnerScanQRPage() {
                 .eq('id', app.worker_id)
                 .single();
 
-            // Record check-in
+            // Record check-in/out using correct DB schema columns
             const { error: checkinError } = await supabase
                 .from('checkins')
                 .insert({
                     application_id: app.id,
-                    worker_id: app.worker_id,
-                    job_id: app.job_id,
-                    checkin_type: 'check_in',
+                    type: checkinType,
                     checkin_time: new Date().toISOString(),
-                    // location_lat and location_lng can be added with geolocation
+                    is_valid: true,
+                    scanned_at: new Date().toISOString(),
                 });
 
             if (checkinError) {
                 console.error('Check-in error:', checkinError);
-                // Don't fail - just show success anyway
+                setResult({
+                    success: false,
+                    message: 'Lỗi ghi nhận check-in: ' + checkinError.message,
+                });
+                return;
             }
+
+            // Update application status
+            if (checkinType === 'checkin') {
+                await supabase
+                    .from('job_applications')
+                    .update({ status: 'working' })
+                    .eq('id', app.id);
+            }
+            // NOTE: On checkout, status remains 'working' until owner confirms via WorkConfirmationService
 
             setResult({
                 success: true,
                 workerName: worker?.full_name || 'Worker',
-                jobTitle: app.job.title,
-                message: 'Check-in thành công!',
-                applicationId: app.id,
+                jobTitle: job.title,
+                message: checkinType === 'checkin' ? 'Check-in thành công!' : 'Check-out thành công!',
+                type: checkinType,
             });
 
-            toast.success('Check-in thành công!');
+            toast.success(checkinType === 'checkin' ? 'Check-in thành công!' : 'Check-out thành công!');
 
         } catch (error: any) {
             console.error('QR processing error:', error);
@@ -260,7 +326,7 @@ export default function OwnerScanQRPage() {
                             <div className="p-2 bg-purple-600 rounded-lg">
                                 <QrCode className="w-5 h-5 text-white" />
                             </div>
-                            <h1 className="text-lg font-bold text-white">Quét QR Check-in</h1>
+                            <h1 className="text-lg font-bold text-white">Quét QR Worker</h1>
                         </div>
                     </div>
                 </div>
@@ -276,7 +342,9 @@ export default function OwnerScanQRPage() {
                         {result.success ? (
                             <>
                                 <CheckCircle2 className="w-16 h-16 mx-auto mb-4" />
-                                <h2 className="text-xl font-bold mb-2">Check-in Thành Công!</h2>
+                                <h2 className="text-xl font-bold mb-2">
+                                    {result.type === 'checkout' ? 'Check-out Thành Công!' : 'Check-in Thành Công!'}
+                                </h2>
                                 <div className="flex items-center justify-center gap-2 mb-2">
                                     <User className="w-5 h-5" />
                                     <span className="text-lg">{result.workerName}</span>
@@ -290,7 +358,7 @@ export default function OwnerScanQRPage() {
                         ) : (
                             <>
                                 <XCircle className="w-16 h-16 mx-auto mb-4" />
-                                <h2 className="text-xl font-bold mb-2">Check-in Thất Bại</h2>
+                                <h2 className="text-xl font-bold mb-2">Thất Bại</h2>
                                 <p>{result.message}</p>
                             </>
                         )}
@@ -370,8 +438,8 @@ export default function OwnerScanQRPage() {
                     <ul className="text-sm text-slate-300 space-y-2">
                         <li>1. Yêu cầu nhân viên xuất trình mã QR trên app</li>
                         <li>2. Nhấn &quot;Bắt đầu quét&quot; và hướng camera vào mã QR</li>
-                        <li>3. Hệ thống sẽ tự động ghi nhận check-in</li>
-                        <li>4. Lặp lại khi nhân viên check-out</li>
+                        <li>3. Hệ thống sẽ tự động ghi nhận check-in/check-out</li>
+                        <li>4. Hoặc vào Quản lý QR để in mã QR cho worker quét</li>
                     </ul>
                 </div>
             </div>

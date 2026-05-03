@@ -25,6 +25,13 @@ interface CheckOutResult {
 
 /**
  * Service for handling worker check-in and check-out operations
+ * 
+ * DB Schema reference:
+ * - checkins table columns: id, application_id, type (ENUM: 'checkin'|'checkout'), 
+ *   checkin_time, latitude, longitude, distance_from_restaurant_meters, is_valid, 
+ *   notes, qr_code_id, scanned_at
+ * - type column uses checkin_type ENUM with values: 'checkin', 'checkout'
+ * - NO worker_id or job_id columns in checkins table
  */
 export const CheckinService = {
     /**
@@ -52,42 +59,29 @@ export const CheckinService = {
             const isLate = diffMinutes > 15; // More than 15 minutes late
             const minutesLate = isLate ? diffMinutes : 0;
 
-            // Check if QR already used (one-time enforcement)
-            const { data: existingScanned } = await supabase
-                .from('checkins')
-                .select('id, scanned_at')
-                .eq('application_id', data.applicationId)
-                .eq('checkin_type', 'check_in')
-                .not('scanned_at', 'is', null)
-                .single();
-
-            if (existingScanned) {
-                return { success: false, message: 'Mã QR đã được sử dụng' };
-            }
-
-            // Check if already checked in (legacy support)
+            // Check if already checked in
             const { data: existingCheckin } = await supabase
                 .from('checkins')
                 .select('id')
                 .eq('application_id', data.applicationId)
-                .eq('checkin_type', 'check_in')
-                .single();
+                .eq('type', 'checkin')
+                .limit(1);
 
-            if (existingCheckin) {
+            if (existingCheckin && existingCheckin.length > 0) {
                 return { success: false, message: 'Đã check-in trước đó' };
             }
 
-            // Record check-in
+            // Record check-in (only columns that exist in DB schema)
             const { data: checkin, error: checkinError } = await supabase
                 .from('checkins')
                 .insert({
                     application_id: data.applicationId,
-                    worker_id: data.workerId,
-                    job_id: data.jobId,
-                    checkin_type: 'check_in',
+                    type: 'checkin',
                     checkin_time: now.toISOString(),
-                    location_lat: data.latitude,
-                    location_lng: data.longitude,
+                    latitude: data.latitude,
+                    longitude: data.longitude,
+                    is_valid: true,
+                    scanned_at: now.toISOString(),
                 })
                 .select()
                 .single();
@@ -96,12 +90,6 @@ export const CheckinService = {
                 console.error('Check-in error:', checkinError);
                 return { success: false, message: 'Lỗi ghi nhận check-in' };
             }
-
-            // Mark QR as used (one-time enforcement)
-            await supabase
-                .from('checkins')
-                .update({ scanned_at: new Date().toISOString() })
-                .eq('id', checkin.id);
 
             // Update application status to 'working' (Timee flow)
             await supabase
@@ -146,7 +134,7 @@ export const CheckinService = {
                 .from('checkins')
                 .select('checkin_time')
                 .eq('application_id', data.applicationId)
-                .eq('checkin_type', 'check_in')
+                .eq('type', 'checkin')
                 .single();
 
             if (checkinError || !checkin) {
@@ -158,10 +146,10 @@ export const CheckinService = {
                 .from('checkins')
                 .select('id')
                 .eq('application_id', data.applicationId)
-                .eq('checkin_type', 'check_out')
-                .single();
+                .eq('type', 'checkout')
+                .limit(1);
 
-            if (existingCheckout) {
+            if (existingCheckout && existingCheckout.length > 0) {
                 return { success: false, message: 'Đã check-out trước đó' };
             }
 
@@ -177,17 +165,17 @@ export const CheckinService = {
             const hoursWorked = (now.getTime() - checkinTime.getTime()) / (1000 * 60 * 60);
             const totalPay = job ? Math.round(hoursWorked * job.hourly_rate_vnd) : 0;
 
-            // Record check-out
+            // Record check-out (only columns that exist in DB schema)
             const { error: checkoutError } = await supabase
                 .from('checkins')
                 .insert({
                     application_id: data.applicationId,
-                    worker_id: data.workerId,
-                    job_id: data.jobId,
-                    checkin_type: 'check_out',
+                    type: 'checkout',
                     checkin_time: now.toISOString(),
-                    location_lat: data.latitude,
-                    location_lng: data.longitude,
+                    latitude: data.latitude,
+                    longitude: data.longitude,
+                    is_valid: true,
+                    scanned_at: now.toISOString(),
                 });
 
             if (checkoutError) {
@@ -280,14 +268,14 @@ export const CheckinService = {
             }
 
             // Check if already checked in
-            const { data: checkin } = await supabase
+            const { data: checkinRecords } = await supabase
                 .from('checkins')
                 .select('id')
                 .eq('application_id', applicationId)
-                .eq('checkin_type', 'check_in')
-                .single();
+                .eq('type', 'checkin')
+                .limit(1);
 
-            if (checkin) {
+            if (checkinRecords && checkinRecords.length > 0) {
                 return { success: false, message: 'Worker đã check-in' };
             }
 

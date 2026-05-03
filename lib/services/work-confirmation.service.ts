@@ -61,12 +61,12 @@ export const WorkConfirmationService = {
             // Get checkin/checkout times
             const { data: checkins } = await supabase
                 .from('checkins')
-                .select('checkin_type, checkin_time')
+                .select('type, checkin_time')
                 .eq('application_id', app.id)
                 .order('checkin_time', { ascending: true });
 
-            const checkinRecord = checkins?.find(c => c.checkin_type === 'check_in');
-            const checkoutRecord = checkins?.find(c => c.checkin_type === 'check_out');
+            const checkinRecord = checkins?.find(c => c.type === 'checkin');
+            const checkoutRecord = checkins?.find(c => c.type === 'checkout');
 
             // Only include if has checkout (waiting for confirmation)
             if (!checkinRecord || !checkoutRecord) continue;
@@ -134,11 +134,11 @@ export const WorkConfirmationService = {
             // Get checkin/checkout times
             const { data: checkins } = await supabase
                 .from('checkins')
-                .select('checkin_type, checkin_time')
+                .select('type, checkin_time')
                 .eq('application_id', applicationId);
 
-            const checkinTime = checkins?.find(c => c.checkin_type === 'check_in')?.checkin_time;
-            const checkoutTime = checkins?.find(c => c.checkin_type === 'check_out')?.checkin_time;
+            const checkinTime = checkins?.find(c => c.type === 'checkin')?.checkin_time;
+            const checkoutTime = checkins?.find(c => c.type === 'checkout')?.checkin_time;
 
             if (!checkinTime || !checkoutTime) {
                 return { success: false, message: 'Thiếu thông tin check-in/out' };
@@ -250,7 +250,7 @@ export const WorkConfirmationService = {
         const { data: oldCheckouts } = await supabase
             .from('checkins')
             .select('application_id')
-            .eq('checkin_type', 'check_out')
+            .eq('type', 'checkout')
             .lt('checkin_time', cutoffTime);
 
         if (!oldCheckouts) return 0;
