@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Loader2, ShieldCheck, Smartphone, RefreshCcw } from 'lucide-react';
@@ -55,7 +55,7 @@ function VerifyContent() {
         }
 
         setLoading(true);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // In this version, we mock verification for demonstration 

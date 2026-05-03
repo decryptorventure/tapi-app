@@ -1,4 +1,4 @@
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 /**
  * Verification Service
@@ -21,7 +21,7 @@ export class VerificationService {
     idNumber?: string,
     issueDate?: Date
   ): Promise<{ success: boolean; error?: string }> {
-    const supabase = createUntypedClient();
+    const supabase = createClient();
 
     try {
       // Upload front image
@@ -100,7 +100,7 @@ export class VerificationService {
     licenseFile: File,
     licenseNumber: string
   ): Promise<{ success: boolean; error?: string }> {
-    const supabase = createUntypedClient();
+    const supabase = createClient();
 
     try {
       // Upload license file
@@ -159,7 +159,7 @@ export class VerificationService {
     userId: string,
     type: 'identity' | 'business'
   ) {
-    const supabase = createUntypedClient();
+    const supabase = createClient();
 
     if (type === 'identity') {
       const { data, error } = await supabase

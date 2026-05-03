@@ -35,7 +35,7 @@ export default function LoginPage() {
             if (authError) throw authError;
 
             if (!authData.user) {
-                throw new Error('Đăng nhập thất bại');
+                throw new Error(t('auth.login_loginFailed'));
             }
 
             // Fetch user profile to determine redirect
@@ -73,11 +73,11 @@ export default function LoginPage() {
             console.error('Login error:', error);
 
             // User-friendly error messages in Vietnamese
-            let errorMessage = 'Đăng nhập thất bại';
+            let errorMessage = t('auth.login_loginFailed');
             if (error.message?.includes('Invalid login credentials')) {
-                errorMessage = 'Email hoặc mật khẩu không đúng';
+                errorMessage = t('auth.login_invalidCredentials');
             } else if (error.message?.includes('Email not confirmed')) {
-                errorMessage = 'Vui lòng xác nhận email trước khi đăng nhập';
+                errorMessage = t('auth.login_confirmEmailPrompt');
             } else if (error.message) {
                 errorMessage = error.message;
             }
@@ -90,10 +90,6 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white p-4 relative">
-            {/* Language Switcher - Top Right */}
-            <div className="absolute top-4 right-4">
-                <LanguageSwitcher />
-            </div>
 
             <div className="w-full max-w-md">
                 {/* Header */}
@@ -102,10 +98,10 @@ export default function LoginPage() {
                         <LogIn className="w-8 h-8 text-blue-600" />
                     </div>
                     <h1 className="text-3xl font-bold text-slate-900 mb-2">
-                        {t('auth.loginToTapy')}
+                        {t('auth.loginTitle')}
                     </h1>
                     <p className="text-slate-600">
-                        {t('auth.welcomeBack')}
+                        {t('auth.loginSubtitle')}
                     </p>
                 </div>
 
@@ -113,7 +109,7 @@ export default function LoginPage() {
                 <form onSubmit={handleLogin} className="space-y-4 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">
-                            Email
+                            {t('auth.email', { defaultValue: 'Email' })}
                         </label>
                         <input
                             type="email"
@@ -128,7 +124,7 @@ export default function LoginPage() {
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">
-                            Mật khẩu
+                            {t('auth.password', { defaultValue: 'Mật khẩu' })}
                         </label>
                         <input
                             type="password"
@@ -144,7 +140,7 @@ export default function LoginPage() {
                     {/* Forgot password link */}
                     <div className="text-right">
                         <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
-                            Quên mật khẩu?
+                            {t('auth.login_forgotPassword', { defaultValue: 'Quên mật khẩu?' })}
                         </Link>
                     </div>
 
@@ -156,19 +152,19 @@ export default function LoginPage() {
                         {loading ? (
                             <>
                                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                Đang đăng nhập...
+                                {t('auth.login_loggingIn', { defaultValue: 'Đang đăng nhập...' })}
                             </>
                         ) : (
-                            'Đăng nhập'
+                            t('auth.login_login')
                         )}
                     </Button>
                 </form>
 
                 {/* Sign up link */}
                 <p className="text-center text-sm text-slate-600 mt-6">
-                    Chưa có tài khoản?{' '}
+                    {t('auth.noAccount', { defaultValue: 'Chưa có tài khoản?' })}{' '}
                     <Link href="/signup" className="text-blue-600 font-medium hover:underline">
-                        Đăng ký ngay
+                        {t('auth.login_registerNow', { defaultValue: 'Đăng ký ngay' })}
                     </Link>
                 </p>
             </div>

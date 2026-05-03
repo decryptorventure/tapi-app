@@ -1,8 +1,9 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import {
@@ -29,6 +30,7 @@ const languageConfig: Record<string, { label: string; color: string; bgColor: st
 };
 
 export default function WorkerReviewPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
@@ -41,7 +43,7 @@ export default function WorkerReviewPage() {
     }, []);
 
     const fetchData = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
@@ -76,7 +78,7 @@ export default function WorkerReviewPage() {
         }
 
         setLoading(true);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('Not authenticated');
@@ -272,7 +274,7 @@ export default function WorkerReviewPage() {
                             ) : (
                                 <div className="text-center py-8 border-2 border-dashed border-border rounded-2xl">
                                     <VideoIcon className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                                    <p className="text-sm text-muted-foreground">Chưa upload video giới thiệu</p>
+                                    <p className="text-sm text-muted-foreground">{t('onboarding.worker_noVideoUploaded')}</p>
                                 </div>
                             )}
                         </div>
@@ -285,7 +287,7 @@ export default function WorkerReviewPage() {
                                 <Sparkles className="w-6 h-6 text-success" />
                             </div>
                             <div>
-                                <h4 className="font-bold text-foreground mb-1">Bạn đã sẵn sàng!</h4>
+                                <h4 className="font-bold text-foreground mb-1">{t('onboarding.worker_ready')}</h4>
                                 <p className="text-sm text-muted-foreground">
                                     Hoàn tất đăng ký để bắt đầu tìm kiếm công việc phù hợp với kỹ năng của bạn
                                 </p>
@@ -303,7 +305,7 @@ export default function WorkerReviewPage() {
                                 className="mt-1 w-5 h-5 text-primary border-border rounded focus:ring-primary accent-primary"
                             />
                             <span className="text-sm text-foreground">
-                                Tôi đồng ý với <Link href="/terms" className="text-primary hover:underline">Điều khoản dịch vụ</Link> và <Link href="/privacy" className="text-primary hover:underline">Chính sách bảo mật</Link>
+                                Tôi đồng ý với <Link href="/terms" className="text-primary hover:underline">{t('onboarding.worker_tos')}</Link> và <Link href="/privacy" className="text-primary hover:underline">{t('onboarding.worker_privacyPolicy')}</Link>
                             </span>
                         </label>
                     </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -22,13 +22,15 @@ import {
     Star,
     Users,
     QrCode,
-    Sparkles
+    Sparkles,
+    AlertCircle,
+    XCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi, enUS } from 'date-fns/locale';
 import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import { StaticMap } from '@/components/map/static-map';
+
 
 export default function WorkerJobDetailsPage() {
     const router = useRouter();
@@ -45,7 +47,7 @@ export default function WorkerJobDetailsPage() {
     }, [applicationId]);
 
     const fetchApplication = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
@@ -124,17 +126,20 @@ export default function WorkerJobDetailsPage() {
                     application.status === 'approved' ? "bg-success/10 border-success/20 text-success" :
                         application.status === 'pending' ? "bg-warning/10 border-warning/20 text-warning" :
                             application.status === 'completed' ? "bg-primary/10 border-primary/20 text-primary" :
-                                "bg-muted border-border text-muted-foreground"
+                                application.status === 'rejected' ? "bg-destructive/10 border-destructive/20 text-destructive" :
+                                    "bg-muted border-border text-muted-foreground"
                 )}>
                     <div className="flex items-center gap-3">
                         {application.status === 'approved' && <CheckCircle2 className="w-5 h-5" />}
                         {application.status === 'pending' && <Clock className="w-5 h-5" />}
                         {application.status === 'completed' && <CheckCircle2 className="w-5 h-5" />}
+                        {application.status === 'rejected' && <XCircle className="w-5 h-5" />}
                         <span className="font-bold uppercase tracking-wider text-sm">
                             {application.status === 'approved' ? t('jobs.approved') :
                                 application.status === 'pending' ? t('jobs.pending') :
                                     application.status === 'completed' ? t('common.status.completed') :
-                                        application.status}
+                                        application.status === 'rejected' ? t('common.status.rejected') :
+                                            application.status}
                         </span>
                     </div>
                     {application.is_instant_book && (
@@ -144,6 +149,16 @@ export default function WorkerJobDetailsPage() {
                         </span>
                     )}
                 </div>
+
+                {/* Expired Job Warning */}
+                {job.status === 'expired' && (
+                    <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3 text-destructive">
+                        <AlertCircle className="w-5 h-5" />
+                        <div className="text-sm font-bold">
+                            {t('jobDetails.expiredWarning')}
+                        </div>
+                    </div>
+                )}
 
                 {/* Job Info Card */}
                 <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
@@ -199,15 +214,15 @@ export default function WorkerJobDetailsPage() {
                         <div className="mt-6 p-4 bg-cta/5 border border-cta/20 rounded-xl">
                             <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
                                 <DollarSign className="w-4 h-4 text-cta" />
-                                Thu nhập dự kiến
+                                {t('jobDetails.estimatedEarnings')}
                             </h3>
                             <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Lương theo giờ</span>
+                                    <span className="text-muted-foreground">{t('jobDetails.hourlyRateLabel')}</span>
                                     <span className="font-medium text-foreground">{job.hourly_rate_vnd.toLocaleString()}đ × {((parseInt(job.shift_end_time) - parseInt(job.shift_start_time))).toFixed(0)}h</span>
                                 </div>
                                 <div className="flex justify-between pt-2 border-t border-cta/10">
-                                    <span className="font-bold text-foreground">Tổng thu nhập</span>
+                                    <span className="font-bold text-foreground">{t('jobDetails.totalEarnings')}</span>
                                     <span className="font-black text-cta text-lg">{estimatedEarnings.toLocaleString()}đ</span>
                                 </div>
                             </div>
@@ -223,12 +238,12 @@ export default function WorkerJobDetailsPage() {
                             <div className="p-3 bg-muted rounded-xl text-center">
                                 <Star className="w-5 h-5 mx-auto mb-1 text-warning" />
                                 <p className="text-xs font-bold text-foreground">{job.min_reliability_score || 70}+</p>
-                                <p className="text-[10px] text-muted-foreground">Điểm tin cậy</p>
+                                <p className="text-[10px] text-muted-foreground">{t('jobDetails.reliabilityLabel')}</p>
                             </div>
                             <div className="p-3 bg-muted rounded-xl text-center">
                                 <Users className="w-5 h-5 mx-auto mb-1 text-success" />
                                 <p className="text-xs font-bold text-foreground">{job.current_workers || 0}/{job.max_workers || 1}</p>
-                                <p className="text-[10px] text-muted-foreground">Vị trí</p>
+                                <p className="text-[10px] text-muted-foreground">{t('jobDetails.slots')}</p>
                             </div>
                         </div>
 
@@ -237,7 +252,7 @@ export default function WorkerJobDetailsPage() {
                             <h3 className="font-black text-foreground mb-3 flex items-center gap-2">
                                 <FileText className="w-4 h-4 text-primary" /> {t('jobs.description')}
                             </h3>
-                            <p className="text-muted-foreground leading-relaxed text-sm">
+                            <p className="text-muted-foreground leading-relaxed text-sm max-w-[65ch]">
                                 {job.description || t('jobs.noDescription')}
                             </p>
                         </div>
@@ -249,19 +264,6 @@ export default function WorkerJobDetailsPage() {
                             </div>
                         )}
 
-                        {/* Map Section */}
-                        {job.owner?.restaurant_lat && job.owner?.restaurant_lng && (
-                            <div className="pt-4 border-t border-border">
-                                <h3 className="font-black text-foreground mb-3 flex items-center gap-2">
-                                    <MapPin className="w-4 h-4 text-primary" /> Vị trí bản đồ
-                                </h3>
-                                <StaticMap
-                                    lat={job.owner.restaurant_lat}
-                                    lng={job.owner.restaurant_lng}
-                                    showDirections={true}
-                                />
-                            </div>
-                        )}
                     </div>
                 </div>
 
@@ -287,7 +289,7 @@ export default function WorkerJobDetailsPage() {
                         <Link href="/worker/scan-qr">
                             <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 rounded-xl flex items-center justify-center gap-2">
                                 <QrCode className="w-5 h-5" />
-                                Quét QR để Check-in
+                                {t('jobDetails.scanQR')}
                             </Button>
                         </Link>
                     </div>

@@ -1,0 +1,14 @@
+{
+    "approved": "Approved",
+    "pending": "Pending",
+    "rejected": "Rejected",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "restaurant": "Restaurant",
+    "noAddress": "Address not updated",
+    "viewQr": "View QR Code",
+    "waitingOwner": "Waiting for Owner approval",
+    "viewDetails": "View Details",
+    "viewOtherJobs": "View other jobs",
+    "instantBook": "Instant Book"
+}

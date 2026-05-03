@@ -1,14 +1,16 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { Loader2, Lock, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
 export default function ResetPasswordPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -19,7 +21,7 @@ export default function ResetPasswordPage() {
     useEffect(() => {
         // Check if we have a valid session from the email link
         const checkSession = async () => {
-            const supabase = createUntypedClient();
+            const supabase = createClient();
             const { data: { session } } = await supabase.auth.getSession();
 
             if (!session) {
@@ -44,7 +46,7 @@ export default function ResetPasswordPage() {
         }
 
         setLoading(true);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { error } = await supabase.auth.updateUser({
@@ -76,15 +78,13 @@ export default function ResetPasswordPage() {
                         <CheckCircle2 className="w-8 h-8 text-green-600" />
                     </div>
                     <h2 className="text-2xl font-bold text-slate-900 mb-2">
-                        Đặt lại mật khẩu thành công!
+                        {t('auth.resetPassword_resetSuccess', { defaultValue: 'Đặt lại mật khẩu thành công!' })}
                     </h2>
                     <p className="text-slate-600 mb-6">
-                        Bạn sẽ được chuyển đến trang đăng nhập...
+                        {t('auth.resetPassword_redirectingToLogin', { defaultValue: 'Bạn sẽ được chuyển đến trang đăng nhập...' })}
                     </p>
                     <Link href="/login">
-                        <Button className="w-full">
-                            Đăng nhập ngay
-                        </Button>
+                        <Button className="w-full">{t('auth.resetPassword_loginNow', { defaultValue: 'Đăng nhập ngay' })}</Button>
                     </Link>
                 </div>
             </div>
@@ -110,9 +110,7 @@ export default function ResetPasswordPage() {
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-4 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
-                            Mật khẩu mới
-                        </label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">{t('auth.resetPassword_newPassword', { defaultValue: 'Mật khẩu mới' })}</label>
                         <div className="relative">
                             <input
                                 type={showPassword ? 'text' : 'password'}
@@ -132,14 +130,12 @@ export default function ResetPasswordPage() {
                             </button>
                         </div>
                         <p className="text-xs text-slate-500 mt-1">
-                            Tối thiểu 8 ký tự
+                            {t('auth.resetPassword_min8Chars', { defaultValue: 'Tối thiểu 8 ký tự' })}
                         </p>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
-                            Xác nhận mật khẩu
-                        </label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">{t('auth.resetPassword_confirmPassword', { defaultValue: 'Xác nhận mật khẩu' })}</label>
                         <input
                             type="password"
                             required
@@ -162,7 +158,7 @@ export default function ResetPasswordPage() {
                                 Đang xử lý...
                             </>
                         ) : (
-                            'Đặt lại mật khẩu'
+                            t('auth.resetPassword_resetPassword')
                         )}
                     </Button>
                 </form>

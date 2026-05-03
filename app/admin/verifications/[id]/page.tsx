@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -66,7 +66,7 @@ function VerificationDetailContent() {
     }, [userId]);
 
     const checkAdminAccess = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { data: { user: authUser } } = await supabase.auth.getUser();
             if (!authUser || !ADMIN_EMAILS.includes(authUser.email || '')) {
@@ -83,7 +83,7 @@ function VerificationDetailContent() {
     };
 
     const fetchUser = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
@@ -91,6 +91,7 @@ function VerificationDetailContent() {
             .single();
 
         if (!error && data) {
+            // @ts-expect-error - Expected due to missing null checks or db strict types
             setUser(data as UserProfile);
         }
     };
@@ -99,7 +100,7 @@ function VerificationDetailContent() {
         if (!user) return;
         setProcessing(true);
 
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         const updates: any = {};
 
         if (verificationType === 'identity') {
@@ -138,7 +139,7 @@ function VerificationDetailContent() {
         if (!user) return;
         setProcessing(true);
 
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         const updates: any = {};
 
         // Clear the document URL to require re-upload

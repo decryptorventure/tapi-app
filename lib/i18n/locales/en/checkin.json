@@ -1,0 +1,9 @@
+{
+    "scanQr": "Scan QR",
+    "showQr": "Show QR",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "checkedIn": "Checked-in",
+    "shiftStartsIn": "Shift starts in",
+    "scanInstructions": "Point the camera at the worker's QR code"
+}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import {
     Loader2,
@@ -10,11 +10,9 @@ import {
     Camera,
     CheckCircle2,
     XCircle,
-    MapPin,
     Clock,
     ArrowLeft,
-    RefreshCw,
-    AlertTriangle
+    RefreshCw
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -35,31 +33,15 @@ export default function WorkerScanQRPage() {
     const [scanState, setScanState] = useState<ScanState>('idle');
     const [error, setError] = useState<string | null>(null);
     const [result, setResult] = useState<CheckinResult | null>(null);
-    const [gpsStatus, setGpsStatus] = useState<'checking' | 'success' | 'error' | null>(null);
-    const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
     const scannerRef = useRef<any>(null);
     const [cameraPermission, setCameraPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
 
     useEffect(() => {
         // Check camera permission
-        navigator.permissions?.query({ name: 'camera' as PermissionName })
-            .then(result => setCameraPermission(result.state as any))
-            .catch(() => setCameraPermission('prompt'));
-
-        // Get GPS location
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    setUserLocation({
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                    });
-                    setGpsStatus('success');
-                },
-                () => {
-                    setGpsStatus('error');
-                }
-            );
+        if (typeof navigator !== 'undefined' && navigator.permissions) {
+            navigator.permissions.query({ name: 'camera' as PermissionName })
+                .then(result => setCameraPermission(result.state as any))
+                .catch(() => setCameraPermission('prompt'));
         }
 
         return () => {
@@ -117,7 +99,7 @@ export default function WorkerScanQRPage() {
     };
 
     const processCheckin = async (qrData: string) => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         // Get current user
         const { data: { user } } = await supabase.auth.getUser();
@@ -125,69 +107,49 @@ export default function WorkerScanQRPage() {
             throw new Error('Vui lòng đăng nhập');
         }
 
-        // Validate QR code
-        const validation = QRCodeService.validateJobQR(qrData);
+        // Validate Owner QR code (async — uses Web Crypto API in browser)
+        const validation = await QRCodeService.validateOwnerQRAsync(qrData);
         if (!validation.valid) {
             throw new Error(validation.error || 'Mã QR không hợp lệ');
         }
 
-        const jobId = validation.jobId;
-        if (!jobId) {
-            throw new Error('Không tìm thấy thông tin job');
+        const ownerId = validation.ownerId;
+        if (!ownerId) {
+            throw new Error('Dữ liệu QR thiếu thông tin nhà hàng');
         }
 
-        // Check if worker has an active application for this job
+        // Find worker's application for this owner
         // Accept both 'approved' (for check-in) and 'working' (for check-out)
-        const { data: application, error: appError } = await supabase
+        const { data: applications, error: appError } = await supabase
             .from('job_applications')
             .select(`
                 id, 
                 status, 
-                job:jobs(
+                job:jobs!inner(
                     id,
                     title, 
-                    owner_id,
-                    owner:profiles!owner_id(restaurant_name, restaurant_lat, restaurant_lng)
+                    owner_id
                 )
             `)
-            .eq('job_id', jobId)
             .eq('worker_id', user.id)
+            .eq('job.owner_id', ownerId)
             .in('status', ['approved', 'working'])
-            .single();
+            .order('created_at', { ascending: false });
 
-        if (appError || !application) {
-            throw new Error('Bạn chưa được duyệt cho job này hoặc đã hoàn thành');
+        if (appError || !applications || applications.length === 0) {
+            throw new Error('Bạn không có ca làm việc nào đang chờ tại nhà hàng này.');
         }
 
+        const application = applications[0];
         const job = application.job as any;
-        // Flatten owner data if it's an array
-        const owner = Array.isArray(job.owner) ? job.owner[0] : job.owner;
-
-        // Validate GPS if location available
-        if (userLocation && owner?.restaurant_lat && owner?.restaurant_lng) {
-            const gpsValidation = QRCodeService.validateGPSLocation(
-                userLocation,
-                { latitude: owner.restaurant_lat, longitude: owner.restaurant_lng }
-            );
-
-            if (!gpsValidation.valid) {
-                // TEMPORARILY DISABLED: Allow check-in even if far from location
-                // throw new Error(gpsValidation.error);
-                console.warn('GPS validation failed:', gpsValidation.error);
-                toast.warning('Cảnh báo: Vị trí của bạn ở xa nhà hàng');
-            }
-        }
 
         // Determine check-in type based on application status
-        // 'approved' → check-in, 'working' → check-out
         let checkinType: 'checkin' | 'checkout';
 
         if (application.status === 'approved') {
-            // No existing check-in yet → this is a check-in
             checkinType = 'checkin';
-        } else if (application.status === 'working') {
-            // Already checked in → this is a check-out
-            // Verify there's no existing checkout
+        } else {
+            // Check if already checked out
             const { data: existingCheckout } = await supabase
                 .from('checkins')
                 .select('id')
@@ -196,19 +158,10 @@ export default function WorkerScanQRPage() {
                 .limit(1);
 
             if (existingCheckout && existingCheckout.length > 0) {
-                throw new Error('Bạn đã check-out trước đó rồi');
+                throw new Error('Bạn đã check-out ca làm việc này rồi');
             }
             checkinType = 'checkout';
-        } else {
-            throw new Error('Trạng thái đơn ứng tuyển không hợp lệ');
         }
-
-        // Get QR code ID for reference
-        const { data: qrCodeRecord } = await supabase
-            .from('job_qr_codes')
-            .select('id')
-            .eq('job_id', jobId)
-            .single();
 
         // Record check-in/check-out using correct column names matching DB schema
         const { error: checkinError } = await supabase
@@ -217,15 +170,7 @@ export default function WorkerScanQRPage() {
                 application_id: application.id,
                 type: checkinType,
                 checkin_time: new Date().toISOString(),
-                latitude: userLocation?.latitude,
-                longitude: userLocation?.longitude,
-                distance_from_restaurant_meters: userLocation && owner?.restaurant_lat ?
-                    QRCodeService.calculateDistanceMeters(
-                        userLocation,
-                        { latitude: owner.restaurant_lat, longitude: owner.restaurant_lng }
-                    ) : null,
                 is_valid: true,
-                qr_code_id: qrCodeRecord?.id,
                 scanned_at: new Date().toISOString(),
             });
 
@@ -234,16 +179,14 @@ export default function WorkerScanQRPage() {
             throw new Error(`Lỗi ghi nhận ${checkinType === 'checkin' ? 'check-in' : 'check-out'}`);
         }
 
-        // Update application status based on check-in type
+        // Update application status
         if (checkinType === 'checkin') {
-            // Set status to 'working' when worker checks in
             await supabase
                 .from('job_applications')
                 .update({ status: 'working' })
                 .eq('id', application.id);
         }
         // NOTE: On checkout, status remains 'working' until owner confirms (Timee flow)
-        // Owner will call WorkConfirmationService.confirmWork() to change to 'completed'
 
         // Success
         setResult({
@@ -287,28 +230,6 @@ export default function WorkerScanQRPage() {
             </div>
 
             <div className="max-w-lg mx-auto px-4 -mt-8 space-y-6">
-                {/* GPS Status */}
-                <div className={`p-4 rounded-xl flex items-center gap-3 ${gpsStatus === 'success' ? 'bg-success/10 border border-success/20' :
-                    gpsStatus === 'error' ? 'bg-warning/10 border border-warning/20' :
-                        'bg-muted'
-                    }`}>
-                    <MapPin className={`w-5 h-5 ${gpsStatus === 'success' ? 'text-success' :
-                        gpsStatus === 'error' ? 'text-warning' :
-                            'text-muted-foreground'
-                        }`} />
-                    <div className="flex-1">
-                        <p className="text-sm font-medium text-foreground">
-                            {gpsStatus === 'success' ? 'Vị trí đã xác định' :
-                                gpsStatus === 'error' ? 'Không lấy được vị trí' :
-                                    'Đang xác định vị trí...'}
-                        </p>
-                        {gpsStatus === 'error' && (
-                            <p className="text-xs text-muted-foreground">Check-in vẫn hoạt động nhưng không xác minh vị trí</p>
-                        )}
-                    </div>
-                </div>
-
-                {/* Scanner / Result Area */}
                 <div className="bg-card rounded-2xl border border-border overflow-hidden">
                     {scanState === 'idle' && (
                         <div className="p-8 text-center">
@@ -347,8 +268,8 @@ export default function WorkerScanQRPage() {
 
                     {scanState === 'success' && result && (
                         <div className="p-8 text-center">
-                            <div className="w-20 h-20 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <CheckCircle2 className="w-10 h-10 text-success" />
+                            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <CheckCircle2 className="w-10 h-10 text-green-600" />
                             </div>
                             <h2 className="text-xl font-bold text-foreground mb-2">
                                 {result.type === 'checkin' ? 'Check-in thành công!' : 'Check-out thành công!'}
@@ -375,7 +296,7 @@ export default function WorkerScanQRPage() {
                             <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <XCircle className="w-10 h-10 text-destructive" />
                             </div>
-                            <h2 className="text-xl font-bold text-foreground mb-2">Không thể check-in</h2>
+                            <h2 className="text-xl font-bold text-foreground mb-2">Lỗi thao tác</h2>
                             <p className="text-muted-foreground mb-6">{error}</p>
 
                             <div className="flex flex-col gap-2">
@@ -391,15 +312,13 @@ export default function WorkerScanQRPage() {
                     )}
                 </div>
 
-                {/* Instructions */}
                 {scanState === 'idle' && (
                     <div className="bg-muted/50 rounded-2xl p-6">
                         <h3 className="font-bold text-foreground mb-3">Hướng dẫn</h3>
                         <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
                             <li>Tìm mã QR tại quầy hoặc poster của cửa hàng</li>
                             <li>Mở camera và đưa vào khung quét</li>
-                            <li>Đợi xác nhận check-in thành công</li>
-                            <li>Quét lại mã khi hết ca để check-out</li>
+                            <li>Hệ thống tự động ghi nhận check-in hoặc check-out</li>
                         </ol>
                     </div>
                 )}

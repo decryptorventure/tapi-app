@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Smartphone, CheckCircle, Star, Users, Briefcase, Clock } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 export function Hero() {
     const { t, locale } = useTranslation();
@@ -14,7 +14,7 @@ export function Hero() {
 
     useEffect(() => {
         const checkAuth = async () => {
-            const supabase = createUntypedClient();
+            const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
 
             if (user) {
@@ -42,17 +42,17 @@ export function Hero() {
         {
             icon: Users,
             value: '10,000+',
-            label: locale === 'vi' ? 'Người dùng' : 'Users',
+            label: t('landing.statsUsers', { defaultValue: 'Người dùng' }),
         },
         {
             icon: Briefcase,
             value: '5,000+',
-            label: locale === 'vi' ? 'Công việc' : 'Jobs',
+            label: t('landing.statsJobs', { defaultValue: 'Công việc' }),
         },
         {
             icon: Star,
             value: '4.9/5',
-            label: locale === 'vi' ? 'Đánh giá' : 'Rating',
+            label: t('landing.statsRating', { defaultValue: 'Đánh giá' }),
         },
     ];
 
@@ -80,43 +80,31 @@ export function Hero() {
                         <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 bg-cta/10 border border-cta/20 rounded-full">
                             <Clock className="w-4 h-4 text-cta" />
                             <span className="text-sm font-bold text-cta uppercase tracking-wide">
-                                {locale === 'vi' ? 'Việc làm theo ca' : 'Gig Jobs'}
+                                {t('landing.shiftJobs')}
                             </span>
                         </div>
 
                         {/* Headline */}
                         <h1 className="mb-6 text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-foreground leading-[1.05]">
-                            {locale === 'vi' ? (
-                                <>
-                                    Tìm việc nhà hàng<br />
-                                    <span className="text-cta">Chỉ trong 1 phút</span>
-                                </>
-                            ) : (
-                                <>
-                                    Find Restaurant Jobs<br />
-                                    <span className="text-cta">In Just 1 Minute</span>
-                                </>
-                            )}
+                            {<> {t('landing.headline')} <br /> <span className="text-cta"> {t('landing.headlineHighlight')} </span> </>}
                         </h1>
 
                         {/* Description */}
                         <p className="mb-8 text-lg text-muted-foreground leading-relaxed">
-                            {locale === 'vi'
-                                ? 'Nền tảng kết nối nhân viên nhà hàng với các cơ hội làm việc linh hoạt. Đăng ký miễn phí, nhận việc ngay.'
-                                : 'Platform connecting restaurant workers with flexible job opportunities. Free signup, start working today.'}
+                            {t('landing.description')}
                         </p>
 
                         {/* Dual CTA - Timee style */}
                         <div className="flex flex-col sm:flex-row gap-4 mb-10">
                             <Link href={workerJobsUrl} className="flex-1 sm:flex-none">
                                 <Button size="lg" variant="cta" className="w-full sm:w-auto text-base font-bold px-8 py-6 shadow-xl shadow-cta/30 hover:shadow-cta/40 transition-all group">
-                                    {locale === 'vi' ? 'Tìm việc ngay' : 'Find Jobs Now'}
+                                    {t('landing.findJobsNow')}
                                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                                 </Button>
                             </Link>
                             <Link href="/signup?role=owner" className="flex-1 sm:flex-none">
                                 <Button size="lg" variant="outline" className="w-full sm:w-auto text-base font-semibold px-8 py-6 border-2 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all">
-                                    {locale === 'vi' ? 'Đăng tuyển dụng' : 'Post a Job'}
+                                    {t('landing.postJob')}
                                 </Button>
                             </Link>
                         </div>
@@ -125,15 +113,15 @@ export function Hero() {
                         <div className="flex flex-wrap items-center gap-6 text-sm">
                             <div className="flex items-center gap-2 text-muted-foreground">
                                 <CheckCircle className="w-5 h-5 text-success" />
-                                <span className="font-medium">{locale === 'vi' ? 'Miễn phí 100%' : '100% Free'}</span>
+                                <span className="font-medium">{t('landing.free100')}</span>
                             </div>
                             <div className="flex items-center gap-2 text-muted-foreground">
                                 <CheckCircle className="w-5 h-5 text-success" />
-                                <span className="font-medium">{locale === 'vi' ? 'Xác minh danh tính' : 'Verified IDs'}</span>
+                                <span className="font-medium">{t('landing.verifiedIDs')}</span>
                             </div>
                             <div className="flex items-center gap-2 text-muted-foreground">
                                 <CheckCircle className="w-5 h-5 text-success" />
-                                <span className="font-medium">{locale === 'vi' ? 'Thanh toán bảo đảm' : 'Secure Payments'}</span>
+                                <span className="font-medium">{t('landing.securePayments')}</span>
                             </div>
                         </div>
                     </div>

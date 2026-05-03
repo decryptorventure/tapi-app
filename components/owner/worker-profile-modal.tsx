@@ -19,11 +19,12 @@ import {
     Calendar,
     Contact,
     Heart,
-    Loader2
+    Loader2,
+    Phone
 } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 
 interface WorkerProfileModalProps {
@@ -44,7 +45,7 @@ export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: 
     }, [worker?.id, isOpen]);
 
     const checkFavoriteStatus = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
@@ -63,7 +64,7 @@ export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: 
     };
 
     const toggleFavorite = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         setSavingFavorite(true);
         try {
             const { data: { user } } = await supabase.auth.getUser();
@@ -131,6 +132,17 @@ export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: 
                                     <span className="flex items-center gap-1 text-[10px] font-bold uppercase bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
                                         <CheckCircle2 className="w-3 h-3" /> Đã xác minh
                                     </span>
+                                )}
+                            </div>
+                            <div>
+                                {worker.phone_number && (
+                                    <a
+                                        href={`tel:${worker.phone_number}`}
+                                        className="flex items-center gap-1.5 text-sm text-primary hover:underline font-medium"
+                                    >
+                                        <Phone className="w-4 h-4" />
+                                        {worker.phone_number}
+                                    </a>
                                 )}
                             </div>
                             <div className="flex flex-wrap gap-4 text-sm text-slate-600">

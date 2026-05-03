@@ -1,0 +1,21 @@
+{
+    "completeProfile": "Complete Your Profile",
+    "completeProfileDesc": "A complete profile helps you get more job opportunities",
+    "completion": "completed",
+    "addAvatar": "Add profile photo",
+    "addPhone": "Add phone number",
+    "addBio": "Add bio",
+    "verifyIdentity": "Verify identity",
+    "addLanguage": "Add language skills",
+    "addExperience": "Add work experience",
+    "publicProfile": "View public profile",
+    "shareProfile": "Share this link with employers",
+    "workExperience": "Work Experience",
+    "add": "Add",
+    "present": "Present",
+    "noExperience": "No work experience added",
+    "errorSaveExp": "Error saving experience",
+    "successSaveExp": "Experience added",
+    "errorDelExp": "Error deleting experience",
+    "successDelExp": "Experience deleted"
+}

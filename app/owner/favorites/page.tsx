@@ -1,8 +1,9 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -35,6 +36,7 @@ interface FavoriteWorker {
 }
 
 export default function FavoriteWorkersPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -46,7 +48,7 @@ export default function FavoriteWorkersPage() {
     }, []);
 
     const fetchFavorites = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         setLoading(true);
 
         try {
@@ -92,7 +94,7 @@ export default function FavoriteWorkersPage() {
     };
 
     const handleRemoveFavorite = async (id: string) => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { error } = await supabase
                 .from('favorite_workers')
@@ -134,7 +136,7 @@ export default function FavoriteWorkersPage() {
                                     <Heart className="w-5 h-5 text-rose-500" />
                                 </div>
                                 <div>
-                                    <h1 className="text-xl font-bold text-foreground">Workers yêu thích</h1>
+                                    <h1 className="text-xl font-bold text-foreground">{t('owner.favorites_favoriteWorkers')}</h1>
                                     <p className="text-xs text-muted-foreground">{favorites.length} workers</p>
                                 </div>
                             </div>
@@ -158,7 +160,7 @@ export default function FavoriteWorkersPage() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <input
                         type="text"
-                        placeholder="Tìm kiếm worker..."
+                        placeholder={t('owner.favorites_searchWorker')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 bg-card border border-border rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
@@ -224,7 +226,7 @@ export default function FavoriteWorkersPage() {
                                             <button
                                                 onClick={() => handleRemoveFavorite(favorite.id)}
                                                 className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
-                                                title="Xóa khỏi yêu thích"
+                                                title={t('owner.favorites_removeFavorite')}
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>

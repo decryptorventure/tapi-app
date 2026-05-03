@@ -1,8 +1,9 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import {
@@ -18,6 +19,7 @@ import {
 import Link from 'next/link';
 
 export default function OwnerReviewPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
@@ -28,7 +30,7 @@ export default function OwnerReviewPage() {
     }, []);
 
     const fetchData = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
@@ -52,7 +54,7 @@ export default function OwnerReviewPage() {
 
     const handleSubmit = async () => {
         setLoading(true);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('Not authenticated');
@@ -183,7 +185,7 @@ export default function OwnerReviewPage() {
                                     }}
                                 />
                                 <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-white/50 shadow-sm">
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Tọa độ chính xác</p>
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{t('onboarding.owner_preciseCoordinates')}</p>
                                     <p className="text-xs font-mono text-slate-700">{profile?.restaurant_lat?.toFixed(4)}, {profile?.restaurant_lng?.toFixed(4)}</p>
                                 </div>
                             </div>

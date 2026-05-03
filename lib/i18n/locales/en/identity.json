@@ -1,0 +1,19 @@
+{
+    "title": "Identity Verification",
+    "description": "Ensuring safety for both workers and owners",
+    "whyTitle": "Why verify?",
+    "whyReason1": "Increase trust with employers",
+    "whyReason2": "Protect your rights",
+    "whyReason3": "Required to apply for jobs (80% profile)",
+    "frontLabel": "ID Card Front",
+    "backLabel": "ID Card Back",
+    "helperText": "Clear image, not blurry or obscured",
+    "idNumber": "ID Number (Optional)",
+    "issueDate": "Issue Date (Optional)",
+    "privacyNotice": "Privacy: Your info is encrypted and strictly confidential. Only verifying admins can view it to confirm your identity.",
+    "submit": "Submit Verification",
+    "submitting": "Uploading...",
+    "success": "Verification submitted! We'll review it within 24 hours.",
+    "footerNote": "After submitting, you can browse jobs and apply when your profile reaches 80%",
+    "missingImages": "Please upload both sides of your ID card"
+}

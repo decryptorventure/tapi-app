@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ImageUpload } from '@/components/shared/image-upload';
 import { Plus, Loader2, CheckCircle2, Clock, XCircle } from 'lucide-react';
@@ -43,7 +43,7 @@ export default function LanguageSkillsPage() {
   };
 
   const loadSkills = async () => {
-    const supabase = createUntypedClient();
+    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -67,7 +67,7 @@ export default function LanguageSkillsPage() {
     }
 
     setLoading(true);
-    const supabase = createUntypedClient();
+    const supabase = createClient();
 
     try {
       const { data: { user } } = await supabase.auth.getUser();

@@ -1,14 +1,10 @@
-import crypto from 'crypto';
-import QRCode from 'qrcode';
-
 /**
- * QR Code data structure for job check-in (NEW FLOW)
- * Owner generates QR per job → Worker scans to check-in
+ * QR Code data structure for job check-in (NEW OWNER FLOW)
+ * Owner has 1 static QR → Worker scans to check-in for any job at this restaurant
  */
-interface JobQRCodeData {
-  job_id: string;
+interface OwnerQRCodeData {
   owner_id: string;
-  secret_key: string;
+  type: 'owner_checkin';
   created_at: string;
 }
 
@@ -17,10 +13,9 @@ interface JobQRCodeData {
  */
 interface CheckinValidationResult {
   valid: boolean;
-  jobId?: string;
   ownerId?: string;
   error?: string;
-  errorCode?: 'INVALID_FORMAT' | 'INVALID_SIGNATURE' | 'EXPIRED' | 'GPS_OUT_OF_RANGE' | 'NOT_APPROVED' | 'ALREADY_CHECKED_IN';
+  errorCode?: 'INVALID_FORMAT' | 'INVALID_SIGNATURE' | 'EXPIRED';
 }
 
 /**
@@ -31,78 +26,117 @@ interface Coordinates {
   longitude: number;
 }
 
+const isBrowser = typeof window !== 'undefined';
+
+/**
+ * Get the QR secret — works on both server and client.
+ * Server: process.env.QR_SECRET (private)
+ * Client: process.env.NEXT_PUBLIC_QR_SECRET (public)
+ */
+function getQRSecret(): string {
+  if (isBrowser) {
+    return process.env.NEXT_PUBLIC_QR_SECRET || 'default-secret-change-in-production';
+  }
+  return process.env.QR_SECRET || process.env.NEXT_PUBLIC_QR_SECRET || 'default-secret-change-in-production';
+}
+
+/**
+ * Browser-compatible HMAC-SHA256 using Web Crypto API
+ */
+async function hmacSHA256Browser(secret: string, message: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const msgData = encoder.encode(message);
+
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+
+  const signature = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
+  const hashArray = Array.from(new Uint8Array(signature));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Server-side HMAC-SHA256 using Node.js crypto
+ */
+function hmacSHA256Server(secret: string, message: string): string {
+  const nodeCrypto = require('crypto');
+  return nodeCrypto.createHmac('sha256', secret).update(message).digest('hex');
+}
+
+/**
+ * Universal HMAC-SHA256 — auto-picks browser or server implementation
+ */
+async function hmacSHA256(secret: string, message: string): Promise<string> {
+  if (isBrowser) {
+    return hmacSHA256Browser(secret, message);
+  }
+  return hmacSHA256Server(secret, message);
+}
+
+/**
+ * Synchronous HMAC-SHA256 — ONLY for server-side use
+ */
+function hmacSHA256Sync(secret: string, message: string): string {
+  if (isBrowser) {
+    throw new Error('hmacSHA256Sync cannot be used in browser. Use hmacSHA256 (async) instead.');
+  }
+  return hmacSHA256Server(secret, message);
+}
+
 /**
  * QR Code Service (Refactored for Owner-generates-Worker-scans flow)
  * Uses HMAC-SHA256 for tamper protection
+ * Supports both server (Node.js crypto) and client (Web Crypto API)
  */
 export class QRCodeService {
-  private static readonly SECRET = process.env.QR_SECRET || 'default-secret-change-in-production';
   private static readonly GPS_RADIUS_METERS = parseInt(process.env.GPS_RADIUS_METERS || '200');
 
-  /**
-   * Validate QR_SECRET is properly configured
-   */
-  private static validateSecret(): void {
-    const secret = process.env.QR_SECRET;
-    if (!secret || secret === 'default-secret-change-in-production') {
-      const message = '[QR] CRITICAL: QR_SECRET not set or using default value';
-      console.error(message);
-      if (process.env.NODE_ENV === 'production') {
-        throw new Error('QR_SECRET must be configured in production');
-      }
-    }
-  }
-
-  private static secretValidated = false;
-  private static ensureSecretValidated(): void {
-    if (!this.secretValidated && typeof window === 'undefined') {
-      this.validateSecret();
-      this.secretValidated = true;
-    }
-  }
-
   // ==========================================
-  // NEW FLOW: Owner generates QR for Job
+  // NEW FLOW: Static Owner QR
   // ==========================================
 
   /**
-   * Generate QR code for a job (Owner side)
-   * @param jobId - Job ID
+   * Generate static QR code for an Owner (SERVER-SIDE ONLY)
    * @param ownerId - Owner user ID
    * @returns QR code as Data URL (base64 PNG image)
    */
-  static async generateJobQR(jobId: string, ownerId: string): Promise<{
+  static async generateOwnerQR(ownerId: string): Promise<{
     qrDataUrl: string;
     qrData: string;
-    secretKey: string;
   }> {
-    const secretKey = crypto.randomBytes(16).toString('hex');
-
-    const data: JobQRCodeData = {
-      job_id: jobId,
+    const data: OwnerQRCodeData = {
       owner_id: ownerId,
-      secret_key: secretKey,
+      type: 'owner_checkin',
       created_at: new Date().toISOString(),
     };
 
-    // Generate signature for tamper protection
-    const signature = this.generateJobQRSignature(data);
+    const secret = getQRSecret();
+    const dataString = JSON.stringify(data);
+    const signature = await hmacSHA256(secret, dataString);
+
     const qrPayload = {
       ...data,
       signature,
-      version: 2, // New flow version
+      version: 3,
     };
 
     const qrString = JSON.stringify(qrPayload);
 
     try {
+      const QRCode = (await import('qrcode')).default;
       const qrCodeDataURL = await QRCode.toDataURL(qrString, {
-        errorCorrectionLevel: 'M',
+        errorCorrectionLevel: 'H',
         type: 'image/png',
-        width: 400,
+        width: 500,
         margin: 2,
         color: {
-          dark: '#1e293b', // slate-800
+          dark: '#1e293b',
           light: '#ffffff',
         },
       });
@@ -110,43 +144,34 @@ export class QRCodeService {
       return {
         qrDataUrl: qrCodeDataURL,
         qrData: qrString,
-        secretKey,
       };
     } catch (error) {
       console.error('QR code generation error:', error);
-      throw new Error('Failed to generate QR code');
+      throw new Error('Failed to generate Owner QR code');
     }
   }
 
   /**
-   * Validate scanned QR code (Worker side)
+   * Validate scanned Owner QR code (CLIENT-SIDE — Worker scans)
+   * Uses async Web Crypto API for browser compatibility
    * @param qrString - Scanned QR code data
-   * @param expectedSecretKey - Secret key from database to verify
    */
-  static validateJobQR(qrString: string, expectedSecretKey?: string): CheckinValidationResult {
+  static async validateOwnerQRAsync(qrString: string): Promise<CheckinValidationResult> {
     try {
       const qrData = JSON.parse(qrString);
-
-      // Check signature first
       const { signature, version, ...data } = qrData;
 
-      // Try validating with current signature logic (V2)
+      // Validate signature using async HMAC
       let isValidSignature = false;
       try {
-        const expectedSignature = this.generateJobQRSignature(data as any);
+        const secret = getQRSecret();
+        const dataString = JSON.stringify(data);
+        const expectedSignature = await hmacSHA256(secret, dataString);
         if (signature === expectedSignature) {
           isValidSignature = true;
         }
-      } catch (e) { }
-
-      // If V2 signature fail, try legacy signature logic (if available)
-      if (!isValidSignature) {
-        try {
-          const legacySignature = this.generateLegacySignature(data);
-          if (signature === legacySignature) {
-            isValidSignature = true;
-          }
-        } catch (e) { }
+      } catch (e) {
+        console.error('[QR] Signature validation error:', e);
       }
 
       if (!isValidSignature) {
@@ -154,38 +179,55 @@ export class QRCodeService {
       }
 
       // Check mandatory fields
-      if (!data.job_id || !data.owner_id) {
-        // Fallback verify for legacy QR which might have differnt field names
-        // Legacy check: application_id, worker_id, job_id, expires_at
-        if (data.job_id && (data.worker_id || data.application_id)) {
-          // Legacy QR is for specific worker/application, but NEW FLOW requires Generic Job QR.
-          // Ensure this QR is NOT used for Check-in if it's a Worker QR.
-          // Wait: Original issue was Worker QR page generated codes.
-          // If worker scans an OLD Worker QR, it should fail because it's not an Owner QR.
-          // But if worker scans an OLD Owner QR (if any existed?), we accept.
-
-          // However, previous code generated QR with `job_id` and `owner_id`.
-          // If legacy QR has these, we accept.
-        }
-
-        if (!data.job_id) {
-          return { valid: false, error: 'Dữ liệu QR không đầy đủ', errorCode: 'INVALID_FORMAT' };
-        }
-        // If no owner_id but has job_id, we might accept but warning?
-        // For now, require both as generateJobQR always adds them.
-        if (!data.owner_id) {
-          return { valid: false, error: 'QR thiếu thông tin chủ sở hữu', errorCode: 'INVALID_FORMAT' };
-        }
-      }
-
-      // Verify secret key if provided (V2 feature)
-      if (expectedSecretKey && data.secret_key && data.secret_key !== expectedSecretKey) {
-        return { valid: false, error: 'Mã QR không khớp với job', errorCode: 'INVALID_SIGNATURE' };
+      if (data.type !== 'owner_checkin' || !data.owner_id) {
+        return { valid: false, error: 'Dữ liệu QR không đúng định dạng nhà hàng', errorCode: 'INVALID_FORMAT' };
       }
 
       return {
         valid: true,
-        jobId: data.job_id,
+        ownerId: data.owner_id,
+      };
+    } catch (error) {
+      return { valid: false, error: 'Định dạng QR không đúng', errorCode: 'INVALID_FORMAT' };
+    }
+  }
+
+  /**
+   * Validate scanned Owner QR code (SERVER-SIDE — synchronous)
+   * @deprecated Use validateOwnerQRAsync for client-side validation
+   */
+  static validateOwnerQR(qrString: string): CheckinValidationResult {
+    if (isBrowser) {
+      console.warn('[QR] validateOwnerQR (sync) called in browser — this will fail! Use validateOwnerQRAsync instead.');
+      return { valid: false, error: 'Internal error: sync validation not supported in browser', errorCode: 'INVALID_SIGNATURE' };
+    }
+
+    try {
+      const qrData = JSON.parse(qrString);
+      const { signature, version, ...data } = qrData;
+
+      let isValidSignature = false;
+      try {
+        const secret = getQRSecret();
+        const dataString = JSON.stringify(data);
+        const expectedSignature = hmacSHA256Sync(secret, dataString);
+        if (signature === expectedSignature) {
+          isValidSignature = true;
+        }
+      } catch (e) {
+        console.error('[QR] Signature validation error:', e);
+      }
+
+      if (!isValidSignature) {
+        return { valid: false, error: 'Mã QR không hợp lệ hoặc đã bị thay đổi', errorCode: 'INVALID_SIGNATURE' };
+      }
+
+      if (data.type !== 'owner_checkin' || !data.owner_id) {
+        return { valid: false, error: 'Dữ liệu QR không đúng định dạng nhà hàng', errorCode: 'INVALID_FORMAT' };
+      }
+
+      return {
+        valid: true,
         ownerId: data.owner_id,
       };
     } catch (error) {
@@ -220,7 +262,7 @@ export class QRCodeService {
    * Calculate distance between two GPS coordinates (Haversine formula)
    */
   static calculateDistanceMeters(coord1: Coordinates, coord2: Coordinates): number {
-    const R = 6371000; // Earth's radius in meters
+    const R = 6371000;
     const lat1Rad = (coord1.latitude * Math.PI) / 180;
     const lat2Rad = (coord2.latitude * Math.PI) / 180;
     const deltaLat = ((coord2.latitude - coord1.latitude) * Math.PI) / 180;
@@ -234,22 +276,13 @@ export class QRCodeService {
     return R * c;
   }
 
-  /**
-   * Generate HMAC-SHA256 signature for job QR data
-   */
-  private static generateJobQRSignature(data: JobQRCodeData): string {
-    this.ensureSecretValidated();
-    const dataString = JSON.stringify(data);
-    return crypto.createHmac('sha256', this.SECRET).update(dataString).digest('hex');
-  }
-
   // ==========================================
   // LEGACY: Worker generates QR (deprecated)
   // Keep for backward compatibility during transition
   // ==========================================
 
   /**
-   * @deprecated Use generateJobQR instead
+   * @deprecated Use generateOwnerQR instead
    */
   static async generateQRCode(
     applicationId: string,
@@ -257,7 +290,7 @@ export class QRCodeService {
     jobId: string,
     expiresAt: Date
   ): Promise<string> {
-    console.warn('[QR] generateQRCode is deprecated. Use generateJobQR for new flow.');
+    console.warn('[QR] generateQRCode is deprecated. Use generateOwnerQR for new flow.');
 
     const data = {
       application_id: applicationId,
@@ -266,11 +299,13 @@ export class QRCodeService {
       expires_at: expiresAt.toISOString(),
     };
 
-    const signature = this.generateLegacySignature(data);
+    const secret = getQRSecret();
+    const signature = hmacSHA256Sync(secret, JSON.stringify(data));
     const qrData = { ...data, signature };
     const qrString = JSON.stringify(qrData);
 
     try {
+      const QRCode = (await import('qrcode')).default;
       return await QRCode.toDataURL(qrString, {
         errorCorrectionLevel: 'M',
         type: 'image/png',
@@ -284,7 +319,7 @@ export class QRCodeService {
   }
 
   /**
-   * @deprecated Use validateJobQR instead
+   * @deprecated Use validateOwnerQRAsync instead
    */
   static validateQRCode(qrString: string): {
     valid: boolean;
@@ -294,13 +329,19 @@ export class QRCodeService {
     try {
       const qrData = JSON.parse(qrString);
 
-      // New flow QR codes have version field
-      if (qrData.version === 2) {
-        return { valid: false, error: 'Use validateJobQR for new QR codes' };
+      if (qrData.version === 2 || qrData.version === 3) {
+        return { valid: false, error: 'Use validateOwnerQRAsync for new QR codes' };
       }
 
       const { signature, ...data } = qrData;
-      const expectedSignature = this.generateLegacySignature(data);
+      const secret = getQRSecret();
+
+      let expectedSignature: string;
+      if (isBrowser) {
+        // Cannot do sync HMAC in browser — reject gracefully
+        return { valid: false, error: 'Legacy QR validation not supported in browser' };
+      }
+      expectedSignature = hmacSHA256Sync(secret, JSON.stringify(data));
 
       if (signature !== expectedSignature) {
         return { valid: false, error: 'Invalid signature - QR code may be tampered' };
@@ -315,12 +356,6 @@ export class QRCodeService {
     } catch (error) {
       return { valid: false, error: 'Invalid QR code format' };
     }
-  }
-
-  private static generateLegacySignature(data: Record<string, any>): string {
-    this.ensureSecretValidated();
-    const dataString = JSON.stringify(data);
-    return crypto.createHmac('sha256', this.SECRET).update(dataString).digest('hex');
   }
 
   /**
@@ -339,7 +374,8 @@ export class QRCodeService {
       expires_at: expiresAt.toISOString(),
     };
 
-    const signature = this.generateLegacySignature(data);
+    const secret = getQRSecret();
+    const signature = hmacSHA256Sync(secret, JSON.stringify(data));
     return JSON.stringify({ ...data, signature });
   }
 }

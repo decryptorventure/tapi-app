@@ -1,9 +1,10 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { DataTable } from '@/components/admin/data-table';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -27,7 +28,7 @@ import { vi } from 'date-fns/locale';
 
 interface Application {
     id: string;
-    status: 'pending' | 'approved' | 'rejected' | 'completed' | 'no_show';
+    status: 'pending' | 'approved' | 'rejected' | 'completed' | 'no_show' | 'working';
     is_instant_book: boolean;
     applied_at: string;
     approved_at: string | null;
@@ -54,6 +55,7 @@ interface Application {
 type TabType = 'all' | 'pending' | 'approved' | 'completed' | 'rejected';
 
 function ApplicationsContent() {
+    const { t } = useTranslation();
     const searchParams = useSearchParams();
     const jobFilter = searchParams.get('job');
 
@@ -71,7 +73,7 @@ function ApplicationsContent() {
 
     const fetchApplications = async () => {
         setLoading(true);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             let query = supabase
@@ -113,6 +115,7 @@ function ApplicationsContent() {
 
             if (error) throw error;
 
+            // @ts-expect-error - Expected due to SelectQueryError missing relationships
             setApplications(data || []);
             setTotalItems(count || 0);
         } catch (error) {
@@ -125,7 +128,7 @@ function ApplicationsContent() {
 
     const handleApprove = async (applicationId: string) => {
         setActionLoading(applicationId);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { error } = await supabase
@@ -152,7 +155,7 @@ function ApplicationsContent() {
         if (!confirm('Bạn có chắc muốn từ chối đơn này?')) return;
 
         setActionLoading(applicationId);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { error } = await supabase
@@ -181,13 +184,13 @@ function ApplicationsContent() {
         }
         switch (status) {
             case 'pending':
-                return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-warning/10 text-warning"><Clock className="w-3 h-3" />Chờ duyệt</span>;
+                return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-warning/10 text-warning"><Clock className="w-3 h-3" />{t('admin.applications_pending')}</span>;
             case 'approved':
-                return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success"><CheckCircle2 className="w-3 h-3" />Đã duyệt</span>;
+                return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success"><CheckCircle2 className="w-3 h-3" />{t('admin.applications_approved')}</span>;
             case 'completed':
-                return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary"><CheckCircle2 className="w-3 h-3" />Hoàn thành</span>;
+                return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary"><CheckCircle2 className="w-3 h-3" />{t('admin.applications_completed')}</span>;
             case 'rejected':
-                return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive"><XCircle className="w-3 h-3" />Từ chối</span>;
+                return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive"><XCircle className="w-3 h-3" />{t('admin.applications_reject')}</span>;
             case 'no_show':
                 return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive"><AlertCircle className="w-3 h-3" />No-show</span>;
             default:
@@ -310,17 +313,17 @@ function ApplicationsContent() {
 
     const tabs: { key: TabType; label: string; icon: React.ReactNode }[] = [
         { key: 'all', label: 'Tất cả', icon: <FileCheck className="w-4 h-4" /> },
-        { key: 'pending', label: 'Chờ duyệt', icon: <Clock className="w-4 h-4" /> },
-        { key: 'approved', label: 'Đã duyệt', icon: <CheckCircle2 className="w-4 h-4" /> },
-        { key: 'completed', label: 'Hoàn thành', icon: <CheckCircle2 className="w-4 h-4" /> },
-        { key: 'rejected', label: 'Từ chối', icon: <XCircle className="w-4 h-4" /> },
+        { key: 'pending', label: t('admin.applications_pending'), icon: <Clock className="w-4 h-4" /> },
+        { key: 'approved', label: t('admin.applications_approved'), icon: <CheckCircle2 className="w-4 h-4" /> },
+        { key: 'completed', label: t('admin.applications_completed'), icon: <CheckCircle2 className="w-4 h-4" /> },
+        { key: 'rejected', label: t('admin.applications_reject'), icon: <XCircle className="w-4 h-4" /> },
     ];
 
     return (
         <div className="p-6 space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-foreground">Quản lý Applications</h1>
+                <h1 className="text-2xl font-bold text-foreground">{t('admin.applications_manageApplications')}</h1>
                 <p className="text-sm text-muted-foreground">
                     Xem và quản lý tất cả đơn ứng tuyển
                     {jobFilter && <span className="text-primary"> (đang lọc theo job)</span>}
@@ -366,19 +369,20 @@ function ApplicationsContent() {
                 columns={columns}
                 data={applications}
                 loading={loading}
-                searchPlaceholder="Tìm theo tên worker..."
+                searchPlaceholder={t('admin.applications_searchWorkerName')}
                 serverSidePagination
                 pageSize={pageSize}
                 currentPage={page}
                 totalItems={totalItems}
                 onPageChange={setPage}
-                emptyMessage="Không tìm thấy đơn ứng tuyển nào"
+                emptyMessage={t('admin.applications_noApplicationsFound')}
             />
         </div>
     );
 }
 
 export default function ApplicationsPage() {
+    const { t } = useTranslation();
     return (
         <Suspense fallback={
             <div className="flex items-center justify-center h-[60vh]">

@@ -1,0 +1,11 @@
+{
+    "japanese": "日本語",
+    "korean": "韓国語",
+    "english": "英語",
+    "jlpt": "JLPT",
+    "topik": "TOPIK",
+    "cefr": "CEFR",
+    "level": "レベル",
+    "selectLanguage": "言語を選択",
+    "selectLevel": "レベルを選択"
+}

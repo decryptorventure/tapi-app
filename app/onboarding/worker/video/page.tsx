@@ -1,8 +1,9 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import {
@@ -17,11 +18,36 @@ import {
 import { StorageService } from '@/lib/services/storage.service';
 
 export default function WorkerVideoPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        checkExistingVideo();
+    }, []);
+
+    const checkExistingVideo = async () => {
+        const supabase = createClient();
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('intro_video_url')
+                .eq('id', user.id)
+                .single();
+
+            if (profile?.intro_video_url) {
+                setPreviewUrl(profile.intro_video_url);
+            }
+        } catch (error) {
+            console.error('Video check error:', error);
+        }
+    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -42,11 +68,20 @@ export default function WorkerVideoPage() {
         }
     };
 
-    const removeVideo = () => {
+    const removeVideo = async () => {
         setVideoFile(null);
         if (previewUrl) {
-            URL.revokeObjectURL(previewUrl);
+            if (previewUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(previewUrl);
+            }
             setPreviewUrl(null);
+        }
+
+        // If we want to clear it from the DB when removed during onboarding
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            await supabase.from('profiles').update({ intro_video_url: null }).eq('id', user.id);
         }
     };
 
@@ -57,7 +92,7 @@ export default function WorkerVideoPage() {
         }
 
         setLoading(true);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { data: { user } } = await supabase.auth.getUser();
@@ -99,7 +134,7 @@ export default function WorkerVideoPage() {
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-semibold text-foreground">Bước 3/4</span>
-                        <span className="text-sm text-muted-foreground">Video giới thiệu</span>
+                        <span className="text-sm text-muted-foreground">{t('onboarding.worker_introVideo')}</span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div className="h-full bg-primary w-3/4 transition-all duration-300"></div>
@@ -168,19 +203,19 @@ export default function WorkerVideoPage() {
                         <ul className="text-sm text-muted-foreground space-y-2">
                             <li className="flex items-start gap-2">
                                 <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
-                                <span>Nói rõ tên, trường, và ngôn ngữ bạn biết</span>
+                                <span>{t('onboarding.worker_speakPrompt')}</span>
                             </li>
                             <li className="flex items-start gap-2">
                                 <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
-                                <span>Ghi hình nơi sáng sủa, âm thanh rõ ràng</span>
+                                <span>{t('onboarding.worker_lightingPrompt')}</span>
                             </li>
                             <li className="flex items-start gap-2">
                                 <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
-                                <span>Chia sẻ kinh nghiệm làm việc nếu có</span>
+                                <span>{t('onboarding.worker_shareExp')}</span>
                             </li>
                             <li className="flex items-start gap-2">
                                 <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
-                                <span>Mỉm cười và tự tin!</span>
+                                <span>{t('onboarding.worker_smilePrompt')}</span>
                             </li>
                         </ul>
                     </div>

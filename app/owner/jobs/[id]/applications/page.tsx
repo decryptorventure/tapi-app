@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -42,8 +42,6 @@ interface ApplicationWithWorker extends JobApplication {
 }
 
 import { WorkerProfileModal } from '@/components/owner/worker-profile-modal';
-import { ChatWindow } from '@/components/chat/chat-window';
-
 export default function JobApplicationsPage() {
     const router = useRouter();
     const params = useParams();
@@ -54,12 +52,6 @@ export default function JobApplicationsPage() {
     const [job, setJob] = useState<Job | null>(null);
     const [applications, setApplications] = useState<ApplicationWithWorker[]>([]);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-
-    // Chat state
-    const [chatApplicationId, setChatApplicationId] = useState<string | null>(null);
-    const [chatRecipientName, setChatRecipientName] = useState('');
-    const [chatRecipientAvatar, setChatRecipientAvatar] = useState<string | null>(null);
-    const [isChatOpen, setIsChatOpen] = useState(false);
 
     // Modal state
     const [selectedWorker, setSelectedWorker] = useState<any>(null);
@@ -74,15 +66,8 @@ export default function JobApplicationsPage() {
         setIsModalOpen(true);
     };
 
-    const openChat = (applicationId: string, workerName: string, workerAvatar: string | null) => {
-        setChatApplicationId(applicationId);
-        setChatRecipientName(workerName);
-        setChatRecipientAvatar(workerAvatar);
-        setIsChatOpen(true);
-    };
-
     const fetchData = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { data: { user } } = await supabase.auth.getUser();
@@ -145,6 +130,7 @@ export default function JobApplicationsPage() {
                     return {
                         ...app,
                         worker: workers?.find(w => w.id === app.worker_id) || {} as Profile,
+                        // @ts-expect-error - Expected due to missing null checks or db strict types
                         language_skills: skills?.filter(s => s.worker_id === app.worker_id) || [],
                         last_checkin: lastCheckin,
                     };
@@ -162,7 +148,7 @@ export default function JobApplicationsPage() {
 
     const handleApprove = async (applicationId: string) => {
         setProcessing(applicationId);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Get current user to pass as ownerId
@@ -199,7 +185,7 @@ export default function JobApplicationsPage() {
 
     const handleReject = async (applicationId: string) => {
         setProcessing(applicationId);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { error } = await supabase
@@ -224,7 +210,7 @@ export default function JobApplicationsPage() {
 
     const handleMarkComplete = async (applicationId: string, workerId: string) => {
         setProcessing(applicationId);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Update application status
@@ -534,16 +520,6 @@ export default function JobApplicationsPage() {
                                             Xem hồ sơ
                                         </Button>
 
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => openChat(app.id, app.worker.full_name, app.worker.avatar_url || null)}
-                                            className="min-w-[100px]"
-                                        >
-                                            <MessageSquare className="w-4 h-4 mr-1.5" />
-                                            Nhắn tin
-                                        </Button>
-
                                         {app.status === 'pending' && (
                                             <div className="flex gap-2">
                                                 <Button
@@ -625,17 +601,6 @@ export default function JobApplicationsPage() {
                 )}
             </div>
 
-            {/* Chat Window */}
-            {chatApplicationId && currentUserId && (
-                <ChatWindow
-                    isOpen={isChatOpen}
-                    onClose={() => setIsChatOpen(false)}
-                    applicationId={chatApplicationId}
-                    currentUserId={currentUserId}
-                    recipientName={chatRecipientName}
-                    recipientAvatar={chatRecipientAvatar}
-                />
-            )}
         </div>
     );
 }

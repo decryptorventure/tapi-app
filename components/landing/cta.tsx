@@ -6,7 +6,7 @@ import { ArrowRight, Smartphone, Users, Briefcase } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 
 export function CTA() {
-    const { locale } = useTranslation();
+    const { t, locale } = useTranslation();
 
     return (
         <section className="py-24 relative overflow-hidden">
@@ -37,14 +37,14 @@ export function CTA() {
                                     <Link href="/signup?role=worker">
                                         <Button size="lg" variant="cta" className="w-full sm:w-auto bg-cta hover:bg-cta/90 text-cta-foreground font-bold px-8 py-6 shadow-xl group">
                                             <Users className="w-5 h-5 mr-2" />
-                                            {locale === 'vi' ? 'Đăng ký tìm việc' : 'Sign Up as Worker'}
+                                            {t('landing.signUpWorker')}
                                             <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                                         </Button>
                                     </Link>
                                     <Link href="/signup?role=owner">
                                         <Button size="lg" className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-primary-foreground border-2 border-white/30 font-bold px-8 py-6 backdrop-blur-sm group">
                                             <Briefcase className="w-5 h-5 mr-2" />
-                                            {locale === 'vi' ? 'Đăng tuyển dụng' : 'Post a Job'}
+                                            {t('landing.signUpOwner')}
                                         </Button>
                                     </Link>
                                 </div>
@@ -63,7 +63,7 @@ export function CTA() {
                                             <div className="text-center px-6">
                                                 <p className="text-xl font-black text-foreground mb-2">TAPY</p>
                                                 <p className="text-sm text-muted-foreground">
-                                                    {locale === 'vi' ? 'Tải ứng dụng sắp ra mắt' : 'App coming soon'}
+                                                    {t('landing.appComingSoon')}
                                                 </p>
                                             </div>
                                         </div>
@@ -71,7 +71,7 @@ export function CTA() {
 
                                     {/* Floating Badge */}
                                     <div className="absolute -top-4 -right-4 bg-cta text-cta-foreground px-4 py-2 rounded-full font-bold text-sm shadow-lg">
-                                        {locale === 'vi' ? 'Miễn phí!' : 'Free!'}
+                                        {t('landing.freeExcl')}
                                     </div>
                                 </div>
                             </div>

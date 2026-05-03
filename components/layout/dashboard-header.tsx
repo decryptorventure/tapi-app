@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { NotificationBell } from '@/components/notifications/notification-bell';
+import { LanguageSwitcher } from '@/components/shared/language-switcher';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 
@@ -26,6 +27,7 @@ export function DashboardHeader({ title }: DashboardHeaderProps) {
                 </div>
 
                 <div className="flex items-center gap-2">
+                    <LanguageSwitcher />
                     <NotificationBell />
                 </div>
             </div>

@@ -1,13 +1,15 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Loader2, MapPin, Navigation, Search, CheckCircle2 } from 'lucide-react';
 
 export default function OwnerLocationPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [checkingAuth, setCheckingAuth] = useState(true);
@@ -17,7 +19,7 @@ export default function OwnerLocationPage() {
 
     useEffect(() => {
         const checkAuth = async () => {
-            const supabase = createUntypedClient();
+            const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 router.push('/login');
@@ -50,7 +52,7 @@ export default function OwnerLocationPage() {
         }
 
         setLoading(true);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { data: { user } } = await supabase.auth.getUser();
@@ -115,22 +117,13 @@ export default function OwnerLocationPage() {
                 </div>
 
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
-                    {/* Mock Map View */}
-                    <div className="relative rounded-xl overflow-hidden bg-slate-100 aspect-video border-2 border-slate-200 flex items-center justify-center group cursor-pointer hover:border-orange-300 transition-all">
-                        <img
-                            src={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s+ff4400(${coordinates.lng},${coordinates.lat})/${coordinates.lng},${coordinates.lat},15/600x400?access_token=none`}
-                            alt="Map Placeholder"
-                            className="w-full h-full object-cover opacity-50 grayscale group-hover:grayscale-0 transition-all"
-                            onError={(e) => {
-                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=800';
-                            }}
-                        />
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/40 backdrop-blur-sm">
-                            <MapPin className="w-12 h-12 text-orange-600 animate-bounce mb-2" />
-                            <p className="text-sm font-bold text-slate-700 bg-white/80 px-4 py-2 rounded-full shadow-sm">
-                                Đang sử dụng bản đồ mô phỏng
+                    <div className="bg-orange-50 p-4 rounded-xl border border-orange-100 flex items-start gap-3">
+                        <Navigation className="w-5 h-5 text-orange-600 mt-0.5" />
+                        <div>
+                            <h4 className="text-sm font-bold text-orange-900">{t('onboarding.owner_locationInfo')}</h4>
+                            <p className="text-xs text-orange-700 leading-relaxed">
+                                Vui lòng nhập địa chỉ chính xác của nhà hàng. Thông tin này sẽ giúp nhân viên tìm thấy bạn dễ dàng hơn.
                             </p>
-                            <p className="text-xs text-slate-500 mt-2">Vui lòng nhập địa chỉ bên dưới để xác nhận</p>
                         </div>
                     </div>
 
@@ -147,22 +140,11 @@ export default function OwnerLocationPage() {
                                     value={address}
                                     onChange={(e) => setAddress(e.target.value)}
                                     className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
-                                    placeholder="Nhập số nhà, tên đường, quận/huyện..."
+                                    placeholder={t('onboarding.owner_addressPlaceholder')}
                                 />
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">
-                            <Navigation className="w-5 h-5 text-blue-600 mt-0.5" />
-                            <div>
-                                <h4 className="text-sm font-bold text-blue-900">Vị trí hiện tại</h4>
-                                <p className="text-xs text-blue-700 leading-relaxed">
-                                    Tọa độ: {coordinates.lat.toFixed(6)}, {coordinates.lng.toFixed(6)}
-                                    <br />
-                                    Nhân viên sẽ sử dụng vị trí này để định vị nơi làm việc và check-in.
-                                </p>
-                            </div>
-                        </div>
 
                         <div className="flex flex-col sm:flex-row gap-4 pt-4">
                             <Button
@@ -185,7 +167,7 @@ export default function OwnerLocationPage() {
                                         Đang lưu...
                                     </>
                                 ) : (
-                                    'Hoàn tất & Tiếp tục'
+                                    t('onboarding.owner_finishAndContinue')
                                 )}
                             </Button>
                         </div>

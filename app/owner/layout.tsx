@@ -1,5 +1,4 @@
 import { OwnerNav } from "@/components/layout/owner-nav";
-import { AIAssistantWrapper } from "@/components/ai/ai-assistant-wrapper";
 
 export default function OwnerLayout({
     children,
@@ -12,7 +11,6 @@ export default function OwnerLayout({
             <main className="flex-1">
                 {children}
             </main>
-            <AIAssistantWrapper role="owner" />
         </div>
     );
 }

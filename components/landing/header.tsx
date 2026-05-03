@@ -7,7 +7,7 @@ import { LanguageSwitcher } from '@/components/shared/language-switcher';
 import { useTranslation } from '@/lib/i18n';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import Image from 'next/image';
 
 export function Header() {
@@ -17,7 +17,7 @@ export function Header() {
 
     useEffect(() => {
         const fetchUserProfile = async () => {
-            const supabase = createUntypedClient();
+            const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 const { data } = await supabase
@@ -89,12 +89,12 @@ export function Header() {
                             <>
                                 <Link href="/login">
                                     <Button variant="ghost" size="sm" className="font-semibold">
-                                        {t('landing.login')}
+                                        {t('landing.login', { defaultValue: 'Đăng nhập' })}
                                     </Button>
                                 </Link>
                                 <Link href="/signup">
                                     <Button size="sm" variant="cta" className="font-bold shadow-lg shadow-cta/20">
-                                        {t('landing.getStarted')}
+                                        {t('landing.getStarted', { defaultValue: 'Bắt đầu ngay' })}
                                     </Button>
                                 </Link>
                             </>
@@ -141,12 +141,12 @@ export function Header() {
                             <>
                                 <Link href="/login" className="block">
                                     <Button variant="outline" className="w-full">
-                                        {t('landing.login')}
+                                        {t('landing.login', { defaultValue: 'Đăng nhập' })}
                                     </Button>
                                 </Link>
                                 <Link href="/signup" className="block">
                                     <Button variant="cta" className="w-full">
-                                        {t('landing.getStarted')}
+                                        {t('landing.getStarted', { defaultValue: 'Bắt đầu ngay' })}
                                     </Button>
                                 </Link>
                             </>

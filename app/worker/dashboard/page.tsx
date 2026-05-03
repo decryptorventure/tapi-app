@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import {
     Loader2,
@@ -34,7 +34,7 @@ export default function WorkerDashboardPage() {
     const { t, locale } = useTranslation();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<any>(null);
-    const supabase = createUntypedClient();
+    const supabase = createClient();
     const dateLocale = locale === 'vi' ? vi : enUS;
 
     useEffect(() => {
@@ -163,8 +163,8 @@ export default function WorkerDashboardPage() {
                                     <QrCode className="w-8 h-8 text-white" />
                                 </div>
                                 <div className="flex-1">
-                                    <p className="font-bold text-lg">Scan QR Check-in</p>
-                                    <p className="text-white/80 text-sm">Quét mã QR tại cửa hàng để check-in</p>
+                                    <p className="font-bold text-lg">{t('dashboard.scanQR')}</p>
+                                    <p className="text-white/80 text-sm">{t('dashboard.scanQRDesc')}</p>
                                 </div>
                                 <ChevronRight className="w-6 h-6 text-white/80" />
                             </div>
@@ -179,8 +179,8 @@ export default function WorkerDashboardPage() {
                             <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-success/20 transition-colors">
                                 <QrCode className="w-5 h-5 text-success" />
                             </div>
-                            <p className="font-semibold text-sm text-foreground">Scan QR</p>
-                            <p className="text-xs text-muted-foreground mt-1">Check-in/out</p>
+                            <p className="font-semibold text-sm text-foreground">{t('dashboard.scanQR')}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{t('dashboard.checkInOut')}</p>
                         </div>
                     </Link>
 
@@ -189,8 +189,8 @@ export default function WorkerDashboardPage() {
                             <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
                                 <Search className="w-5 h-5 text-primary" />
                             </div>
-                            <p className="font-semibold text-sm text-foreground">Tìm việc</p>
-                            <p className="text-xs text-muted-foreground mt-1">Khám phá jobs mới</p>
+                            <p className="font-semibold text-sm text-foreground">{t('common.searchJobs')}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{t('dashboard.findJobs')}</p>
                         </div>
                     </Link>
 
@@ -199,8 +199,8 @@ export default function WorkerDashboardPage() {
                             <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-500/20 transition-colors">
                                 <Briefcase className="w-5 h-5 text-blue-500" />
                             </div>
-                            <p className="font-semibold text-sm text-foreground">Đơn của tôi</p>
-                            <p className="text-xs text-muted-foreground mt-1">{data?.stats?.total || 0} đơn</p>
+                            <p className="font-semibold text-sm text-foreground">{t('worker.myJobsBtn')}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{data?.stats?.total || 0} {t('dashboard.appsCount')}</p>
                         </div>
                     </Link>
 
@@ -209,8 +209,8 @@ export default function WorkerDashboardPage() {
                             <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-purple-500/20 transition-colors">
                                 <User className="w-5 h-5 text-purple-500" />
                             </div>
-                            <p className="font-semibold text-sm text-foreground">Hồ sơ</p>
-                            <p className="text-xs text-muted-foreground mt-1">{profile?.profile_completion_percentage || 0}% hoàn thành</p>
+                            <p className="font-semibold text-sm text-foreground">{t('worker.myProfile')}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{profile?.profile_completion_percentage || 0}% {t('dashboard.completionCount')}</p>
                         </div>
                     </Link>
 
@@ -219,8 +219,8 @@ export default function WorkerDashboardPage() {
                             <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-green-500/20 transition-colors">
                                 <FileText className="w-5 h-5 text-green-500" />
                             </div>
-                            <p className="font-semibold text-sm text-foreground">Hướng dẫn</p>
-                            <p className="text-xs text-muted-foreground mt-1">Cách sử dụng</p>
+                            <p className="font-semibold text-sm text-foreground">{t('common.help')}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{t('dashboard.guideDesc')}</p>
                         </div>
                     </Link>
                 </div>
@@ -230,7 +230,7 @@ export default function WorkerDashboardPage() {
                     <div className="bg-card rounded-xl border border-border p-4">
                         <div className="flex items-center gap-2 mb-2">
                             <FileText className="w-4 h-4 text-muted-foreground" />
-                            <p className="text-xs font-medium text-muted-foreground">Tổng đơn</p>
+                            <p className="text-xs font-medium text-muted-foreground">{t('dashboard.totalApps')}</p>
                         </div>
                         <p className="text-2xl font-bold text-foreground">{data?.stats?.total || 0}</p>
                     </div>
@@ -238,7 +238,7 @@ export default function WorkerDashboardPage() {
                     <div className="bg-card rounded-xl border border-border p-4">
                         <div className="flex items-center gap-2 mb-2">
                             <Clock className="w-4 h-4 text-warning" />
-                            <p className="text-xs font-medium text-muted-foreground">Chờ duyệt</p>
+                            <p className="text-xs font-medium text-muted-foreground">{t('dashboard.pendingApps')}</p>
                         </div>
                         <p className="text-2xl font-bold text-warning">{data?.stats?.pending || 0}</p>
                     </div>
@@ -246,7 +246,7 @@ export default function WorkerDashboardPage() {
                     <div className="bg-card rounded-xl border border-border p-4">
                         <div className="flex items-center gap-2 mb-2">
                             <CheckCircle2 className="w-4 h-4 text-success" />
-                            <p className="text-xs font-medium text-muted-foreground">Đã duyệt</p>
+                            <p className="text-xs font-medium text-muted-foreground">{t('dashboard.approvedApps')}</p>
                         </div>
                         <p className="text-2xl font-bold text-success">{data?.stats?.approved || 0}</p>
                     </div>
@@ -254,7 +254,7 @@ export default function WorkerDashboardPage() {
                     <div className="bg-card rounded-xl border border-border p-4">
                         <div className="flex items-center gap-2 mb-2">
                             <Award className="w-4 h-4 text-primary" />
-                            <p className="text-xs font-medium text-muted-foreground">Hoàn thành</p>
+                            <p className="text-xs font-medium text-muted-foreground">{t('dashboard.completedApps')}</p>
                         </div>
                         <p className="text-2xl font-bold text-primary">{data?.stats?.completed || 0}</p>
                     </div>
@@ -265,10 +265,10 @@ export default function WorkerDashboardPage() {
                     <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-muted/30">
                         <h3 className="font-bold text-foreground flex items-center gap-2">
                             <Calendar className="w-5 h-5 text-primary" />
-                            Ca làm sắp tới
+                            {t('dashboard.upcomingShifts')}
                         </h3>
                         <Link href="/worker/jobs" className="text-xs font-semibold text-primary hover:text-primary/80 flex items-center gap-1">
-                            Xem tất cả <ChevronRight className="w-3.5 h-3.5" />
+                            {t('dashboard.seeAll')} <ChevronRight className="w-3.5 h-3.5" />
                         </Link>
                     </div>
 
@@ -314,7 +314,7 @@ export default function WorkerDashboardPage() {
                                 </div>
                                 <Link href={`/worker/jobs/${data.upcomingShifts[0].id}/qr`}>
                                     <Button size="lg" variant="default" className="w-full">
-                                        Xem QR Check-in <ChevronRight className="w-5 h-5 ml-1" />
+                                        {t('dashboard.viewCheckinQR')} <ChevronRight className="w-5 h-5 ml-1" />
                                     </Button>
                                 </Link>
                             </div>
@@ -323,13 +323,13 @@ export default function WorkerDashboardPage() {
                                 <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
                                     <Zap className="w-8 h-8 text-primary" />
                                 </div>
-                                <h3 className="text-xl font-bold text-foreground mb-2">Chưa có ca làm nào</h3>
+                                <h3 className="text-xl font-bold text-foreground mb-2">{t('dashboard.noShiftsYet')}</h3>
                                 <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-                                    Khám phá các công việc phù hợp với kỹ năng của bạn ngay!
+                                    {t('dashboard.discoverJobsDesc')}
                                 </p>
                                 <Link href="/worker/feed">
                                     <Button size="lg" variant="default">
-                                        Tìm việc ngay <ChevronRight className="w-5 h-5 ml-1" />
+                                        {t('dashboard.findJobsNow')} <ChevronRight className="w-5 h-5 ml-1" />
                                     </Button>
                                 </Link>
                             </div>
@@ -345,13 +345,13 @@ export default function WorkerDashboardPage() {
                                 {profile?.profile_completion_percentage || 0}%
                             </div>
                             <div className="flex-1">
-                                <h4 className="font-bold text-foreground mb-1">Hoàn thiện hồ sơ</h4>
+                                <h4 className="font-bold text-foreground mb-1">{t('dashboard.completeProfileTitle')}</h4>
                                 <p className="text-sm text-muted-foreground mb-4">
-                                    Hồ sơ đầy đủ giúp bạn có nhiều cơ hội được nhận việc hơn!
+                                    {t('dashboard.completeProfileDesc')}
                                 </p>
                                 <Link href="/worker/profile">
                                     <Button size="sm" variant="default">
-                                        Cập nhật ngay <ChevronRight className="w-4 h-4 ml-1" />
+                                        {t('dashboard.updateNow')} <ChevronRight className="w-4 h-4 ml-1" />
                                     </Button>
                                 </Link>
                             </div>

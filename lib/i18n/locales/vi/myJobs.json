@@ -1,0 +1,13 @@
+{
+    "title": "Công việc của tôi",
+    "desc": "Quản lý các công việc đã ứng tuyển",
+    "upcoming": "Sắp tới",
+    "pending": "Chờ duyệt",
+    "completed": "Hoàn thành",
+    "noUpcoming": "Chưa có công việc sắp tới",
+    "noUpcomingDesc": "Các công việc đã được chấp nhận sẽ hiển thị ở đây",
+    "noPending": "Chưa có yêu cầu chờ duyệt",
+    "noPendingDesc": "Ứng tuyển công việc để bắt đầu",
+    "noCompleted": "Chưa hoàn thành công việc nào",
+    "noCompletedDesc": "Lịch sử công việc của bạn sẽ hiển thị ở đây"
+}

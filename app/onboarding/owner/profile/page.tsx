@@ -1,14 +1,16 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ImageUpload } from '@/components/shared/image-upload';
 import { toast } from 'sonner';
 import { Loader2, Building2, MapPin, FileText } from 'lucide-react';
 
 export default function OwnerProfilePage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -23,15 +25,20 @@ export default function OwnerProfilePage() {
         email: '',
     });
 
+    const [existingLogoUrl, setExistingLogoUrl] = useState<string | null>(null);
+    const [existingCoverUrl, setExistingCoverUrl] = useState<string | null>(null);
+    const [existingLicenseUrl, setExistingLicenseUrl] = useState<string | null>(null);
+
     // Fetch existing data if any
     useEffect(() => {
         const fetchInitialData = async () => {
-            const supabase = createUntypedClient();
+            const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
+                // Fetch profile data
                 const { data: profile } = await supabase
                     .from('profiles')
-                    .select('phone_number, email, restaurant_name, cuisine_type, restaurant_address, business_license_number')
+                    .select('phone_number, email, restaurant_name, cuisine_type, restaurant_address, business_license_number, restaurant_logo_url, restaurant_cover_urls')
                     .eq('id', user.id)
                     .single();
 
@@ -44,6 +51,23 @@ export default function OwnerProfilePage() {
                         phone: profile.phone_number || '',
                         email: profile.email || '',
                     });
+                    setExistingLogoUrl(profile.restaurant_logo_url || null);
+                    if (profile.restaurant_cover_urls && Array.isArray(profile.restaurant_cover_urls) && profile.restaurant_cover_urls.length > 0) {
+                        setExistingCoverUrl(profile.restaurant_cover_urls[0]);
+                    }
+                }
+
+                // Fetch license verification if exists
+                const { data: verification } = await supabase
+                    .from('business_verifications')
+                    .select('license_url')
+                    .eq('owner_id', user.id)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .single();
+                
+                if (verification) {
+                    setExistingLicenseUrl(verification.license_url);
                 }
             }
         };
@@ -54,7 +78,7 @@ export default function OwnerProfilePage() {
         e.preventDefault();
         setLoading(true);
 
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { data: { user } } = await supabase.auth.getUser();
@@ -206,7 +230,7 @@ export default function OwnerProfilePage() {
                             onChange={(e) => setFormData({ ...formData, cuisineType: e.target.value })}
                             className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
                         >
-                            <option value="">Chọn loại ẩm thực</option>
+                            <option value="">{t('onboarding.owner_selectCuisineType')}</option>
                             <option value="japanese">🇯🇵 Nhật Bản</option>
                             <option value="korean">🇰🇷 Hàn Quốc</option>
                             <option value="vietnamese">🇻🇳 Việt Nam</option>
@@ -256,24 +280,32 @@ export default function OwnerProfilePage() {
                             onChange={(e) => setFormData({ ...formData, restaurantAddress: e.target.value })}
                             rows={2}
                             className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
-                            placeholder="Số nhà, đường, phường/xã, quận/huyện, TP.HCM"
+                            placeholder={t('onboarding.owner_addressPlaceholder')}
                         />
                     </div>
 
                     {/* Logo & Cover */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <ImageUpload
-                            label="Logo nhà hàng"
-                            helperText="Ảnh vuông, tối đa 5MB"
+                            label={t('onboarding.owner_restaurantLogo')}
+                            helperText={t('onboarding.owner_squareImageHint')}
                             onFileSelect={(file) => setLogoFile(file)}
-                            onFileRemove={() => setLogoFile(null)}
+                            onFileRemove={() => {
+                                setLogoFile(null);
+                                setExistingLogoUrl(null);
+                            }}
+                            existingUrl={existingLogoUrl || undefined}
                             accept="image/*"
                         />
                         <ImageUpload
-                            label="Ảnh bìa nhà hàng"
-                            helperText="Khổ ngang, tối đa 5MB"
+                            label={t('onboarding.owner_restaurantCover')}
+                            helperText={t('onboarding.owner_landscapeImageHint')}
                             onFileSelect={(file) => setCoverFile(file)}
-                            onFileRemove={() => setCoverFile(null)}
+                            onFileRemove={() => {
+                                setCoverFile(null);
+                                setExistingCoverUrl(null);
+                            }}
+                            existingUrl={existingCoverUrl || undefined}
                             accept="image/*"
                         />
                     </div>
@@ -282,7 +314,7 @@ export default function OwnerProfilePage() {
                     <div className="border-t border-slate-200 pt-6">
                         <div className="flex items-center gap-2 mb-4">
                             <FileText className="w-5 h-5 text-slate-600" />
-                            <h3 className="font-medium text-slate-900">Giấy phép kinh doanh</h3>
+                            <h3 className="font-medium text-slate-900">{t('onboarding.owner_businessLicense')}</h3>
                         </div>
 
                         <div>
@@ -300,10 +332,14 @@ export default function OwnerProfilePage() {
 
                         <div className="mt-4">
                             <ImageUpload
-                                label="Ảnh giấy phép kinh doanh (tùy chọn)"
-                                helperText="Tải lên ảnh hoặc bản scan rõ ràng"
+                                label={t('onboarding.owner_licenseImageOptional')}
+                                helperText={t('onboarding.owner_uploadClearScan')}
                                 onFileSelect={(file) => setLicenseFile(file)}
-                                onFileRemove={() => setLicenseFile(null)}
+                                onFileRemove={() => {
+                                    setLicenseFile(null);
+                                    setExistingLicenseUrl(null);
+                                }}
+                                existingUrl={existingLicenseUrl || undefined}
                                 accept="image/*,.pdf"
                                 maxSize={10}
                             />
@@ -311,7 +347,7 @@ export default function OwnerProfilePage() {
 
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
                             <p className="text-sm text-blue-800">
-                                💡 <strong>Lưu ý:</strong> Giấy phép kinh doanh sẽ được xác minh trong 24-48 giờ.
+                                💡 <strong>{t('onboarding.owner_note')}</strong> Giấy phép kinh doanh sẽ được xác minh trong 24-48 giờ.
                                 Bạn vẫn có thể đăng tin tuyển dụng trong thời gian chờ xác minh.
                             </p>
                         </div>
@@ -324,6 +360,7 @@ export default function OwnerProfilePage() {
                             variant="outline"
                             onClick={() => router.push('/owner/dashboard')}
                             className="flex-1"
+                            disabled={loading}
                         >
                             Bỏ qua - hoàn thiện sau
                         </Button>
@@ -339,7 +376,7 @@ export default function OwnerProfilePage() {
                                     Đang lưu...
                                 </>
                             ) : (
-                                'Lưu và tiếp tục'
+                                t('onboarding.owner_saveAndContinue')
                             )}
                         </Button>
                     </div>

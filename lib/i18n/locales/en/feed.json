@@ -1,0 +1,21 @@
+{
+    "jobs": "Jobs",
+    "filter": "Filter",
+    "searchPlaceholder": "Search jobs, restaurants...",
+    "language": "Language",
+    "all": "All",
+    "japanese": "Japanese",
+    "korean": "Korean",
+    "english": "English",
+    "sortBy": "Sort By",
+    "sortNewest": "Date Posted (Newest)",
+    "sortHighestPay": "Pay Rate (Highest)",
+    "sortSoonest": "Shift Date (Soonest)",
+    "minWage": "Minimum Wage",
+    "results": "Search Results",
+    "suggestions": "Suggestions for You",
+    "noResults": "No matching jobs found",
+    "noResultsDesc": "Try changing your search terms or filters to find more opportunities!",
+    "clearFilters": "Clear all filters",
+    "jobCount": "jobs"
+}

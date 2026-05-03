@@ -1,0 +1,11 @@
+{
+    "worker": "Worker",
+    "owner": "Owner",
+    "selectRole": "Select your role",
+    "workerDesc": "Find part-time jobs at Japanese/Korean restaurants",
+    "ownerDesc": "Hire part-time staff for your restaurant",
+    "selectedToast": "Role selected:",
+    "loginRequired": "Please login first",
+    "dbError": "Database error",
+    "error": "Error selecting role"
+}

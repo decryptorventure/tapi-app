@@ -1,0 +1,17 @@
+{
+    "title": "Introduction Video",
+    "description": "Impress employers with a short 30-60 second video",
+    "uploadTitle": "Upload your video",
+    "uploadHelper": "Drag and drop or click to select a video file. Supports MP4, MOV, WebM. Max 50MB.",
+    "tipsTitle": "Video tips:",
+    "tip1": "Smile and give a friendly greeting",
+    "tip2": "Introduce your name and work experience (if any)",
+    "tip3": "Talk about your language proficiency",
+    "tip4": "Ensure good lighting and clear audio",
+    "skipStep": "Skip this step",
+    "tooLarge": "Video is too large. Limit is 50MB.",
+    "invalidType": "Please select a video file.",
+    "success": "Video uploaded successfully!",
+    "error": "Error uploading video",
+    "submitting": "Uploading..."
+}

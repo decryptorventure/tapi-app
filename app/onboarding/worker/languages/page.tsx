@@ -1,8 +1,9 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ImageUpload } from '@/components/shared/image-upload';
 import { toast } from 'sonner';
@@ -57,11 +58,40 @@ const levelsByLanguage: Record<LanguageType, { value: LanguageLevel; label: stri
 };
 
 export default function WorkerLanguagesPage() {
+    const { t } = useTranslation();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const [languageSkills, setLanguageSkills] = useState<LanguageSkill[]>([
+    const [languageSkills, setLanguageSkills] = useState<(LanguageSkill & { existingUrl?: string })[]>([
         { language: 'japanese', level: 'n5', certificateFile: null }
     ]);
+
+    useEffect(() => {
+        checkExistingLanguages();
+    }, []);
+
+    const checkExistingLanguages = async () => {
+        const supabase = createClient();
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            const { data: skills } = await supabase
+                .from('language_skills')
+                .select('*')
+                .eq('user_id', user.id);
+
+            if (skills && skills.length > 0) {
+                setLanguageSkills(skills.map(s => ({
+                    language: s.language as LanguageType,
+                    level: s.level as LanguageLevel,
+                    certificateFile: null,
+                    existingUrl: s.certificate_url || undefined
+                })));
+            }
+        } catch (error) {
+            console.error('Languages check error:', error);
+        }
+    };
 
     const addLanguage = () => {
         if (languageSkills.length >= 3) {
@@ -109,7 +139,7 @@ export default function WorkerLanguagesPage() {
         e.preventDefault();
         setLoading(true);
 
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { data: { user } } = await supabase.auth.getUser();
@@ -160,7 +190,7 @@ export default function WorkerLanguagesPage() {
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-semibold text-foreground">Bước 2/4</span>
-                        <span className="text-sm text-muted-foreground">Kỹ năng ngôn ngữ</span>
+                        <span className="text-sm text-muted-foreground">{t('onboarding.worker_langSkills')}</span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                         <div className="h-full bg-primary w-1/2 transition-all duration-300"></div>
@@ -253,9 +283,15 @@ export default function WorkerLanguagesPage() {
                                     </label>
                                     <ImageUpload
                                         label=""
-                                        helperText="Upload ảnh/PDF chứng chỉ để được xác minh nhanh hơn"
+                                        helperText={t('onboarding.worker_uploadCertHint')}
                                         onFileSelect={(file) => updateLanguage(index, 'certificateFile', file)}
-                                        onFileRemove={() => updateLanguage(index, 'certificateFile', null)}
+                                        onFileRemove={() => {
+                                            updateLanguage(index, 'certificateFile', null);
+                                            const updated = [...languageSkills];
+                                            updated[index].existingUrl = undefined;
+                                            setLanguageSkills(updated);
+                                        }}
+                                        existingUrl={skill.existingUrl}
                                         accept="image/*,.pdf"
                                         maxSize={10}
                                     />
@@ -278,7 +314,7 @@ export default function WorkerLanguagesPage() {
                     <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-start gap-3">
                         <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                         <p className="text-sm text-foreground">
-                            <strong>Mẹo:</strong> Upload chứng chỉ để được xác minh và tăng độ tin cậy của bạn lên đến 100%
+                            <strong>{t('onboarding.worker_tip')}</strong> Upload chứng chỉ để được xác minh và tăng độ tin cậy của bạn lên đến 100%
                         </p>
                     </div>
 

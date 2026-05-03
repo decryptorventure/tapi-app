@@ -1,0 +1,9 @@
+{
+    "scanQr": "QRをスキャン",
+    "showQr": "QRを表示",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "checkedIn": "Check-in完了",
+    "shiftStartsIn": "シフト開始まで",
+    "scanInstructions": "カメラをWorkerのQRコードに向けてください"
+}

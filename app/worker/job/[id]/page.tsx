@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -20,7 +20,10 @@ import {
     Star,
     Users,
     Sparkles,
-    CheckCircle2
+    CheckCircle2,
+    Phone,
+    AlertCircle,
+    XCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi, enUS } from 'date-fns/locale';
@@ -29,8 +32,7 @@ import { cn } from '@/lib/utils';
 import { useJobQualification, useApplyToJob } from '@/hooks/use-job-matching';
 import { useAuth } from '@/hooks/use-auth';
 import { ImageCarousel } from '@/components/ui/image-carousel';
-import { ChatWindow } from '@/components/chat/chat-window';
-import { MessageCircle } from 'lucide-react';
+
 
 interface Job {
     id: string;
@@ -46,6 +48,7 @@ interface Job {
     min_reliability_score: number;
     max_workers: number;
     current_workers: number;
+    status: string;
     thumbnail_url?: string;
     owner: {
         restaurant_name: string;
@@ -53,6 +56,7 @@ interface Job {
         avatar_url: string;
         restaurant_logo_url?: string;
         restaurant_cover_urls?: string[];
+        phone_number?: string;
     };
 }
 
@@ -67,38 +71,31 @@ export default function JobDetailPage() {
 
     const [loading, setLoading] = useState(true);
     const [job, setJob] = useState<Job | null>(null);
-    const [isChatOpen, setIsChatOpen] = useState(false);
 
     const { data: qualification } = useJobQualification(jobId, user?.id || null);
     const applyMutation = useApplyToJob();
 
     const isInstantBook = qualification?.qualification.qualifiesForInstantBook;
 
-    // Check if chat should be auto-opened from URL params (e.g., from notification)
-    useEffect(() => {
-        const chatParam = searchParams.get('chat');
-        if (chatParam === 'open' && qualification?.hasApplied) {
-            setIsChatOpen(true);
-        }
-    }, [searchParams, qualification?.hasApplied]);
 
     useEffect(() => {
         fetchJob();
     }, [jobId]);
 
     const fetchJob = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         try {
             const { data, error } = await supabase
                 .from('jobs')
                 .select(`
                     *,
-                    owner:profiles!owner_id(restaurant_name, restaurant_address, avatar_url, restaurant_logo_url, restaurant_cover_urls)
+                    owner:profiles!owner_id(restaurant_name, restaurant_address, avatar_url, restaurant_logo_url, restaurant_cover_urls, phone_number)
                 `)
                 .eq('id', jobId)
                 .single();
 
             if (error) throw error;
+            // @ts-expect-error - Expected due to missing null checks or db strict types
             setJob(data as Job);
         } catch (error: any) {
             console.error('Fetch error:', error);
@@ -161,6 +158,15 @@ export default function JobDetailPage() {
             </div>
 
             <div className="container mx-auto px-4 py-6 max-w-2xl space-y-6">
+                {/* Expired Job Warning */}
+                {job.status === 'expired' && (
+                    <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3 text-destructive">
+                        <AlertCircle className="w-5 h-5" />
+                        <div className="text-sm font-bold">
+                            Công việc này đã hết hạn đăng ký hoặc đã qua thời gian làm việc.
+                        </div>
+                    </div>
+                )}
                 {/* Restaurant Images Carousel */}
                 {(job.thumbnail_url || (job.owner?.restaurant_cover_urls && job.owner.restaurant_cover_urls.length > 0)) && (
                     <div className="relative rounded-2xl overflow-hidden aspect-video bg-muted shadow-md">
@@ -314,6 +320,15 @@ export default function JobDetailPage() {
                         <div>
                             <h4 className="font-bold text-foreground">{job.owner?.restaurant_name}</h4>
                             <p className="text-xs text-muted-foreground">{t('jobs.trustedPartner')}</p>
+                            {job.owner?.phone_number && (
+                                <a
+                                    href={`tel:${job.owner.phone_number}`}
+                                    className="flex items-center gap-1 text-xs text-primary mt-1 hover:underline"
+                                >
+                                    <Phone className="w-3 h-3" />
+                                    {job.owner.phone_number}
+                                </a>
+                            )}
                         </div>
                     </div>
                     <ShieldCheck className="w-6 h-6 text-primary" />
@@ -323,39 +338,42 @@ export default function JobDetailPage() {
             {/* Floating Action Button */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-card border-t border-border shadow-lg space-y-3">
                 <div className="max-w-2xl mx-auto flex gap-3">
-                    {/* Chat Button - Only show if applied */}
-                    {qualification?.hasApplied && qualification.applicationId && (
-                        <Button
-                            variant="outline"
-                            className="flex-1 py-6 rounded-xl border-2 hover:bg-muted/50"
-                            onClick={() => setIsChatOpen(true)}
-                        >
-                            <MessageCircle className="w-5 h-5 mr-2" />
-                            Nhắn tin
-                        </Button>
-                    )}
-
                     <Button
                         onClick={handleApply}
-                        disabled={applyMutation.isPending || qualification?.hasApplied}
+                        disabled={
+                            applyMutation.isPending || 
+                            qualification?.hasApplied || 
+                            job.status === 'expired' || 
+                            (job.status === 'filled' && !qualification?.hasApplied)
+                        }
                         className={cn(
                             "font-bold py-6 rounded-xl flex items-center justify-center gap-2",
-                            qualification?.hasApplied
-                                ? "flex-1 cursor-default opacity-100" // Keep full width if applied but adapt style
+                            qualification?.hasApplied || job.status === 'expired' || (job.status === 'filled' && !qualification?.hasApplied)
+                                ? "flex-1 cursor-default opacity-100" 
                                 : "w-full",
                             qualification?.hasApplied
                                 ? "bg-muted text-muted-foreground hover:bg-muted"
-                                : isInstantBook
-                                    ? "bg-success hover:bg-success/90 text-white"
-                                    // If chat button shown, this button shares width? No, handleApply is disabled/status.
-                                    // If applied, handleApply button shows status. We want Chat button + Status button side by side.
-                                    : "bg-cta hover:bg-cta/90 text-white"
+                                : (job.status === 'expired' || (job.status === 'filled' && !qualification?.hasApplied))
+                                    ? "bg-slate-200 text-slate-500 hover:bg-slate-200 border-none"
+                                    : isInstantBook
+                                        ? "bg-success hover:bg-success/90 text-white"
+                                        : "bg-cta hover:bg-cta/90 text-white"
                         )}
                     >
                         {applyMutation.isPending ? (
                             <>
                                 <Loader2 className="w-5 h-5 animate-spin" />
                                 Đang xử lý...
+                            </>
+                        ) : job.status === 'expired' ? (
+                            <>
+                                <Clock className="w-5 h-5 opacity-50" />
+                                Đã hết hạn
+                            </>
+                        ) : (job.status === 'filled' && !qualification?.hasApplied) ? (
+                            <>
+                                <CheckCircle2 className="w-5 h-5 opacity-50" />
+                                Đã đủ người
                             </>
                         ) : qualification?.hasApplied ? (
                             qualification.applicationStatus === 'pending' ? (
@@ -383,17 +401,6 @@ export default function JobDetailPage() {
                 </div>
             </div>
 
-            {/* Chat Window */}
-            {qualification?.hasApplied && qualification.applicationId && user && (
-                <ChatWindow
-                    isOpen={isChatOpen}
-                    onClose={() => setIsChatOpen(false)}
-                    applicationId={qualification.applicationId}
-                    currentUserId={user.id}
-                    recipientName={job?.owner?.restaurant_name || 'Nhà hàng'}
-                    recipientAvatar={job?.owner?.restaurant_logo_url}
-                />
-            )}
         </div>
     );
 }

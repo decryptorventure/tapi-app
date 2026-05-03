@@ -1,0 +1,31 @@
+{
+    "createJob": "求人を掲載",
+    "jobTitle": "求人タイトル",
+    "jobTitlePlaceholder": "例: 寿司レストランのホールスタッフ...",
+    "description": "仕事内容説明 (任意)",
+    "descriptionPlaceholder": "詳細な仕事の要件などを入力...",
+    "thumbnail": "サムネイル画像 (任意)",
+    "thumbnailHelper": "レストランや職場の写真をアップロード",
+    "uploading": "画像をアップロード中...",
+    "timeAndSalary": "時間と給与",
+    "date": "勤務日",
+    "startTime": "開始時間",
+    "endTime": "終了時間",
+    "hourlyRate": "時給 (VND)",
+    "hourlyRatePlaceholder": "例: 30000",
+    "requirements": "応募要件",
+    "language": "必須言語",
+    "targetLevel": "必須レベル",
+    "reliabilityScore": "最低限の信頼性スコア",
+    "reliabilityHelper": "応募者はこのスコアに達する必要があります",
+    "hiringStats": "採用情報",
+    "maxWorkers": "募集人数",
+    "maxWorkersPlaceholder": "例: 2",
+    "dressCode": "服装・髪型 (任意)",
+    "dressCodePlaceholder": "例: 暗い色のシャツ、黒いズボン...",
+    "validation": {
+        "missingLanguage": "必須言語を選択してください",
+        "successJob": "求人を掲載しました！",
+        "errorJob": "求人掲載エラー"
+    }
+}

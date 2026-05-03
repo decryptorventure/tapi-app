@@ -7,9 +7,10 @@ import Image from 'next/image';
 import { LayoutDashboard, Briefcase, QrCode, Settings, LogOut, Plus, Store } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { NotificationBell } from '@/components/notifications/notification-bell';
+import { LanguageSwitcher } from '@/components/shared/language-switcher';
 
 export function OwnerNav() {
     const pathname = usePathname();
@@ -18,7 +19,7 @@ export function OwnerNav() {
 
     useEffect(() => {
         const fetchProfile = async () => {
-            const supabase = createUntypedClient();
+            const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 const { data } = await supabase
@@ -33,9 +34,17 @@ export function OwnerNav() {
     }, []);
 
     const handleLogout = async () => {
-        const supabase = createUntypedClient();
-        await supabase.auth.signOut();
-        router.push('/login');
+        try {
+            console.log('Logging out...');
+            const supabase = createClient();
+            await supabase.auth.signOut();
+            // Use window.location for a harder reset to clear all client states/cookies
+            window.location.href = '/login';
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Fallback: even if signOut fails, redirect to login
+            window.location.href = '/login';
+        }
     };
 
     const navItems = [
@@ -122,6 +131,7 @@ export function OwnerNav() {
                         </span>
                     </Link>
                     <div className="flex gap-2 items-center">
+                        <LanguageSwitcher />
                         <NotificationBell />
                         <Link href="/owner/jobs/new">
                             <Button size="sm" variant="outline" className="h-8 w-8 p-0 rounded-full border-dashed border-orange-300">
@@ -134,6 +144,7 @@ export function OwnerNav() {
 
                 <div className="hidden md:flex flex-1 items-center justify-between space-x-2 md:justify-end">
                     <div className="w-full flex-1 md:w-auto md:flex-none flex justify-end gap-2">
+                        <LanguageSwitcher />
                         <NotificationBell />
                     </div>
                     <Button

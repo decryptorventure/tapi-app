@@ -1,7 +1,8 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState, useEffect } from 'react';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import {
     Users,
     Briefcase,
@@ -25,13 +26,14 @@ interface Metrics {
 }
 
 export default function MonitoringDashboard() {
+    const { t } = useTranslation();
     const [metrics, setMetrics] = useState<Metrics | null>(null);
     const [loading, setLoading] = useState(true);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
     const fetchMetrics = async () => {
         setLoading(true);
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             // Active workers (registered, not frozen)
@@ -206,23 +208,23 @@ export default function MonitoringDashboard() {
                 {/* Metrics Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <MetricCard
-                        title="Workers hoạt động"
+                        title={t('admin.monitoring_activeWorkers')}
                         value={metrics?.activeWorkers || 0}
                         icon={Users}
                         target={100}
                     />
                     <MetricCard
-                        title="Jobs đang mở"
+                        title={t('admin.monitoring_openJobs')}
                         value={metrics?.activeJobs || 0}
                         icon={Briefcase}
                     />
                     <MetricCard
-                        title="Đơn ứng tuyển (7 ngày)"
+                        title={t('admin.monitoring_apps7Days')}
                         value={metrics?.totalApplications || 0}
                         icon={Clock}
                     />
                     <MetricCard
-                        title="Điểm reliability TB"
+                        title={t('admin.monitoring_avgReliability')}
                         value={metrics?.avgReliabilityScore || 0}
                         icon={TrendingUp}
                     />
@@ -230,7 +232,7 @@ export default function MonitoringDashboard() {
 
                 {/* Key Performance Indicators */}
                 <div className="bg-card border border-border rounded-xl p-6 mb-8">
-                    <h2 className="text-xl font-semibold mb-6">Chỉ số quan trọng</h2>
+                    <h2 className="text-xl font-semibold mb-6">{t('admin.monitoring_keyMetrics')}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <MetricCard
                             title="Instant Book Rate"
@@ -242,7 +244,7 @@ export default function MonitoringDashboard() {
                             isGood={(v) => v >= 50}
                         />
                         <MetricCard
-                            title="Check-in thành công"
+                            title={t('admin.monitoring_successfulCheckins')}
                             value={metrics?.checkInSuccessRate || 0}
                             suffix="%"
                             icon={CheckCircle2}
@@ -251,7 +253,7 @@ export default function MonitoringDashboard() {
                             isGood={(v) => v >= 80}
                         />
                         <MetricCard
-                            title="Tỷ lệ No-show"
+                            title={t('admin.monitoring_noshowRate')}
                             value={metrics?.noShowRate || 0}
                             suffix="%"
                             icon={XCircle}
@@ -272,7 +274,7 @@ export default function MonitoringDashboard() {
 
                 {/* Alert Thresholds Legend */}
                 <div className="bg-muted/50 rounded-lg p-4">
-                    <h3 className="font-medium mb-2">Ngưỡng cảnh báo</h3>
+                    <h3 className="font-medium mb-2">{t('admin.monitoring_alertThresholds')}</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-muted-foreground">
                         <div>Instant Book: &lt;50% → Cảnh báo</div>
                         <div>Check-in: &lt;80% → Cảnh báo</div>

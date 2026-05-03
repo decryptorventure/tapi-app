@@ -1,0 +1,10 @@
+{
+    "instantBookSuccess": "You are eligible to Instant Book!",
+    "requestBookRequired": "Need to send a request to the Owner",
+    "missingLanguage": "You don't have the required language skill",
+    "lowLanguageLevel": "Your language level does not meet the requirement",
+    "lowReliability": "Your reliability score does not meet the requirement",
+    "accountFrozen": "Your account is temporarily frozen",
+    "notVerified": "You need to complete identity verification (upload intro video)",
+    "needImprovement": "You need to improve:"
+}

@@ -1,4 +1,4 @@
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { evaluateWorkerQualification, getQualificationFeedback } from '@/lib/job-matching';
 import { Job, JobApplication, Profile } from '@/types/database.types';
 
@@ -21,7 +21,7 @@ export async function applyToJob(
   jobId: string,
   workerId: string
 ): Promise<ApplyToJobResult> {
-  const supabase = createUntypedClient();
+  const supabase = createClient();
 
   try {
     // 1. Fetch job details
@@ -217,7 +217,7 @@ export async function getWorkerQualificationForJob(
   applicationStatus?: string;
   applicationId?: string;
 }> {
-  const supabase = createUntypedClient();
+  const supabase = createClient();
 
   // Check if already applied
   const { data: existingApps } = await supabase
@@ -294,7 +294,7 @@ export async function approveApplication(
   applicationId: string,
   ownerId: string
 ): Promise<{ success: boolean; message: string }> {
-  const supabase = createUntypedClient();
+  const supabase = createClient();
 
   // Verify owner owns the job
   const { data: apps } = await supabase

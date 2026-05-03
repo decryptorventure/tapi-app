@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { QRCodeService } from '@/lib/services/qr-code.service';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -34,10 +34,9 @@ export default function OwnerScanQRPage() {
     const [processing, setProcessing] = useState(false);
     const [result, setResult] = useState<CheckInResult | null>(null);
     const [cameraError, setCameraError] = useState<string | null>(null);
-    const videoRef = useRef<HTMLVideoElement>(null);
     const scannerRef = useRef<any>(null);
     const [lastScanTime, setLastScanTime] = useState<number>(0);
-    const SCAN_COOLDOWN_MS = 2000; // 2 second cooldown
+    const SCAN_COOLDOWN_MS = 2000;
 
     useEffect(() => {
         checkAuth();
@@ -47,7 +46,7 @@ export default function OwnerScanQRPage() {
     }, []);
 
     const checkAuth = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {
@@ -55,7 +54,6 @@ export default function OwnerScanQRPage() {
             return;
         }
 
-        // Check if owner
         const { data: profile } = await supabase
             .from('profiles')
             .select('role')
@@ -76,9 +74,7 @@ export default function OwnerScanQRPage() {
         setResult(null);
 
         try {
-            // Dynamic import for html5-qrcode
             const { Html5Qrcode } = await import('html5-qrcode');
-
             const scanner = new Html5Qrcode('qr-reader');
             scannerRef.current = scanner;
 
@@ -89,13 +85,10 @@ export default function OwnerScanQRPage() {
                     qrbox: { width: 250, height: 250 },
                 },
                 async (decodedText) => {
-                    // QR code successfully scanned
                     await handleQRCode(decodedText);
                     stopScanner();
                 },
-                (errorMessage) => {
-                    // Scanning error - usually just "not found", ignore
-                }
+                () => { }
             );
         } catch (error: any) {
             console.error('Camera error:', error);
@@ -110,14 +103,13 @@ export default function OwnerScanQRPage() {
                 await scannerRef.current.stop();
                 scannerRef.current = null;
             } catch (e) {
-                // Ignore stop errors
+                // Ignore
             }
         }
         setScanning(false);
     };
 
     const handleQRCode = async (qrText: string) => {
-        // Rate limiting
         const now = Date.now();
         if (now - lastScanTime < SCAN_COOLDOWN_MS) {
             toast.error('Vui lòng chờ 2 giây trước khi quét tiếp');
@@ -128,7 +120,7 @@ export default function OwnerScanQRPage() {
         setProcessing(true);
 
         try {
-            const supabase = createUntypedClient();
+            const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error('Not authenticated');
 
@@ -144,11 +136,8 @@ export default function OwnerScanQRPage() {
                 return;
             }
 
-            // Determine QR type and handle accordingly
-            // NEW FLOW: Owner's Job QR (version 2) - Worker should scan this, not owner
-            // LEGACY FLOW: Worker's personal QR - Owner scans to check-in worker
-            if (qrData.version === 2) {
-                // This is an Owner-generated Job QR - owner shouldn't scan their own QR
+            // NEW FLOW: Owner's Job QR - owner shouldn't scan their own QR
+            if (qrData.version === 2 || qrData.version === 3) {
                 setResult({
                     success: false,
                     message: 'Đây là mã QR của bạn. Worker cần quét mã này, không phải bạn.',
@@ -156,8 +145,8 @@ export default function OwnerScanQRPage() {
                 return;
             }
 
-            // Legacy QR: Worker-generated QR with application_id, worker_id, job_id
-            if (!qrData.application_id && !qrData.worker_id) {
+            // Legacy QR: Worker-generated QR
+            if (!qrData.application_id) {
                 setResult({
                     success: false,
                     message: 'Mã QR không chứa thông tin worker',
@@ -206,13 +195,12 @@ export default function OwnerScanQRPage() {
                 return;
             }
 
-            // Determine check-in or check-out based on application status
+            // Determine check-in or check-out
             let checkinType: 'checkin' | 'checkout';
 
             if (app.status === 'approved') {
                 checkinType = 'checkin';
             } else if (app.status === 'working') {
-                // Check if already checked out
                 const { data: existingCheckout } = await supabase
                     .from('checkins')
                     .select('id')
@@ -236,14 +224,13 @@ export default function OwnerScanQRPage() {
                 return;
             }
 
-            // Get worker name
             const { data: worker } = await supabase
                 .from('profiles')
                 .select('full_name')
                 .eq('id', app.worker_id)
                 .single();
 
-            // Record check-in/out using correct DB schema columns
+            // Record check-in/out
             const { error: checkinError } = await supabase
                 .from('checkins')
                 .insert({
@@ -258,19 +245,17 @@ export default function OwnerScanQRPage() {
                 console.error('Check-in error:', checkinError);
                 setResult({
                     success: false,
-                    message: 'Lỗi ghi nhận check-in: ' + checkinError.message,
+                    message: 'Lỗi ghi nhận: ' + checkinError.message,
                 });
                 return;
             }
 
-            // Update application status
             if (checkinType === 'checkin') {
                 await supabase
                     .from('job_applications')
                     .update({ status: 'working' })
                     .eq('id', app.id);
             }
-            // NOTE: On checkout, status remains 'working' until owner confirms via WorkConfirmationService
 
             setResult({
                 success: true,
@@ -307,15 +292,14 @@ export default function OwnerScanQRPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white">
-                <Loader2 className="h-8 w-8 animate-spin text-orange-600" />
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800">
-            {/* Header */}
+        <div className="min-h-screen bg-slate-900">
             <div className="bg-slate-800 border-b border-slate-700 sticky top-0 z-10">
                 <div className="container mx-auto px-4 py-4 max-w-lg">
                     <div className="flex items-center gap-4">
@@ -323,7 +307,7 @@ export default function OwnerScanQRPage() {
                             <ArrowLeft className="w-5 h-5 text-white" />
                         </Link>
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-purple-600 rounded-lg">
+                            <div className="p-2 bg-primary rounded-lg">
                                 <QrCode className="w-5 h-5 text-white" />
                             </div>
                             <h1 className="text-lg font-bold text-white">Quét QR Worker</h1>
@@ -333,11 +317,10 @@ export default function OwnerScanQRPage() {
             </div>
 
             <div className="container mx-auto px-4 py-6 max-w-lg">
-                {/* Result Display */}
                 {result && (
                     <div className={`mb-6 rounded-xl p-6 text-center ${result.success
-                        ? 'bg-green-500 text-white'
-                        : 'bg-red-500 text-white'
+                        ? 'bg-green-600 text-white'
+                        : 'bg-red-600 text-white'
                         }`}>
                         {result.success ? (
                             <>
@@ -373,7 +356,6 @@ export default function OwnerScanQRPage() {
                     </div>
                 )}
 
-                {/* Scanner Area */}
                 {!result && (
                     <>
                         <div className="bg-slate-700 rounded-xl overflow-hidden mb-6">
@@ -396,12 +378,11 @@ export default function OwnerScanQRPage() {
                             )}
                         </div>
 
-                        {/* Controls */}
                         <div className="space-y-4">
                             {!scanning ? (
                                 <Button
                                     onClick={startScanner}
-                                    className="w-full py-6 text-lg bg-purple-600 hover:bg-purple-700"
+                                    className="w-full py-6 text-lg"
                                     disabled={processing}
                                 >
                                     {processing ? (
@@ -415,7 +396,7 @@ export default function OwnerScanQRPage() {
                                 <Button
                                     onClick={stopScanner}
                                     variant="outline"
-                                    className="w-full py-6 text-lg border-slate-600 text-white hover:bg-slate-700"
+                                    className="w-full py-6 text-lg border-slate-600 text-white"
                                 >
                                     Dừng quét
                                 </Button>
@@ -424,7 +405,7 @@ export default function OwnerScanQRPage() {
                             <Button
                                 onClick={handleManualInput}
                                 variant="ghost"
-                                className="w-full text-slate-400 hover:text-white hover:bg-slate-700"
+                                className="w-full text-slate-400"
                             >
                                 Nhập mã thủ công
                             </Button>
@@ -432,14 +413,12 @@ export default function OwnerScanQRPage() {
                     </>
                 )}
 
-                {/* Instructions */}
                 <div className="mt-8 bg-slate-700/50 rounded-xl p-4">
                     <h4 className="font-medium text-white mb-3">📋 Hướng dẫn</h4>
                     <ul className="text-sm text-slate-300 space-y-2">
                         <li>1. Yêu cầu nhân viên xuất trình mã QR trên app</li>
                         <li>2. Nhấn &quot;Bắt đầu quét&quot; và hướng camera vào mã QR</li>
                         <li>3. Hệ thống sẽ tự động ghi nhận check-in/check-out</li>
-                        <li>4. Hoặc vào Quản lý QR để in mã QR cho worker quét</li>
                     </ul>
                 </div>
             </div>

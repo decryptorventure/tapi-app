@@ -1,0 +1,25 @@
+{
+    "japanese": {
+        "n5": "JLPT N5 - Sơ cấp",
+        "n4": "JLPT N4 - Sơ trung",
+        "n3": "JLPT N3 - Trung cấp",
+        "n2": "JLPT N2 - Trung cao",
+        "n1": "JLPT N1 - Cao cấp"
+    },
+    "korean": {
+        "topik_1": "TOPIK 1",
+        "topik_2": "TOPIK 2",
+        "topik_3": "TOPIK 3",
+        "topik_4": "TOPIK 4",
+        "topik_5": "TOPIK 5",
+        "topik_6": "TOPIK 6"
+    },
+    "english": {
+        "a1": "CEFR A1 - Beginner",
+        "a2": "CEFR A2 - Elementary",
+        "b1": "CEFR B1 - Intermediate",
+        "b2": "CEFR B2 - Upper Intermediate",
+        "c1": "CEFR C1 - Advanced",
+        "c2": "CEFR C2 - Proficiency"
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "worker": "Worker",
+    "owner": "Owner",
+    "selectRole": "役割を選択してください",
+    "workerDesc": "日系・韓国系飲食店でのアルバイトを探す",
+    "ownerDesc": "飲食店のアルバイトスタッフを採用する",
+    "selectedToast": "役割が選択されました：",
+    "loginRequired": "先にログインしてください",
+    "dbError": "データベースエラー",
+    "error": "役割の選択エラー"
+}

@@ -1,0 +1,19 @@
+{
+    "title": "Xác thực danh tính",
+    "description": "Đảm bảo an toàn cho cả worker và owner",
+    "whyTitle": "Tại sao cần xác thực?",
+    "whyReason1": "Tăng độ tin cậy với nhà tuyển dụng",
+    "whyReason2": "Bảo vệ quyền lợi của bạn",
+    "whyReason3": "Cần thiết để ứng tuyển công việc (80% profile)",
+    "frontLabel": "Mặt trước CMND/CCCD",
+    "backLabel": "Mặt sau CMND/CCCD",
+    "helperText": "Ảnh rõ ràng, không bị mờ hoặc che khuất",
+    "idNumber": "Số CMND/CCCD (tùy chọn)",
+    "issueDate": "Ngày cấp (tùy chọn)",
+    "privacyNotice": "Bảo mật: Thông tin của bạn được mã hóa và bảo mật tuyệt đối. Chỉ admin xác minh mới có thể xem để xác nhận danh tính.",
+    "submit": "Gửi xác thực",
+    "submitting": "Đang tải lên...",
+    "success": "Đã gửi xác thực! Chúng tôi sẽ xem xét trong 24h",
+    "footerNote": "Sau khi gửi, bạn có thể xem danh sách việc làm và ứng tuyển khi hồ sơ đạt 80%",
+    "missingImages": "Vui lòng tải lên cả 2 mặt CMND/CCCD"
+}

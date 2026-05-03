@@ -1,7 +1,8 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState } from 'react';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -9,6 +10,7 @@ import { Loader2, Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
 
 export default function ForgotPasswordPage() {
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [sent, setSent] = useState(false);
     const [email, setEmail] = useState('');
@@ -17,7 +19,7 @@ export default function ForgotPasswordPage() {
         e.preventDefault();
         setLoading(true);
 
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -46,9 +48,7 @@ export default function ForgotPasswordPage() {
             <div className="w-full max-w-md">
                 {/* Back Link */}
                 <Link href="/login" className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-6">
-                    <ArrowLeft className="w-4 h-4" />
-                    Quay lại đăng nhập
-                </Link>
+                    <ArrowLeft className="w-4 h-4" />{t('auth.forgotPassword_backToLogin', { defaultValue: 'Quay lại đăng nhập' })}</Link>
 
                 {!sent ? (
                     <>
@@ -57,20 +57,16 @@ export default function ForgotPasswordPage() {
                             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
                                 <Mail className="w-8 h-8 text-blue-600" />
                             </div>
-                            <h1 className="text-3xl font-bold text-slate-900 mb-2">
-                                Quên mật khẩu?
-                            </h1>
+                            <h1 className="text-3xl font-bold text-slate-900 mb-2">{t('auth.forgotPassword_forgotPasswordTitle', { defaultValue: 'Quên mật khẩu?' })}</h1>
                             <p className="text-slate-600">
-                                Nhập email của bạn để nhận link đặt lại mật khẩu
+                                {t('auth.forgotPassword_enterEmailPrompt', { defaultValue: 'Nhập email của bạn để nhận link đặt lại mật khẩu' })}
                             </p>
                         </div>
 
                         {/* Form */}
                         <form onSubmit={handleSubmit} className="space-y-4 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
-                                    Email
-                                </label>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">{t('auth.email', { defaultValue: 'Email' })}</label>
                                 <input
                                     type="email"
                                     required
@@ -90,10 +86,10 @@ export default function ForgotPasswordPage() {
                                 {loading ? (
                                     <>
                                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                        Đang gửi...
+                                        {t('auth.forgotPassword_sending', { defaultValue: 'Đang gửi...' })}
                                     </>
                                 ) : (
-                                    'Gửi link đặt lại mật khẩu'
+                                    t('auth.forgotPassword_sendResetLink')
                                 )}
                             </Button>
                         </form>
@@ -104,25 +100,19 @@ export default function ForgotPasswordPage() {
                         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
                             <CheckCircle2 className="w-8 h-8 text-green-600" />
                         </div>
-                        <h2 className="text-2xl font-bold text-slate-900 mb-2">
-                            Email đã được gửi!
-                        </h2>
+                        <h2 className="text-2xl font-bold text-slate-900 mb-2">{t('auth.forgotPassword_emailSent', { defaultValue: 'Email đã được gửi!' })}</h2>
                         <p className="text-slate-600 mb-6">
-                            Vui lòng kiểm tra hộp thư <strong>{email}</strong> để đặt lại mật khẩu.
-                            Link sẽ hết hạn sau 1 giờ.
+                            {t('auth.forgotPassword_checkInbox', { defaultValue: 'Vui lòng kiểm tra hộp thư' })} <strong>{email}</strong> {t('auth.forgotPassword_toResetPassword', { defaultValue: 'để đặt lại mật khẩu.' })}
+                            {t('auth.forgotPassword_linkExpires1Hour', { defaultValue: 'Link sẽ hết hạn sau 1 giờ.' })}
                         </p>
                         <div className="space-y-3">
                             <Button
                                 variant="outline"
                                 className="w-full"
                                 onClick={() => setSent(false)}
-                            >
-                                Gửi lại email
-                            </Button>
+                            >{t('auth.forgotPassword_resendEmail', { defaultValue: 'Gửi lại email' })}</Button>
                             <Link href="/login" className="block">
-                                <Button variant="ghost" className="w-full">
-                                    Quay lại đăng nhập
-                                </Button>
+                                <Button variant="ghost" className="w-full">{t('auth.forgotPassword_backToLogin', { defaultValue: 'Quay lại đăng nhập' })}</Button>
                             </Link>
                         </div>
                     </div>
@@ -130,10 +120,8 @@ export default function ForgotPasswordPage() {
 
                 {/* Help text */}
                 <p className="text-center text-sm text-slate-500 mt-6">
-                    Không nhận được email? Kiểm tra thư mục spam hoặc{' '}
-                    <a href="mailto:support@tapi.vn" className="text-blue-600 hover:underline">
-                        liên hệ hỗ trợ
-                    </a>
+                    {t('auth.didntReceiveEmail', { defaultValue: 'Không nhận được email? Kiểm tra thư mục spam hoặc' })}{' '}
+                    <a href="mailto:support@tapi.vn" className="text-blue-600 hover:underline">{t('auth.contactSupport', { defaultValue: 'liên hệ hỗ trợ' })}</a>
                 </p>
             </div>
         </div>

@@ -1,0 +1,21 @@
+{
+    "completeProfile": "プロフィールを完成させる",
+    "completeProfileDesc": "プロフィールを完成させると、より多くの求人機会を得られます",
+    "completion": "完了",
+    "addAvatar": "プロフィール写真を追",
+    "addPhone": "電話番号を追加",
+    "addBio": "自己紹介を追加",
+    "verifyIdentity": "本人確認",
+    "addLanguage": "語学スキルを追加",
+    "addExperience": "職歴を追加",
+    "publicProfile": "公開プロフィールを見る",
+    "shareProfile": "このリンクを採用担当者に共有する",
+    "workExperience": "職務経歴",
+    "add": "追加",
+    "present": "現在",
+    "noExperience": "職務経歴がありません",
+    "errorSaveExp": "経歴の保存に失敗しました",
+    "successSaveExp": "経歴を追加しました",
+    "errorDelExp": "経歴の削除に失敗しました",
+    "successDelExp": "経歴を削除しました"
+}

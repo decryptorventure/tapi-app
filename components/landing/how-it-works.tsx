@@ -42,7 +42,7 @@ const steps: Step[] = [
 ];
 
 export function HowItWorks() {
-    const { locale } = useTranslation();
+    const { t, locale } = useTranslation();
 
     return (
         <section className="py-24 bg-card relative overflow-hidden">
@@ -112,7 +112,7 @@ export function HowItWorks() {
                 <div className="text-center mt-16">
                     <Link href="/signup">
                         <Button size="lg" variant="cta" className="text-base font-bold px-8 py-6 shadow-xl shadow-cta/30 group">
-                            {locale === 'vi' ? 'Bắt đầu miễn phí' : 'Start Free'}
+                            {t('landing.startFree')}
                             <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                         </Button>
                     </Link>

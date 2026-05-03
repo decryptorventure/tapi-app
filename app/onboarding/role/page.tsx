@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { RolePicker } from '@/components/auth/role-picker';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
@@ -18,7 +18,7 @@ export default function RoleSelectionPage() {
   // Check authentication on mount
   useEffect(() => {
     const checkAuth = async () => {
-      const supabase = createUntypedClient();
+      const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
@@ -69,7 +69,7 @@ export default function RoleSelectionPage() {
     }
 
     setLoading(true);
-    const supabase = createUntypedClient();
+    const supabase = createClient();
 
     try {
       const { data: { user } } = await supabase.auth.getUser();

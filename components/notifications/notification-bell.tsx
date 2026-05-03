@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Notification, NotificationService } from '@/lib/services/notification.service';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -28,16 +28,20 @@ export function NotificationBell() {
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
 
+    // Use a ref to track the active channel and prevent multiple subscriptions
+    // especially in React Strict Mode or during frequent re-renders
     useEffect(() => {
         if (!user?.id) return;
 
         // Initial fetch
         fetchNotifications();
 
-        // Realtime subscription
-        const supabase = createUntypedClient();
+        const supabase = createClient();
+        const uniqueId = Math.random().toString(36).substring(7);
+        const channelName = `notifications_${user.id}_${uniqueId}`;
+        
         const channel = supabase
-            .channel('notifications_channel')
+            .channel(channelName)
             .on(
                 'postgres_changes',
                 {
@@ -61,7 +65,9 @@ export function NotificationBell() {
             .subscribe();
 
         return () => {
-            supabase.removeChannel(channel);
+            if (channel) {
+                supabase.removeChannel(channel);
+            }
         };
     }, [user?.id]);
 
@@ -99,7 +105,7 @@ export function NotificationBell() {
         if (notification.type === 'chat_message' && notification.related_id) {
             // related_id contains application_id, need to fetch job_id
             try {
-                const supabase = createUntypedClient();
+                const supabase = createClient();
                 const { data: application } = await supabase
                     .from('job_applications')
                     .select('job_id')
@@ -116,7 +122,7 @@ export function NotificationBell() {
         } else if (notification.type === 'application_update' && notification.related_id) {
             // Navigate to job page
             try {
-                const supabase = createUntypedClient();
+                const supabase = createClient();
                 const { data: application } = await supabase
                     .from('job_applications')
                     .select('job_id')

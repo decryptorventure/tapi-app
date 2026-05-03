@@ -1,0 +1,13 @@
+{
+    "title": "私の仕事",
+    "desc": "応募した仕事を管理します",
+    "upcoming": "予定あり",
+    "pending": "承認待ち",
+    "completed": "完了",
+    "noUpcoming": "予定されている仕事はありません",
+    "noUpcomingDesc": "承認された仕事がここに表示されます",
+    "noPending": "承認待ちのリクエストはありません",
+    "noPendingDesc": "求人に応募して始めましょう",
+    "noCompleted": "まだ完了した仕事はありません",
+    "noCompletedDesc": "あなたの仕事の履歴がここに表示されます"
+}

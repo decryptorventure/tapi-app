@@ -1,8 +1,9 @@
 'use client';
+import { useTranslation } from '@/lib/i18n';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ImageUpload } from '@/components/shared/image-upload';
 import { toast } from 'sonner';
@@ -19,6 +20,7 @@ import Image from 'next/image';
 import { StorageService } from '@/lib/services/storage.service';
 
 export default function WorkerProfilePage() {
+    const { t } = useTranslation();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -35,7 +37,7 @@ export default function WorkerProfilePage() {
   }, []);
 
   const checkExistingProfile = async () => {
-    const supabase = createUntypedClient();
+    const supabase = createClient();
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -69,7 +71,7 @@ export default function WorkerProfilePage() {
     e.preventDefault();
     setLoading(true);
 
-    const supabase = createUntypedClient();
+    const supabase = createClient();
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -133,7 +135,7 @@ export default function WorkerProfilePage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-semibold text-foreground">Bước 1/4</span>
-            <span className="text-sm text-muted-foreground">Thông tin cá nhân</span>
+            <span className="text-sm text-muted-foreground">{t('onboarding.worker_personalInfo')}</span>
           </div>
           <div className="h-2 bg-muted rounded-full overflow-hidden">
             <div className="h-full bg-primary w-1/4 transition-all duration-300"></div>
@@ -174,12 +176,13 @@ export default function WorkerProfilePage() {
               <div className="flex-1">
                 <ImageUpload
                   label=""
-                  helperText="Ảnh rõ mặt, kích thước tối đa 5MB"
+                  helperText={t('onboarding.worker_avatarHints')}
                   onFileSelect={handleAvatarSelect}
                   onFileRemove={() => {
                     setAvatarFile(null);
                     setAvatarPreview(null);
                   }}
+                  existingUrl={avatarPreview || undefined}
                   accept="image/*"
                   maxSize={5}
                 />
@@ -239,14 +242,14 @@ export default function WorkerProfilePage() {
                 onChange={(e) => setFormData({ ...formData, universityName: e.target.value })}
                 className="w-full pl-11 pr-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground appearance-none"
               >
-                <option value="">Chọn trường</option>
+                <option value="">{t('onboarding.worker_selectUniversity')}</option>
                 <option value="VNU-HCM">Đại học Quốc gia TP.HCM</option>
                 <option value="HCMUT">Đại học Bách Khoa</option>
                 <option value="UEH">Đại học Kinh tế TP.HCM</option>
                 <option value="HUFLIT">Đại học Ngoại ngữ - Tin học</option>
                 <option value="RMIT">RMIT Vietnam</option>
                 <option value="FTU">Đại học Ngoại thương</option>
-                <option value="Other">Trường khác</option>
+                <option value="Other">{t('onboarding.worker_otherUniversity')}</option>
               </select>
             </div>
           </div>
@@ -263,7 +266,7 @@ export default function WorkerProfilePage() {
                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                 rows={4}
                 className="w-full pl-11 pr-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground resize-none"
-                placeholder="Chia sẻ về kinh nghiệm, sở thích, điểm mạnh của bạn..."
+                placeholder={t('onboarding.worker_bioPlaceholder')}
               />
             </div>
           </div>

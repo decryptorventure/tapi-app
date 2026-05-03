@@ -1,0 +1,14 @@
+{
+    "approved": "Đã chấp nhận",
+    "pending": "Chờ duyệt",
+    "rejected": "Bị từ chối",
+    "completed": "Hoàn thành",
+    "cancelled": "Đã hủy",
+    "restaurant": "Nhà hàng",
+    "noAddress": "Địa chỉ chưa cập nhật",
+    "viewQr": "Xem QR Code",
+    "waitingOwner": "Đang chờ owner xác nhận",
+    "viewDetails": "Xem chi tiết",
+    "viewOtherJobs": "Xem công việc khác",
+    "instantBook": "Instant Book"
+}

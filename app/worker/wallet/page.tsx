@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import {
     Loader2,
@@ -60,7 +60,7 @@ export default function WorkerWalletPage() {
     }, []);
 
     const fetchWalletData = async () => {
-        const supabase = createUntypedClient();
+        const supabase = createClient();
 
         try {
             const { data: { user } } = await supabase.auth.getUser();
@@ -93,7 +93,7 @@ export default function WorkerWalletPage() {
         e.preventDefault();
         setWithdrawLoading(true);
 
-        const supabase = createUntypedClient();
+        const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {

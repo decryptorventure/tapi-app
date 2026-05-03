@@ -1,0 +1,21 @@
+{
+    "jobs": "求人",
+    "filter": "絞り込み",
+    "searchPlaceholder": "職種または飲食店名で検索...",
+    "language": "言語",
+    "all": "すべて",
+    "japanese": "日本語",
+    "korean": "韓国語",
+    "english": "英語",
+    "sortBy": "並び替え",
+    "sortNewest": "投稿日（新しい順）",
+    "sortHighestPay": "給与（高い順）",
+    "sortSoonest": "勤務日（近い順）",
+    "minWage": "最低賃金",
+    "results": "検索結果",
+    "suggestions": "あなたへのおすすめ",
+    "noResults": "マッチする求人が見つかりませんでした",
+    "noResultsDesc": "検索条件やフィルターを変更して、他の求人を検索してみてください！",
+    "clearFilters": "すべてのフィルターをクリア",
+    "jobCount": "件の求人"
+}

@@ -1,0 +1,6 @@
+{
+    "success": "Congratulations! Your profile is complete.",
+    "error": "Error completing profile",
+    "noIntro": "No introduction yet",
+    "noLanguages": "Language skills not updated yet"
+}
