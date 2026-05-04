@@ -118,8 +118,7 @@ export default function WorkerScanQRPage() {
             throw new Error('Dữ liệu QR thiếu thông tin nhà hàng');
         }
 
-        // Find worker's application for this owner
-        // Accept both 'approved' (for check-in) and 'working' (for check-out)
+        // Find ALL worker's applications for this owner (approved or working)
         const { data: applications, error: appError } = await supabase
             .from('job_applications')
             .select(`
@@ -140,30 +139,61 @@ export default function WorkerScanQRPage() {
             throw new Error('Bạn không có ca làm việc nào đang chờ tại nhà hàng này.');
         }
 
-        const application = applications[0];
-        const job = application.job as any;
+        // Step 1: Try to find a 'working' application that needs checkout
+        // (has checkin but no checkout yet)
+        let application: typeof applications[0] | null = null;
+        let checkinType: 'checkin' | 'checkout' = 'checkin';
 
-        // Determine check-in type based on application status
-        let checkinType: 'checkin' | 'checkout';
-
-        if (application.status === 'approved') {
-            checkinType = 'checkin';
-        } else {
-            // Check if already checked out
-            const { data: existingCheckout } = await supabase
+        const workingApps = applications.filter(a => a.status === 'working');
+        
+        for (const app of workingApps) {
+            // Check if this application has checkin but no checkout
+            const { data: checkinRecords } = await supabase
                 .from('checkins')
-                .select('id')
-                .eq('application_id', application.id)
-                .eq('type', 'checkout')
-                .limit(1);
+                .select('id, type')
+                .eq('application_id', app.id)
+                .in('type', ['checkin', 'checkout']);
 
-            if (existingCheckout && existingCheckout.length > 0) {
-                throw new Error('Bạn đã check-out ca làm việc này rồi');
+            const hasCheckin = checkinRecords?.some(r => r.type === 'checkin');
+            const hasCheckout = checkinRecords?.some(r => r.type === 'checkout');
+
+            if (hasCheckin && !hasCheckout) {
+                // This application needs checkout
+                application = app;
+                checkinType = 'checkout';
+                break;
             }
-            checkinType = 'checkout';
         }
 
-        // Record check-in/check-out using correct column names matching DB schema
+        // Step 2: If no checkout needed, find an 'approved' application for checkin
+        if (!application) {
+            const approvedApps = applications.filter(a => a.status === 'approved');
+            
+            for (const app of approvedApps) {
+                // Verify this application hasn't already been checked in
+                const { data: existingCheckin } = await supabase
+                    .from('checkins')
+                    .select('id')
+                    .eq('application_id', app.id)
+                    .eq('type', 'checkin')
+                    .limit(1);
+
+                if (!existingCheckin || existingCheckin.length === 0) {
+                    application = app;
+                    checkinType = 'checkin';
+                    break;
+                }
+            }
+        }
+
+        if (!application) {
+            // All applications either already checked out or already checked in
+            throw new Error('Không có ca làm việc nào cần check-in/check-out tại nhà hàng này.');
+        }
+
+        const job = application.job as any;
+
+        // Record check-in/check-out
         const { error: checkinError } = await supabase
             .from('checkins')
             .insert({
@@ -179,7 +209,7 @@ export default function WorkerScanQRPage() {
             throw new Error(`Lỗi ghi nhận ${checkinType === 'checkin' ? 'check-in' : 'check-out'}`);
         }
 
-        // Update application status
+        // Update application status on checkin
         if (checkinType === 'checkin') {
             await supabase
                 .from('job_applications')

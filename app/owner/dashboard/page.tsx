@@ -228,38 +228,51 @@ export default function OwnerDashboardPage() {
                     setTodayShifts(todayJobsData);
                 }
 
-                // Fetch workers on duty (checked-in today)
-                const { data: checkinsToday } = await supabase
-                    .from('checkins')
+                // Fetch workers on duty: applications with 'working' status for owner's jobs
+                const { data: workingApplications } = await supabase
+                    .from('job_applications')
                     .select(`
-                        id, type, checkin_time,
-                        application:job_applications(
-                            id, job_id,
-                            worker:profiles(id, full_name, avatar_url),
-                            job:jobs(id, title)
-                        )
+                        id, job_id, worker_id, status,
+                        worker:profiles!job_applications_worker_id_fkey(id, full_name, avatar_url),
+                        job:jobs!inner(id, title, owner_id)
                     `)
-                    .gte('checkin_time', `${today}T00:00:00`)
-                    .eq('type', 'checkin')
-                    .order('checkin_time', { ascending: false });
+                    .in('job_id', ids)
+                    .eq('status', 'working');
 
-                if (checkinsToday) {
-                    // Filter to only jobs owned by this user
-                    const ownerJobIds = new Set(ids);
-                    const filteredCheckins = checkinsToday.filter((c: any) =>
-                        c.application?.job_id && ownerJobIds.has(c.application.job_id)
-                    );
+                if (workingApplications && workingApplications.length > 0) {
+                    // Fetch all checkin records for these applications today
+                    const appIds = workingApplications.map(a => a.id);
+                    const { data: checkinRecords } = await supabase
+                        .from('checkins')
+                        .select('id, application_id, type, checkin_time')
+                        .in('application_id', appIds)
+                        .gte('checkin_time', `${today}T00:00:00`);
 
-                    const workersData = filteredCheckins.map((c: any) => ({
-                        id: c.id,
-                        worker_id: c.application?.worker?.id,
-                        worker_name: c.application?.worker?.full_name || 'Worker',
-                        worker_avatar: c.application?.worker?.avatar_url,
-                        job_title: c.application?.job?.title || 'Unknown',
-                        checkin_time: c.checkin_time,
-                    }));
+                    // Determine which applications are still on duty (checked in, not checked out)
+                    const workersData: any[] = [];
+                    for (const app of workingApplications) {
+                        const appRecords = checkinRecords?.filter(r => r.application_id === app.id) || [];
+                        const hasCheckin = appRecords.some(r => r.type === 'checkin');
+                        const hasCheckout = appRecords.some(r => r.type === 'checkout');
+                        const checkinRecord = appRecords.find(r => r.type === 'checkin');
+
+                        if (hasCheckin && !hasCheckout) {
+                            const worker = app.worker as any;
+                            const job = app.job as any;
+                            workersData.push({
+                                id: checkinRecord?.id || app.id,
+                                worker_id: worker?.id || app.worker_id,
+                                worker_name: worker?.full_name || 'Worker',
+                                worker_avatar: worker?.avatar_url,
+                                job_title: job?.title || 'Unknown',
+                                checkin_time: checkinRecord?.checkin_time,
+                            });
+                        }
+                    }
 
                     setWorkersOnDuty(workersData);
+                } else {
+                    setWorkersOnDuty([]);
                 }
             }
         } catch (error: any) {
@@ -274,16 +287,19 @@ export default function OwnerDashboardPage() {
         e.stopPropagation();
         const supabase = createClient();
         try {
-            const { error } = await supabase
-                .from('job_applications')
-                .update({ status: 'approved' })
-                .eq('id', applicationId);
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('Not authenticated');
 
-            if (error) throw error;
+            // Use proper approve service (generates QR code, sets approved_at)
+            const { approveApplication } = await import('@/lib/services/job-application.service');
+            const result = await approveApplication(applicationId, user.id);
+
+            if (!result.success) throw new Error(result.message);
+
             toast.success('Đã duyệt ứng viên');
             fetchDashboardData();
-        } catch (error) {
-            toast.error('Lỗi duyệt ứng viên');
+        } catch (error: any) {
+            toast.error(error.message || 'Lỗi duyệt ứng viên');
         }
     };
 
@@ -293,7 +309,10 @@ export default function OwnerDashboardPage() {
         try {
             const { error } = await supabase
                 .from('job_applications')
-                .update({ status: 'rejected' })
+                .update({
+                    status: 'rejected',
+                    rejected_at: new Date().toISOString()
+                })
                 .eq('id', applicationId);
 
             if (error) throw error;
