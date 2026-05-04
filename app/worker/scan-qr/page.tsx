@@ -118,7 +118,8 @@ export default function WorkerScanQRPage() {
             throw new Error('Dữ liệu QR thiếu thông tin nhà hàng');
         }
 
-        // Find ALL worker's applications for this owner (approved or working)
+        // Find ALL worker's applications for this owner
+        // Include 'rejected' to handle cases where cleanup incorrectly rejected working apps
         const { data: applications, error: appError } = await supabase
             .from('job_applications')
             .select(`
@@ -132,22 +133,21 @@ export default function WorkerScanQRPage() {
             `)
             .eq('worker_id', user.id)
             .eq('job.owner_id', ownerId)
-            .in('status', ['approved', 'working'])
+            .in('status', ['approved', 'working', 'rejected'])
             .order('created_at', { ascending: false });
 
         if (appError || !applications || applications.length === 0) {
             throw new Error('Bạn không có ca làm việc nào đang chờ tại nhà hàng này.');
         }
 
-        // Step 1: Try to find a 'working' application that needs checkout
-        // (has checkin but no checkout yet)
+        // Step 1: Try to find an application that needs checkout
+        // Check 'working' apps first, then 'rejected' apps with existing checkin (incorrectly rejected)
         let application: typeof applications[0] | null = null;
         let checkinType: 'checkin' | 'checkout' = 'checkin';
 
-        const workingApps = applications.filter(a => a.status === 'working');
+        const checkoutCandidates = applications.filter(a => a.status === 'working' || a.status === 'rejected');
         
-        for (const app of workingApps) {
-            // Check if this application has checkin but no checkout
+        for (const app of checkoutCandidates) {
             const { data: checkinRecords } = await supabase
                 .from('checkins')
                 .select('id, type')
@@ -161,6 +161,14 @@ export default function WorkerScanQRPage() {
                 // This application needs checkout
                 application = app;
                 checkinType = 'checkout';
+
+                // Restore status if it was incorrectly rejected
+                if (app.status === 'rejected') {
+                    await supabase
+                        .from('job_applications')
+                        .update({ status: 'working' })
+                        .eq('id', app.id);
+                }
                 break;
             }
         }
@@ -170,7 +178,6 @@ export default function WorkerScanQRPage() {
             const approvedApps = applications.filter(a => a.status === 'approved');
             
             for (const app of approvedApps) {
-                // Verify this application hasn't already been checked in
                 const { data: existingCheckin } = await supabase
                     .from('checkins')
                     .select('id')
@@ -187,7 +194,6 @@ export default function WorkerScanQRPage() {
         }
 
         if (!application) {
-            // All applications either already checked out or already checked in
             throw new Error('Không có ca làm việc nào cần check-in/check-out tại nhà hàng này.');
         }
 

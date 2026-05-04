@@ -2,6 +2,7 @@
 -- MIGRATION: 008_fix_cleanup_and_notifications
 -- Fix: cleanup_expired_jobs should NOT reject 'working' applications
 -- Fix: Add proper notification trigger for application status changes
+-- Fix: Remove ALL old duplicate triggers on job_applications
 -- ============================================
 
 -- 1. Fix cleanup_expired_jobs: Do NOT auto-reject 'working' applications
@@ -30,8 +31,21 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 2. Create/Replace notification trigger for application status changes
--- This sends correct notification to workers when their application status changes
+-- 2. Drop ALL possible old notification triggers on job_applications
+-- (they may have been created directly on the database with different names)
+DROP TRIGGER IF EXISTS on_application_status_change ON public.job_applications;
+DROP TRIGGER IF EXISTS on_application_update ON public.job_applications;
+DROP TRIGGER IF EXISTS notify_application_update ON public.job_applications;
+DROP TRIGGER IF EXISTS application_status_notification ON public.job_applications;
+DROP TRIGGER IF EXISTS trigger_application_status ON public.job_applications;
+DROP TRIGGER IF EXISTS on_application_status_update ON public.job_applications;
+
+-- Also drop old functions that might exist
+DROP FUNCTION IF EXISTS public.notify_application_status_change() CASCADE;
+DROP FUNCTION IF EXISTS public.handle_application_status_change() CASCADE;
+DROP FUNCTION IF EXISTS public.on_application_status_update() CASCADE;
+
+-- 3. Create the SINGLE correct notification trigger
 CREATE OR REPLACE FUNCTION public.notify_application_status_change()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -72,10 +86,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Drop existing trigger if any (to avoid duplicates)
-DROP TRIGGER IF EXISTS on_application_status_change ON public.job_applications;
-
--- Create trigger - fires on UPDATE of status column only
+-- Create the ONE trigger
 CREATE TRIGGER on_application_status_change
     AFTER UPDATE OF status ON public.job_applications
     FOR EACH ROW
