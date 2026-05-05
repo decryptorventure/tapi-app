@@ -107,7 +107,7 @@ export default function WorkerScanQRPage() {
             throw new Error('Vui lòng đăng nhập');
         }
 
-        // Validate Owner QR code (async — uses Web Crypto API in browser)
+        // Validate Owner QR code
         const validation = await QRCodeService.validateOwnerQRAsync(qrData);
         if (!validation.valid) {
             throw new Error(validation.error || 'Mã QR không hợp lệ');
@@ -118,8 +118,14 @@ export default function WorkerScanQRPage() {
             throw new Error('Dữ liệu QR thiếu thông tin nhà hàng');
         }
 
-        // Find ALL worker's applications for this owner
-        // Include 'rejected' to handle cases where cleanup incorrectly rejected working apps
+        // Today's date in YYYY-MM-DD format (Vietnam timezone)
+        const now = new Date();
+        const vnDate = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
+        const today = vnDate.getFullYear() + '-' 
+            + String(vnDate.getMonth() + 1).padStart(2, '0') + '-' 
+            + String(vnDate.getDate()).padStart(2, '0');
+
+        // Find worker's applications for this owner — TODAY's shifts ONLY
         const { data: applications, error: appError } = await supabase
             .from('job_applications')
             .select(`
@@ -128,26 +134,27 @@ export default function WorkerScanQRPage() {
                 job:jobs!inner(
                     id,
                     title, 
-                    owner_id
+                    owner_id,
+                    shift_date
                 )
             `)
             .eq('worker_id', user.id)
             .eq('job.owner_id', ownerId)
-            .in('status', ['approved', 'working', 'rejected'])
+            .eq('job.shift_date', today)
+            .in('status', ['approved', 'working'])
             .order('created_at', { ascending: false });
 
         if (appError || !applications || applications.length === 0) {
-            throw new Error('Bạn không có ca làm việc nào đang chờ tại nhà hàng này.');
+            throw new Error('Bạn không có ca làm việc hôm nay tại nhà hàng này.');
         }
 
-        // Step 1: Try to find an application that needs checkout
-        // Check 'working' apps first, then 'rejected' apps with existing checkin (incorrectly rejected)
+        // Step 1: Find application that needs CHECKOUT (working + has checkin, no checkout)
         let application: typeof applications[0] | null = null;
         let checkinType: 'checkin' | 'checkout' = 'checkin';
 
-        const checkoutCandidates = applications.filter(a => a.status === 'working' || a.status === 'rejected');
+        const workingApps = applications.filter(a => a.status === 'working');
         
-        for (const app of checkoutCandidates) {
+        for (const app of workingApps) {
             const { data: checkinRecords } = await supabase
                 .from('checkins')
                 .select('id, type')
@@ -158,22 +165,13 @@ export default function WorkerScanQRPage() {
             const hasCheckout = checkinRecords?.some(r => r.type === 'checkout');
 
             if (hasCheckin && !hasCheckout) {
-                // This application needs checkout
                 application = app;
                 checkinType = 'checkout';
-
-                // Restore status if it was incorrectly rejected
-                if (app.status === 'rejected') {
-                    await supabase
-                        .from('job_applications')
-                        .update({ status: 'working' })
-                        .eq('id', app.id);
-                }
                 break;
             }
         }
 
-        // Step 2: If no checkout needed, find an 'approved' application for checkin
+        // Step 2: If no checkout needed, find APPROVED application for CHECKIN
         if (!application) {
             const approvedApps = applications.filter(a => a.status === 'approved');
             
@@ -194,7 +192,7 @@ export default function WorkerScanQRPage() {
         }
 
         if (!application) {
-            throw new Error('Không có ca làm việc nào cần check-in/check-out tại nhà hàng này.');
+            throw new Error('Không có ca làm việc nào cần check-in/check-out hôm nay.');
         }
 
         const job = application.job as any;
