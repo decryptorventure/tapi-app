@@ -232,32 +232,37 @@ export default function WorkerScanQRPage() {
         const job = application.job as any;
 
         // --- Record check-in or check-out ---
-        const checkinData: any = {
+        const isCheckin = checkinType === 'checkin';
+        const checkinPayload: Record<string, any> = {
             application_id: application.id,
-            worker_id: user.id,
-            job_id: job.id,
             type: checkinType,
             checkin_time: new Date().toISOString(),
             scanned_at: new Date().toISOString(),
+            is_valid: isCheckin ? !isLate : true,
         };
 
-        if (checkinType === 'checkin') {
-            checkinData.is_valid = !isLate;
-            checkinData.notes = isLate
-                ? `Check-in muộn ${currentMinutes - timeToMinutes(job.shift_start_time)} phút`
-                : null;
-        } else {
-            checkinData.is_valid = true;
-            checkinData.notes = null;
+        // Add optional fields
+        if (isCheckin && isLate) {
+            checkinPayload.notes = `Check-in muộn ${currentMinutes - timeToMinutes(job.shift_start_time)} phút`;
         }
 
-        const { error: insertError } = await supabase
-            .from('checkins')
-            .insert(checkinData);
+        // Try with worker_id/job_id first, fallback without if columns don't exist
+        let insertError: any = null;
+        checkinPayload.worker_id = user.id;
+        checkinPayload.job_id = job.id;
+
+        const res1 = await supabase.from('checkins').insert(checkinPayload);
+        if (res1.error) {
+            // Fallback: remove optional columns and retry
+            delete checkinPayload.worker_id;
+            delete checkinPayload.job_id;
+            const res2 = await supabase.from('checkins').insert(checkinPayload);
+            insertError = res2.error;
+        }
 
         if (insertError) {
             console.error('Checkin insert error:', insertError);
-            throw new Error(`Lỗi ghi nhận ${checkinType === 'checkin' ? 'check-in' : 'check-out'}`);
+            throw new Error(`Lỗi ghi nhận ${isCheckin ? 'check-in' : 'check-out'}: ${insertError.message}`);
         }
 
         // --- Update application status ---
