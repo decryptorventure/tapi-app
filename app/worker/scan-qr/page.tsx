@@ -232,16 +232,28 @@ export default function WorkerScanQRPage() {
         const job = application.job as any;
 
         // --- Record check-in or check-out ---
+        const checkinData: any = {
+            application_id: application.id,
+            worker_id: user.id,
+            job_id: job.id,
+            type: checkinType,
+            checkin_time: new Date().toISOString(),
+            scanned_at: new Date().toISOString(),
+        };
+
+        if (checkinType === 'checkin') {
+            checkinData.is_valid = !isLate;
+            checkinData.notes = isLate
+                ? `Check-in muộn ${currentMinutes - timeToMinutes(job.shift_start_time)} phút`
+                : null;
+        } else {
+            checkinData.is_valid = true;
+            checkinData.notes = null;
+        }
+
         const { error: insertError } = await supabase
             .from('checkins')
-            .insert({
-                application_id: application.id,
-                type: checkinType,
-                checkin_time: new Date().toISOString(),
-                is_valid: !isLate,
-                scanned_at: new Date().toISOString(),
-                notes: isLate ? `Check-in muộn ${currentMinutes - timeToMinutes(job.shift_start_time)} phút` : null,
-            });
+            .insert(checkinData);
 
         if (insertError) {
             console.error('Checkin insert error:', insertError);

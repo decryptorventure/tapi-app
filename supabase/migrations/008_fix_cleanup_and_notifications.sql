@@ -1,11 +1,11 @@
 -- ============================================
 -- MIGRATION: 008_fix_cleanup_and_notifications
--- Fix: Time-controlled check-in/check-out
--- Fix: Auto-close expired shifts after 15 min grace period
--- Fix: Proper notification trigger
+-- Time-controlled check-in/check-out
+-- Auto-close expired shifts after 15 min grace period
+-- Proper notification trigger
 -- ============================================
 
--- 1. Fix cleanup_expired_jobs: includes auto-close of expired shifts
+-- 1. cleanup_expired_jobs: jobs + pending reject + auto-close shifts
 CREATE OR REPLACE FUNCTION public.cleanup_expired_jobs()
 RETURNS void AS $$
 DECLARE
@@ -18,41 +18,55 @@ BEGIN
     current_vn_date := current_vn_ts::DATE;
     current_vn_time := current_vn_ts::TIME;
 
-    -- Step 1: Update jobs to expired
+    -- Step 1: Mark expired jobs
     UPDATE public.jobs
     SET status = 'expired', updated_at = NOW()
     WHERE (shift_date < current_vn_date OR (shift_date = current_vn_date AND shift_end_time::TIME < current_vn_time))
     AND status IN ('open', 'filled');
 
-    -- Step 2: Auto-reject ONLY 'pending' applications for expired jobs
+    -- Step 2: Auto-reject only 'pending' applications for expired jobs
     UPDATE public.job_applications
     SET status = 'rejected', updated_at = NOW()
     WHERE status = 'pending'
     AND job_id IN (SELECT id FROM public.jobs WHERE status = 'expired');
 
-    -- Step 3: Auto-close 'working' applications where shift ended 15+ min ago
-    -- Workers who checked in but didn't check out → mark as no_show
+    -- Step 3: Auto-close 'approved' applications that missed check-in (past deadline = shift_start + 2h)
+    UPDATE public.job_applications
+    SET status = 'no_show', updated_at = NOW()
+    WHERE status = 'approved'
+    AND job_id IN (
+        SELECT id FROM public.jobs
+        WHERE shift_date = current_vn_date
+        AND (shift_start_time::TIME + INTERVAL '2 hours') < current_vn_time
+    )
+    AND id NOT IN (
+        SELECT DISTINCT application_id FROM public.checkins WHERE type = 'checkin'
+    );
+
+    -- Step 4: Auto-close 'working' applications where shift ended 15+ min ago (today)
     FOR app_record IN
-        SELECT ja.id AS app_id, ja.worker_id, j.title AS job_title, j.shift_end_time, j.shift_date
+        SELECT ja.id AS app_id, ja.worker_id, j.id AS job_id, j.title AS job_title,
+               j.shift_end_time, j.shift_date
         FROM public.job_applications ja
         JOIN public.jobs j ON j.id = ja.job_id
         WHERE ja.status = 'working'
         AND j.shift_date = current_vn_date
-        AND (j.shift_end_time::TIME + INTERVAL '15 minutes')::TIME < current_vn_time
+        AND current_vn_time > (j.shift_end_time::TIME + INTERVAL '15 minutes')
     LOOP
-        -- Check if this worker has checkin but no checkout
+        -- Only if checked in but NOT checked out
         IF EXISTS (
-            SELECT 1 FROM public.checkins 
+            SELECT 1 FROM public.checkins
             WHERE application_id = app_record.app_id AND type = 'checkin'
         ) AND NOT EXISTS (
-            SELECT 1 FROM public.checkins 
+            SELECT 1 FROM public.checkins
             WHERE application_id = app_record.app_id AND type = 'checkout'
         ) THEN
-            -- Auto-insert checkout record
-            INSERT INTO public.checkins (application_id, type, checkin_time, is_valid, notes)
-            VALUES (app_record.app_id, 'checkout', NOW(), FALSE, 'Auto-closed: quá 15 phút sau ca');
+            -- Insert auto-checkout record
+            INSERT INTO public.checkins (application_id, worker_id, job_id, type, checkin_time, is_valid, notes)
+            VALUES (app_record.app_id, app_record.worker_id, app_record.job_id,
+                    'checkout', NOW(), FALSE, 'Auto-closed: quá 15 phút sau ca');
 
-            -- Mark as no_show (missed checkout)
+            -- Mark as no_show
             UPDATE public.job_applications
             SET status = 'no_show', updated_at = NOW()
             WHERE id = app_record.app_id;
@@ -69,23 +83,24 @@ BEGIN
         END IF;
     END LOOP;
 
-    -- Step 4: Also auto-close working apps from PAST dates (forgot to checkout yesterday)
+    -- Step 5: Auto-close working apps from PAST dates (forgot to checkout)
     FOR app_record IN
-        SELECT ja.id AS app_id, ja.worker_id, j.title AS job_title
+        SELECT ja.id AS app_id, ja.worker_id, j.id AS job_id, j.title AS job_title
         FROM public.job_applications ja
         JOIN public.jobs j ON j.id = ja.job_id
         WHERE ja.status = 'working'
         AND j.shift_date < current_vn_date
     LOOP
         IF EXISTS (
-            SELECT 1 FROM public.checkins 
+            SELECT 1 FROM public.checkins
             WHERE application_id = app_record.app_id AND type = 'checkin'
         ) AND NOT EXISTS (
-            SELECT 1 FROM public.checkins 
+            SELECT 1 FROM public.checkins
             WHERE application_id = app_record.app_id AND type = 'checkout'
         ) THEN
-            INSERT INTO public.checkins (application_id, type, checkin_time, is_valid, notes)
-            VALUES (app_record.app_id, 'checkout', NOW(), FALSE, 'Auto-closed: ca hôm trước chưa checkout');
+            INSERT INTO public.checkins (application_id, worker_id, job_id, type, checkin_time, is_valid, notes)
+            VALUES (app_record.app_id, app_record.worker_id, app_record.job_id,
+                    'checkout', NOW(), FALSE, 'Auto-closed: ca hôm trước chưa checkout');
 
             UPDATE public.job_applications
             SET status = 'no_show', updated_at = NOW()
@@ -101,10 +116,19 @@ BEGIN
             );
         END IF;
     END LOOP;
+
+    -- Step 6: Auto-close 'approved' apps from past dates (never showed up)
+    UPDATE public.job_applications
+    SET status = 'no_show', updated_at = NOW()
+    WHERE status IN ('approved', 'working')
+    AND job_id IN (SELECT id FROM public.jobs WHERE shift_date < current_vn_date)
+    AND id NOT IN (
+        SELECT DISTINCT application_id FROM public.checkins WHERE type = 'checkin'
+    );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 2. Drop ALL possible old notification triggers
+-- 2. Drop ALL old notification triggers
 DROP TRIGGER IF EXISTS on_application_status_change ON public.job_applications;
 DROP TRIGGER IF EXISTS on_application_update ON public.job_applications;
 DROP TRIGGER IF EXISTS notify_application_update ON public.job_applications;
@@ -116,7 +140,7 @@ DROP FUNCTION IF EXISTS public.notify_application_status_change() CASCADE;
 DROP FUNCTION IF EXISTS public.handle_application_status_change() CASCADE;
 DROP FUNCTION IF EXISTS public.on_application_status_update() CASCADE;
 
--- 3. Create the SINGLE correct notification trigger
+-- 3. Single notification trigger
 CREATE OR REPLACE FUNCTION public.notify_application_status_change()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -124,29 +148,26 @@ DECLARE
     v_message TEXT;
     v_title TEXT;
 BEGIN
-    -- Only fire when status actually changes
     IF OLD.status = NEW.status THEN
         RETURN NEW;
     END IF;
 
-    -- Get job title
     SELECT title INTO v_job_title FROM public.jobs WHERE id = NEW.job_id;
 
     CASE NEW.status
         WHEN 'approved' THEN
             v_title := 'Cập nhật ứng tuyển';
-            v_message := 'Đơn ứng tuyển của bạn cho việc làm ' || COALESCE(v_job_title, '') || ' đã được chấp nhận';
+            v_message := 'Đơn ứng tuyển của bạn cho việc làm "' || COALESCE(v_job_title, '') || '" đã được chấp nhận';
         WHEN 'rejected' THEN
             v_title := 'Cập nhật ứng tuyển';
-            v_message := 'Đơn ứng tuyển của bạn cho việc làm ' || COALESCE(v_job_title, '') || ' đã bị từ chối';
+            v_message := 'Đơn ứng tuyển của bạn cho việc làm "' || COALESCE(v_job_title, '') || '" đã bị từ chối';
         WHEN 'completed' THEN
             v_title := 'Hoàn thành ca làm';
             v_message := 'Bạn đã hoàn thành ca làm "' || COALESCE(v_job_title, '') || '". Cảm ơn bạn!';
         WHEN 'working' THEN
-            -- Don't notify for working (check-in UI handles this)
             RETURN NEW;
         WHEN 'no_show' THEN
-            -- no_show notifications are handled inline by cleanup function
+            -- no_show notifications handled inline by cleanup function to include context
             RETURN NEW;
         ELSE
             RETURN NEW;

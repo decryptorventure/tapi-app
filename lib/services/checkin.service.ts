@@ -26,12 +26,13 @@ interface CheckOutResult {
 /**
  * Service for handling worker check-in and check-out operations
  * 
- * DB Schema reference:
- * - checkins table columns: id, application_id, type (ENUM: 'checkin'|'checkout'), 
- *   checkin_time, latitude, longitude, distance_from_restaurant_meters, is_valid, 
- *   notes, qr_code_id, scanned_at
- * - type column uses checkin_type ENUM with values: 'checkin', 'checkout'
- * - NO worker_id or job_id columns in checkins table
+ * NOTE: The main scan-qr flow (app/worker/scan-qr/page.tsx) uses its own
+ * inline processCheckin() with time-window validation. This service is used
+ * by owner-side actions (no-show, reliability updates).
+ * 
+ * DB Schema: checkins table has columns: id, application_id, worker_id, job_id,
+ * type (ENUM: 'checkin'|'checkout'), checkin_time, scanned_at,
+ * location_lat, location_lng, is_valid, notes
  */
 export const CheckinService = {
     /**
