@@ -232,33 +232,25 @@ export default function WorkerScanQRPage() {
         const job = application.job as any;
 
         // --- Record check-in or check-out ---
+        // NOTE: worker_id is REQUIRED by RLS policy ("Workers can checkin" checks auth.uid() = worker_id)
         const isCheckin = checkinType === 'checkin';
         const checkinPayload: Record<string, any> = {
             application_id: application.id,
+            worker_id: user.id,
             type: checkinType,
             checkin_time: new Date().toISOString(),
             scanned_at: new Date().toISOString(),
             is_valid: isCheckin ? !isLate : true,
         };
 
-        // Add optional fields
+        // Optional fields
         if (isCheckin && isLate) {
             checkinPayload.notes = `Check-in muộn ${currentMinutes - timeToMinutes(job.shift_start_time)} phút`;
         }
 
-        // Try with worker_id/job_id first, fallback without if columns don't exist
-        let insertError: any = null;
-        checkinPayload.worker_id = user.id;
-        checkinPayload.job_id = job.id;
-
-        const res1 = await supabase.from('checkins').insert(checkinPayload);
-        if (res1.error) {
-            // Fallback: remove optional columns and retry
-            delete checkinPayload.worker_id;
-            delete checkinPayload.job_id;
-            const res2 = await supabase.from('checkins').insert(checkinPayload);
-            insertError = res2.error;
-        }
+        const { error: insertError } = await supabase
+            .from('checkins')
+            .insert(checkinPayload);
 
         if (insertError) {
             console.error('Checkin insert error:', insertError);

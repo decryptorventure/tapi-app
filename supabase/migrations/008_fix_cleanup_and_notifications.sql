@@ -3,7 +3,35 @@
 -- Time-controlled check-in/check-out
 -- Auto-close expired shifts after 15 min grace period
 -- Proper notification trigger
+-- Fix: RLS policies for checkins table
 -- ============================================
+
+-- 0. Fix RLS policies on checkins table
+-- Old policies: "Workers can checkin" requires worker_id match, but checkout insert also needs to work
+-- Old SELECT policy: requires worker_id match, but worker_id might be NULL on old records
+DROP POLICY IF EXISTS "Workers can checkin" ON public.checkins;
+DROP POLICY IF EXISTS "Users can view relevant checkins" ON public.checkins;
+
+-- Workers can insert their own checkin/checkout records
+CREATE POLICY "Workers can insert checkins" ON public.checkins
+    FOR INSERT WITH CHECK (
+        auth.uid() = worker_id
+        OR auth.uid() IN (
+            SELECT worker_id FROM public.job_applications WHERE id = application_id
+        )
+    );
+
+-- Workers can view checkins for their own applications
+CREATE POLICY "Workers can view own checkins" ON public.checkins
+    FOR SELECT USING (
+        auth.uid() = worker_id
+        OR auth.uid() IN (
+            SELECT worker_id FROM public.job_applications WHERE id = application_id
+        )
+        OR auth.uid() IN (
+            SELECT owner_id FROM public.jobs WHERE id = job_id
+        )
+    );
 
 -- 1. cleanup_expired_jobs: jobs + pending reject + auto-close shifts
 CREATE OR REPLACE FUNCTION public.cleanup_expired_jobs()
