@@ -101,41 +101,37 @@ export default function WorkerScanQRPage() {
     const processCheckin = async (qrData: string) => {
         const supabase = createClient();
 
-        // Get current user
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-            throw new Error('Vui lòng đăng nhập');
-        }
+        if (!user) throw new Error('Vui lòng đăng nhập');
 
-        // Validate Owner QR code
         const validation = await QRCodeService.validateOwnerQRAsync(qrData);
-        if (!validation.valid) {
-            throw new Error(validation.error || 'Mã QR không hợp lệ');
-        }
+        if (!validation.valid) throw new Error(validation.error || 'Mã QR không hợp lệ');
 
         const ownerId = validation.ownerId;
-        if (!ownerId) {
-            throw new Error('Dữ liệu QR thiếu thông tin nhà hàng');
-        }
+        if (!ownerId) throw new Error('Dữ liệu QR thiếu thông tin nhà hàng');
 
-        // Today's date in YYYY-MM-DD format (Vietnam timezone)
-        const now = new Date();
-        const vnDate = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
-        const today = vnDate.getFullYear() + '-' 
-            + String(vnDate.getMonth() + 1).padStart(2, '0') + '-' 
-            + String(vnDate.getDate()).padStart(2, '0');
+        // Current time in Vietnam timezone
+        const nowUTC = new Date();
+        const vnNow = new Date(nowUTC.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
+        const today = vnNow.getFullYear() + '-'
+            + String(vnNow.getMonth() + 1).padStart(2, '0') + '-'
+            + String(vnNow.getDate()).padStart(2, '0');
+        const currentMinutes = vnNow.getHours() * 60 + vnNow.getMinutes();
 
-        // Find worker's applications for this owner — TODAY's shifts ONLY
+        // Helper: parse "HH:MM:SS" or "HH:MM" to minutes since midnight
+        const timeToMinutes = (t: string) => {
+            const parts = t.split(':');
+            return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+        };
+
+        // Find worker's applications for this owner — TODAY only
         const { data: applications, error: appError } = await supabase
             .from('job_applications')
             .select(`
-                id, 
-                status, 
+                id, status,
                 job:jobs!inner(
-                    id,
-                    title, 
-                    owner_id,
-                    shift_date
+                    id, title, owner_id,
+                    shift_date, shift_start_time, shift_end_time
                 )
             `)
             .eq('worker_id', user.id)
@@ -148,92 +144,143 @@ export default function WorkerScanQRPage() {
             throw new Error('Bạn không có ca làm việc hôm nay tại nhà hàng này.');
         }
 
-        // Step 1: Find application that needs CHECKOUT (working + has checkin, no checkout)
         let application: typeof applications[0] | null = null;
         let checkinType: 'checkin' | 'checkout' = 'checkin';
+        let isLate = false;
+        let earlyMessage = '';
 
+        // --- PRIORITY 1: Find 'working' app that needs CHECKOUT ---
         const workingApps = applications.filter(a => a.status === 'working');
-        
         for (const app of workingApps) {
-            const { data: checkinRecords } = await supabase
+            const { data: records } = await supabase
                 .from('checkins')
                 .select('id, type')
                 .eq('application_id', app.id)
                 .in('type', ['checkin', 'checkout']);
 
-            const hasCheckin = checkinRecords?.some(r => r.type === 'checkin');
-            const hasCheckout = checkinRecords?.some(r => r.type === 'checkout');
+            const hasCheckin = records?.some(r => r.type === 'checkin');
+            const hasCheckout = records?.some(r => r.type === 'checkout');
 
             if (hasCheckin && !hasCheckout) {
+                const job = app.job as any;
+                const shiftEndMin = timeToMinutes(job.shift_end_time);
+                const checkoutDeadline = shiftEndMin + 15;
+
+                if (currentMinutes > checkoutDeadline) {
+                    throw new Error(
+                        `Đã quá giờ check-out 15 phút. Ca kết thúc lúc ${job.shift_end_time.substring(0, 5)}. ` +
+                        `Vui lòng liên hệ nhà hàng.`
+                    );
+                }
+
                 application = app;
                 checkinType = 'checkout';
                 break;
             }
         }
 
-        // Step 2: If no checkout needed, find APPROVED application for CHECKIN
+        // --- PRIORITY 2: Find 'approved' app that needs CHECKIN ---
         if (!application) {
-            const approvedApps = applications.filter(a => a.status === 'approved');
-            
+            // Sort by shift_start_time to pick the nearest upcoming shift
+            const approvedApps = applications
+                .filter(a => a.status === 'approved')
+                .sort((a, b) => {
+                    const jobA = a.job as any;
+                    const jobB = b.job as any;
+                    return timeToMinutes(jobA.shift_start_time) - timeToMinutes(jobB.shift_start_time);
+                });
+
             for (const app of approvedApps) {
-                const { data: existingCheckin } = await supabase
+                const { data: existing } = await supabase
                     .from('checkins')
                     .select('id')
                     .eq('application_id', app.id)
                     .eq('type', 'checkin')
                     .limit(1);
 
-                if (!existingCheckin || existingCheckin.length === 0) {
-                    application = app;
-                    checkinType = 'checkin';
-                    break;
+                if (existing && existing.length > 0) continue; // already checked in
+
+                const job = app.job as any;
+                const shiftStartMin = timeToMinutes(job.shift_start_time);
+                const checkinEarliest = shiftStartMin - 15;       // 15 min before shift
+                const checkinDeadline = shiftStartMin + 120;      // 2 hours after shift start
+
+                if (currentMinutes < checkinEarliest) {
+                    // Too early — show the shift time
+                    earlyMessage = `Chưa tới giờ check-in. Ca "${job.title}" bắt đầu lúc ${job.shift_start_time.substring(0, 5)}, ` +
+                        `bạn có thể check-in từ ${Math.floor(checkinEarliest / 60).toString().padStart(2, '0')}:${(checkinEarliest % 60).toString().padStart(2, '0')}.`;
+                    continue;
                 }
+
+                if (currentMinutes > checkinDeadline) {
+                    continue; // Past deadline, skip
+                }
+
+                // Within check-in window
+                isLate = currentMinutes > shiftStartMin;
+                application = app;
+                checkinType = 'checkin';
+                break;
             }
         }
 
         if (!application) {
+            if (earlyMessage) throw new Error(earlyMessage);
             throw new Error('Không có ca làm việc nào cần check-in/check-out hôm nay.');
         }
 
         const job = application.job as any;
 
-        // Record check-in/check-out
-        const { error: checkinError } = await supabase
+        // --- Record check-in or check-out ---
+        const { error: insertError } = await supabase
             .from('checkins')
             .insert({
                 application_id: application.id,
                 type: checkinType,
                 checkin_time: new Date().toISOString(),
-                is_valid: true,
+                is_valid: !isLate,
                 scanned_at: new Date().toISOString(),
+                notes: isLate ? `Check-in muộn ${currentMinutes - timeToMinutes(job.shift_start_time)} phút` : null,
             });
 
-        if (checkinError) {
-            console.error('Checkin insert error:', checkinError);
+        if (insertError) {
+            console.error('Checkin insert error:', insertError);
             throw new Error(`Lỗi ghi nhận ${checkinType === 'checkin' ? 'check-in' : 'check-out'}`);
         }
 
-        // Update application status on checkin
+        // --- Update application status ---
         if (checkinType === 'checkin') {
             await supabase
                 .from('job_applications')
                 .update({ status: 'working' })
                 .eq('id', application.id);
+        } else {
+            // Checkout → completed
+            await supabase
+                .from('job_applications')
+                .update({ status: 'completed', completed_at: new Date().toISOString() })
+                .eq('id', application.id);
         }
-        // NOTE: On checkout, status remains 'working' until owner confirms (Timee flow)
 
-        // Success
+        // --- Success UI ---
+        const timeStr = vnNow.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        const lateNote = isLate ? ` (muộn ${currentMinutes - timeToMinutes(job.shift_start_time)} phút)` : '';
+
         setResult({
             success: true,
             type: checkinType,
             jobTitle: job.title,
-            time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+            time: timeStr,
             message: checkinType === 'checkin'
-                ? 'Đã check-in thành công! Chúc bạn làm việc vui vẻ.'
-                : 'Đã check-out thành công! Chờ xác nhận từ chủ nhà hàng.',
+                ? `Đã check-in thành công${lateNote}! Chúc bạn làm việc vui vẻ.`
+                : 'Đã check-out thành công! Ca làm đã hoàn thành.',
         });
         setScanState('success');
-        toast.success(checkinType === 'checkin' ? 'Check-in thành công!' : 'Check-out thành công!');
+        toast.success(
+            checkinType === 'checkin'
+                ? `Check-in thành công!${lateNote}`
+                : 'Check-out thành công! Ca làm hoàn thành.'
+        );
     };
 
     const handleRetry = () => {
