@@ -4,32 +4,37 @@
 -- Auto-close expired shifts after 15 min grace period
 -- Proper notification trigger
 -- Fix: RLS policies for checkins table
+-- Fix: Add missing columns to checkins table
 -- ============================================
 
--- 0. Fix RLS policies on checkins table
--- Old policies: "Workers can checkin" requires worker_id match, but checkout insert also needs to work
--- Old SELECT policy: requires worker_id match, but worker_id might be NULL on old records
+-- 0a. Add missing columns to checkins table (production DB may not have them)
+ALTER TABLE public.checkins ADD COLUMN IF NOT EXISTS worker_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE;
+ALTER TABLE public.checkins ADD COLUMN IF NOT EXISTS job_id UUID REFERENCES public.jobs(id) ON DELETE CASCADE;
+
+-- 0b. Fix RLS policies on checkins table
 DROP POLICY IF EXISTS "Workers can checkin" ON public.checkins;
 DROP POLICY IF EXISTS "Users can view relevant checkins" ON public.checkins;
+DROP POLICY IF EXISTS "Workers can insert checkins" ON public.checkins;
+DROP POLICY IF EXISTS "Workers can view own checkins" ON public.checkins;
 
--- Workers can insert their own checkin/checkout records
+-- Workers can insert checkin/checkout records for their own applications
 CREATE POLICY "Workers can insert checkins" ON public.checkins
     FOR INSERT WITH CHECK (
-        auth.uid() = worker_id
-        OR auth.uid() IN (
+        auth.uid() IN (
             SELECT worker_id FROM public.job_applications WHERE id = application_id
         )
     );
 
--- Workers can view checkins for their own applications
-CREATE POLICY "Workers can view own checkins" ON public.checkins
+-- Workers/Owners can view checkins for their applications/jobs
+CREATE POLICY "Users can view checkins" ON public.checkins
     FOR SELECT USING (
-        auth.uid() = worker_id
-        OR auth.uid() IN (
+        auth.uid() IN (
             SELECT worker_id FROM public.job_applications WHERE id = application_id
         )
         OR auth.uid() IN (
-            SELECT owner_id FROM public.jobs WHERE id = job_id
+            SELECT j.owner_id FROM public.jobs j
+            JOIN public.job_applications ja ON ja.job_id = j.id
+            WHERE ja.id = application_id
         )
     );
 
