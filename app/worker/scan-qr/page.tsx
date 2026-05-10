@@ -164,11 +164,11 @@ export default function WorkerScanQRPage() {
             if (hasCheckin && !hasCheckout) {
                 const job = app.job as any;
                 const shiftEndMin = timeToMinutes(job.shift_end_time);
-                const checkoutDeadline = shiftEndMin + 15;
+                const checkoutDeadline = shiftEndMin + 120;
 
                 if (currentMinutes > checkoutDeadline) {
                     throw new Error(
-                        `Đã quá giờ check-out 15 phút. Ca kết thúc lúc ${job.shift_end_time.substring(0, 5)}. ` +
+                        `Đã quá giờ check-out 2 tiếng. Ca kết thúc lúc ${job.shift_end_time.substring(0, 5)}. ` +
                         `Vui lòng liên hệ nhà hàng.`
                     );
                 }
