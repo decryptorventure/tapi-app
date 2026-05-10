@@ -237,6 +237,7 @@ export default function WorkerScanQRPage() {
         const checkinPayload: Record<string, any> = {
             application_id: application.id,
             worker_id: user.id,
+            job_id: job.id,
             type: checkinType,
             checkin_time: new Date().toISOString(),
             scanned_at: new Date().toISOString(),

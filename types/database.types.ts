@@ -102,8 +102,6 @@ export type JobApplication = {
   approved_at: string | null;
   rejected_at: string | null;
   contract_signed_at: string | null;
-  checkin_qr_code: string | null;
-  checkin_qr_expires_at: string | null;
   created_at: string;
   updated_at: string;
 }

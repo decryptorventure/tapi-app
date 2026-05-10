@@ -89,8 +89,6 @@ CREATE TABLE public.job_applications (
   approved_at TIMESTAMP WITH TIME ZONE,
   rejected_at TIMESTAMP WITH TIME ZONE,
   contract_signed_at TIMESTAMP WITH TIME ZONE,
-  checkin_qr_code TEXT, -- Generated QR code for this shift
-  checkin_qr_expires_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(job_id, worker_id)
@@ -100,10 +98,13 @@ CREATE TABLE public.job_applications (
 CREATE TABLE public.checkins (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   application_id UUID NOT NULL REFERENCES public.job_applications(id) ON DELETE CASCADE,
+  worker_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  job_id UUID REFERENCES public.jobs(id) ON DELETE CASCADE,
   type checkin_type NOT NULL,
   checkin_time TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  latitude DECIMAL(10, 8),
-  longitude DECIMAL(11, 8),
+  scanned_at TIMESTAMP WITH TIME ZONE,
+  location_lat DECIMAL(10, 8),
+  location_lng DECIMAL(11, 8),
   distance_from_restaurant_meters DECIMAL(10, 2),
   is_valid BOOLEAN DEFAULT TRUE,
   notes TEXT

@@ -77,10 +77,12 @@ export const CheckinService = {
                 .from('checkins')
                 .insert({
                     application_id: data.applicationId,
+                    worker_id: data.workerId,
+                    job_id: data.jobId,
                     type: 'checkin',
                     checkin_time: now.toISOString(),
-                    latitude: data.latitude,
-                    longitude: data.longitude,
+                    location_lat: data.latitude,
+                    location_lng: data.longitude,
                     is_valid: true,
                     scanned_at: now.toISOString(),
                 })
@@ -171,10 +173,12 @@ export const CheckinService = {
                 .from('checkins')
                 .insert({
                     application_id: data.applicationId,
+                    worker_id: data.workerId,
+                    job_id: data.jobId,
                     type: 'checkout',
                     checkin_time: now.toISOString(),
-                    latitude: data.latitude,
-                    longitude: data.longitude,
+                    location_lat: data.latitude,
+                    location_lng: data.longitude,
                     is_valid: true,
                     scanned_at: now.toISOString(),
                 });

@@ -161,17 +161,6 @@ export async function applyToJob(
           ...(job.current_workers + 1 >= job.max_workers && { status: 'filled' }),
         })
         .eq('id', jobId);
-
-      // Generate QR code for check-in
-      const qrCode = await generateCheckInQRCode(application.id);
-
-      await supabase
-        .from('job_applications')
-        .update({
-          checkin_qr_code: qrCode,
-          checkin_qr_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
-        })
-        .eq('id', application.id);
     }
 
     return {
@@ -194,14 +183,7 @@ export async function applyToJob(
   }
 }
 
-/**
- * Generate QR code for check-in (mock implementation)
- */
-async function generateCheckInQRCode(applicationId: string): Promise<string> {
-  // In production, generate actual QR code using qrcode library
-  // For now, return a unique token
-  return `QR-${applicationId}-${Date.now()}`;
-}
+
 
 /**
  * Get qualification feedback for a worker viewing a job
@@ -329,15 +311,7 @@ export async function approveApplication(
     };
   }
 
-  // Generate QR code
-  const qrCode = await generateCheckInQRCode(applicationId);
-  await supabase
-    .from('job_applications')
-    .update({
-      checkin_qr_code: qrCode,
-      checkin_qr_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    })
-    .eq('id', applicationId);
+
 
   return {
     success: true,
