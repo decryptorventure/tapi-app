@@ -57,7 +57,7 @@ BEGIN
     WHERE (shift_date < current_vn_date OR (shift_date = current_vn_date AND shift_end_time::TIME < current_vn_time))
     AND status IN ('open', 'filled');
 
-    -- Step 2: Auto-reject only 'pending' applications for expired jobs
+    -- Step 2: Auto-reject 'pending' applications for expired jobs (no notification — trigger skips 'rejected')
     UPDATE public.job_applications
     SET status = 'rejected', updated_at = NOW()
     WHERE status = 'pending'
@@ -76,7 +76,7 @@ BEGIN
         SELECT DISTINCT application_id FROM public.checkins WHERE type = 'checkin'
     );
 
-    -- Step 4: Auto-close 'working' applications where shift ended 15+ min ago (today)
+    -- Step 4: Auto-close 'working' applications where shift ended 2+ hours ago (today)
     FOR app_record IN
         SELECT ja.id AS app_id, ja.worker_id, j.id AS job_id, j.title AS job_title,
                j.shift_end_time, j.shift_date
@@ -84,7 +84,7 @@ BEGIN
         JOIN public.jobs j ON j.id = ja.job_id
         WHERE ja.status = 'working'
         AND j.shift_date = current_vn_date
-        AND current_vn_time > (j.shift_end_time::TIME + INTERVAL '15 minutes')
+        AND current_vn_time > (j.shift_end_time::TIME + INTERVAL '2 hours')
     LOOP
         -- Only if checked in but NOT checked out
         IF EXISTS (
@@ -97,7 +97,7 @@ BEGIN
             -- Insert auto-checkout record
             INSERT INTO public.checkins (application_id, worker_id, job_id, type, checkin_time, is_valid, notes)
             VALUES (app_record.app_id, app_record.worker_id, app_record.job_id,
-                    'checkout', NOW(), FALSE, 'Auto-closed: quá 15 phút sau ca');
+                    'checkout', NOW(), FALSE, 'Auto-closed: quá 2 tiếng sau ca');
 
             -- Mark as no_show
             UPDATE public.job_applications
@@ -109,7 +109,7 @@ BEGIN
             VALUES (
                 app_record.worker_id,
                 'Ca làm bị đóng',
-                'Ca làm "' || COALESCE(app_record.job_title, '') || '" đã bị đóng tự động do quá giờ check-out 15 phút.',
+                'Ca làm "' || COALESCE(app_record.job_title, '') || '" đã bị đóng tự động do quá giờ check-out 2 tiếng.',
                 'application_update',
                 app_record.app_id
             );
@@ -191,16 +191,16 @@ BEGIN
         WHEN 'approved' THEN
             v_title := 'Cập nhật ứng tuyển';
             v_message := 'Đơn ứng tuyển của bạn cho việc làm "' || COALESCE(v_job_title, '') || '" đã được chấp nhận';
-        WHEN 'rejected' THEN
-            v_title := 'Cập nhật ứng tuyển';
-            v_message := 'Đơn ứng tuyển của bạn cho việc làm "' || COALESCE(v_job_title, '') || '" đã bị từ chối';
         WHEN 'completed' THEN
             v_title := 'Hoàn thành ca làm';
             v_message := 'Bạn đã hoàn thành ca làm "' || COALESCE(v_job_title, '') || '". Cảm ơn bạn!';
+        WHEN 'rejected' THEN
+            -- NO notification for rejected (auto-reject of expired pending apps)
+            RETURN NEW;
         WHEN 'working' THEN
             RETURN NEW;
         WHEN 'no_show' THEN
-            -- no_show notifications handled inline by cleanup function to include context
+            -- no_show notifications handled inline by cleanup function
             RETURN NEW;
         ELSE
             RETURN NEW;
