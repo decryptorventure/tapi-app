@@ -100,9 +100,9 @@ export default function OwnerJobsPage() {
             if (expiredJobIds.length > 0) {
                 // Update on DB
                 await supabase.from('jobs').update({ status: 'expired' }).in('id', expiredJobIds);
-                // Cập nhật các đơn liên quan
+                // Chỉ reject 'pending' và 'approved' — không đụng 'working' (đã checkin)
                 await supabase.from('job_applications').update({ status: 'rejected' })
-                     .in('status', ['pending', 'approved', 'working'])
+                     .in('status', ['pending', 'approved'])
                      .in('job_id', expiredJobIds);
                      
                 // Update locally
@@ -367,12 +367,12 @@ export default function OwnerJobsPage() {
                                                     Xem đơn ứng tuyển
                                                 </Link>
                                                 <Link
-                                                    href="/owner/qr-management"
+                                                    href={`/owner/qr-management?jobId=${job.id}`}
                                                     className="flex items-center gap-2 px-4 py-2.5 text-sm text-success hover:bg-success/10 transition-colors"
                                                     onClick={() => setOpenMenu(null)}
                                                 >
                                                     <QrCode className="w-4 h-4" />
-                                                    Xem QR Check-in
+                                                    Xem QR
                                                 </Link>
                                                 {job.status === 'open' && (
                                                     <>
@@ -401,10 +401,10 @@ export default function OwnerJobsPage() {
                                 {/* Quick Actions */}
                                 {(job.status === 'open' || job.status === 'filled') && (
                                     <div className="mt-4 pt-4 border-t border-border flex flex-wrap gap-2">
-                                        <Link href="/owner/qr-management">
+                                        <Link href={`/owner/qr-management?jobId=${job.id}`}>
                                             <Button variant="default" size="sm" className="bg-success hover:bg-success/90">
                                                 <QrCode className="w-4 h-4 mr-2" />
-                                                QR Check-in
+                                                QR Check in/out
                                             </Button>
                                         </Link>
                                         <Link href={`/owner/jobs/${job.id}/applications`}>

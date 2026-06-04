@@ -3,7 +3,7 @@ import json
 
 dashboard_keys_vi = {
     "totalApps": "Tổng đơn",
-    "viewCheckinQR": "Xem QR Check-in",
+    "viewCheckinQR": "Xem QR",
     "noShiftsYet": "Chưa có ca làm nào",
     "discoverJobsDesc": "Khám phá các công việc phù hợp với kỹ năng của bạn ngay!",
     "findJobsNow": "Tìm việc ngay",
@@ -67,7 +67,7 @@ with open(filepath, 'r', encoding='utf-8') as f:
 
 content = content.replace('<p className="font-semibold text-sm text-foreground">Tìm việc</p>', '<p className="font-semibold text-sm text-foreground">{t(\'common.searchJobs\')}</p>')
 content = content.replace("Tổng {t('dashboard.appsCount')}", "{t('dashboard.totalApps')}")
-content = content.replace("Xem QR Check-in", "{t('dashboard.viewCheckinQR')}")
+content = content.replace("Xem QR", "{t('dashboard.viewCheckinQR')}")
 content = content.replace("Chưa có ca làm nào", "{t('dashboard.noShiftsYet')}")
 content = content.replace("Khám phá các công việc phù hợp với kỹ năng của bạn ngay!", "{t('dashboard.discoverJobsDesc')}")
 

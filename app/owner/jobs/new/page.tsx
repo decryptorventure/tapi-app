@@ -450,7 +450,7 @@ export default function NewJobPage() {
                                         className="w-full pl-11 pr-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground appearance-none"
                                     >
                                         <option value="">{t("forms.language")}</option>
-                                        <option value="japanese">{t("languageLevels.japanese.n5")}</option>
+                                        <option value="japanese">Tiếng Nhật</option>
                                         <option value="korean">Tiếng Hàn</option>
                                         <option value="english">Tiếng Anh</option>
                                     </select>

@@ -46,7 +46,7 @@ export function TodayShiftsCard({ shifts }: TodayShiftsCardProps) {
                                 </p>
                             </div>
                         </div>
-                        <Link href={`/owner/jobs/${shift.id}/qr`}>
+                        <Link href={`/owner/qr-management?jobId=${shift.id}`}>
                             <Button variant="outline" size="sm" className="gap-1.5">
                                 <QrCode className="w-4 h-4" />
                                 QR

@@ -318,7 +318,7 @@ export default function OwnerShiftsPage() {
                                         </div>
 
                                         <div className="flex items-center gap-2">
-                                            <Link href="/owner/qr-management">
+                                            <Link href={`/owner/qr-management?jobId=${shift.id}`}>
                                                 <Button variant="outline" size="sm">
                                                     <QrCode className="w-4 h-4 mr-1" />
                                                     QR
