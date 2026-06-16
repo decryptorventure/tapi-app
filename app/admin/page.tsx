@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useTranslation } from '@/lib/i18n';
 
 import { useEffect, useState } from 'react';
@@ -138,21 +138,21 @@ export default function AdminDashboardPage() {
                     value={stats?.totalJobs || 0}
                     icon={<Briefcase className="w-5 h-5 text-cta" />}
                     iconClassName="bg-cta/10"
-                    description={`${stats?.activeJobs || 0} đang mở`}
+                    description={`${stats?.activeJobs || 0} t('owner.jobs_open')`}
                 />
                 <StatCard
                     title={t('admin.page_totalApps')}
                     value={stats?.totalApplications || 0}
                     icon={<FileCheck className="w-5 h-5 text-success" />}
                     iconClassName="bg-success/10"
-                    description={`${stats?.approvedApplications || 0} đã duyệt`}
+                    description={`${stats?.approvedApplications || 0} t('analytics_approved')`}
                 />
                 <StatCard
-                    title="Doanh thu"
+                    title={t("admin.page_revenue")}
                     value={stats?.totalRevenue || 0}
                     icon={<DollarSign className="w-5 h-5 text-warning" />}
                     iconClassName="bg-warning/10"
-                    formatValue={(v) => `${formatCurrency(v)}đ`}
+                    formatValue={(v: number) => `${formatCurrency(v)}đ`}
                 />
             </div>
 
@@ -162,7 +162,7 @@ export default function AdminDashboardPage() {
                     <div className="flex items-center gap-3">
                         <Clock className="w-5 h-5 text-warning" />
                         <div>
-                            <p className="font-medium text-warning">Có {stats.pendingVerifications} xác minh đang chờ</p>
+                            <p className="font-medium text-warning">{stats.pendingVerifications} {t('admin.page_pendingVerifications', {defaultValue: 'xác minh đang chờ'})}</p>
                             <p className="text-sm text-warning/80">{t('admin.page_needActionToActivate')}</p>
                         </div>
                     </div>
@@ -234,7 +234,7 @@ export default function AdminDashboardPage() {
                 {/* Conversion Funnel */}
                 <ChartContainer
                     title="Conversion Funnel"
-                    description="Tỷ lệ chuyển đổi từ ứng tuyển → hoàn thành"
+                    description={t('admin.page_conversionDesc')}
                 >
                     <ConversionFunnel data={funnelData} />
                 </ChartContainer>

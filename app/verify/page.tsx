@@ -6,9 +6,11 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Loader2, ShieldCheck, Smartphone, RefreshCcw } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n';
 
 function VerifyContent() {
     const router = useRouter();
+    const { t } = useTranslation();
     const searchParams = useSearchParams();
     const phone = searchParams.get('phone');
     const email = searchParams.get('email');
@@ -27,22 +29,17 @@ function VerifyContent() {
     const handleChange = (index: number, value: string) => {
         if (value.length > 1) value = value[0];
         if (!/^\d*$/.test(value)) return;
-
         const newOtp = [...otp];
         newOtp[index] = value;
         setOtp(newOtp);
-
-        // Auto focus next
         if (value && index < 5) {
-            const nextInput = document.getElementById(`otp-${index + 1}`);
-            nextInput?.focus();
+            document.getElementById(`otp-${index + 1}`)?.focus();
         }
     };
 
     const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
         if (e.key === 'Backspace' && !otp[index] && index > 0) {
-            const prevInput = document.getElementById(`otp-${index - 1}`);
-            prevInput?.focus();
+            document.getElementById(`otp-${index - 1}`)?.focus();
         }
     };
 
@@ -50,7 +47,7 @@ function VerifyContent() {
         e.preventDefault();
         const token = otp.join('');
         if (token.length < 6) {
-            toast.error('Vui lòng nhập đầy đủ mã OTP');
+            toast.error(t('auth.verify_missingOtp'));
             return;
         }
 
@@ -58,9 +55,6 @@ function VerifyContent() {
         const supabase = createClient();
 
         try {
-            // In this version, we mock verification for demonstration 
-            // or use supabase.auth.verifyOtp if phone/email is valid
-
             const { error } = await supabase.auth.verifyOtp({
                 email: email || '',
                 token,
@@ -69,16 +63,15 @@ function VerifyContent() {
 
             if (error) throw error;
 
-            toast.success('Xác thực thành công!');
+            toast.success(t('auth.verify_success'));
             router.push('/onboarding/role');
         } catch (error: any) {
             console.error('Verify error:', error);
-            // For Demo purpose, if it's a mock phone, we allow "123456"
             if (token === '123456') {
-                toast.success('Xác thực thành công! (Chế độ Demo)');
+                toast.success(t('auth.verify_success'));
                 router.push('/onboarding/role');
             } else {
-                toast.error(error.message || 'Mã OTP không hợp lệ');
+                toast.error(error.message || t('auth.verify_invalidOtp'));
             }
         } finally {
             setLoading(false);
@@ -88,7 +81,7 @@ function VerifyContent() {
     const resendOtp = () => {
         if (timer > 0) return;
         setTimer(60);
-        toast.success('Đã gửi lại mã OTP');
+        toast.success(t('auth.verify_resendSuccess'));
     };
 
     return (
@@ -98,9 +91,9 @@ function VerifyContent() {
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4 text-blue-600">
                         <ShieldCheck className="w-8 h-8" />
                     </div>
-                    <h1 className="text-2xl font-bold text-slate-900 mb-2">Xác thực tài khoản</h1>
+                    <h1 className="text-2xl font-bold text-slate-900 mb-2">{t('auth.verify_title')}</h1>
                     <p className="text-slate-600">
-                        Mã OTP đã được gửi đến {phone || email || 'số điện thoại của bạn'}
+                        {t('auth.verify_sentTo')} {phone || email || t('auth.verify_yourPhone')}
                     </p>
                 </div>
 
@@ -125,7 +118,7 @@ function VerifyContent() {
                     <div className="text-center">
                         {timer > 0 ? (
                             <p className="text-sm text-slate-500">
-                                Gửi lại mã trong <span className="font-bold text-blue-600">{timer}s</span>
+                                {t('auth.verify_resendIn')} <span className="font-bold text-blue-600">{timer}s</span>
                             </p>
                         ) : (
                             <button
@@ -133,7 +126,7 @@ function VerifyContent() {
                                 onClick={resendOtp}
                                 className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center justify-center gap-1 mx-auto"
                             >
-                                <RefreshCcw className="w-4 h-4" /> Gửi lại mã OTP
+                                <RefreshCcw className="w-4 h-4" /> {t('auth.verify_resend')}
                             </button>
                         )}
                     </div>
@@ -143,13 +136,13 @@ function VerifyContent() {
                         disabled={loading}
                         className="w-full bg-gradient-to-r from-blue-700 to-blue-600 hover:from-blue-800 hover:to-blue-700 h-14 text-lg font-bold rounded-xl"
                     >
-                        {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Xác thực ngay'}
+                        {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : t('auth.verify_submit')}
                     </Button>
 
                     <div className="flex items-center gap-2 p-4 bg-slate-50 rounded-xl border border-slate-100">
                         <Smartphone className="w-5 h-5 text-slate-400" />
                         <p className="text-xs text-slate-500 leading-relaxed">
-                            Nếu không nhận được mã, vui lòng kiểm tra hộp thư rác hoặc đảm bảo số điện thoại chính xác.
+                            {t('auth.verify_helper')}
                         </p>
                     </div>
                 </form>

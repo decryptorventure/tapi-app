@@ -1,9 +1,10 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import Link from 'next/link';
 import { AlertCircle, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/lib/i18n';
 
 interface ProfileCompletionBannerProps {
   completionPercentage: number;
@@ -27,6 +28,7 @@ export function ProfileCompletionBanner({
   canPostJobs = false,
   className,
 }: ProfileCompletionBannerProps) {
+  const { t } = useTranslation();
   const requiredPercentage = role === 'worker' ? 80 : 70;
   const isComplete = completionPercentage >= requiredPercentage;
 
@@ -41,29 +43,23 @@ export function ProfileCompletionBanner({
   const getNextSteps = () => {
     if (role === 'worker') {
       return {
-        title: 'Hoàn thiện hồ sơ để ứng tuyển',
-        description:
-          'Bạn cần hoàn thiện ít nhất 80% hồ sơ để có thể ứng tuyển công việc',
-        actionText: 'Hoàn thiện hồ sơ',
+        title: t('common.profileBanner_completeWorker'),
+        description: t('common.profileBanner_descWorker'),
+        actionText: t('common.profileBanner_action'),
         actionHref: '/onboarding/worker/profile',
         items: missingItems.length
           ? missingItems
-          : [
-            'Thêm ngày sinh',
-            'Xác minh kỹ năng ngôn ngữ',
-            'Xác minh danh tính (CCCD/Passport)',
-          ],
+          : [t('worker.dateOfBirth'), t('worker.languageSkills'), t('worker.identityVerification')],
       };
     } else {
       return {
-        title: 'Hoàn thiện hồ sơ để đăng tin tuyển dụng',
-        description:
-          'Bạn cần hoàn thiện ít nhất 70% hồ sơ để có thể đăng tin tuyển dụng',
-        actionText: 'Hoàn thiện hồ sơ',
+        title: t('common.profileBanner_completeOwner'),
+        description: t('common.profileBanner_descOwner'),
+        actionText: t('common.profileBanner_action'),
         actionHref: '/onboarding/owner/profile',
         items: missingItems.length
           ? missingItems
-          : ['Thêm thông tin nhà hàng', 'Xác minh giấy phép kinh doanh'],
+          : [t('owner.settings_restaurantInfo'), t('owner.settings_restaurantSettings')],
       };
     }
   };
@@ -85,12 +81,12 @@ export function ProfileCompletionBanner({
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-slate-900 mb-1">
-              Hồ sơ đã hoàn thiện!
+              {t('common.profileBanner_completed')}
             </h3>
             <p className="text-sm text-slate-700 mb-2">
               {role === 'worker'
-                ? 'Bạn có thể ứng tuyển tất cả các công việc trên Tapy'
-                : 'Bạn có thể đăng tin tuyển dụng và quản lý ứng viên'}
+                ? t('common.profileBanner_canApplyWorker')
+                : t('common.profileBanner_canApplyOwner')}
             </p>
             <div className="flex items-center gap-2 text-sm font-medium text-green-700">
               <div className="h-2 flex-1 bg-green-200 rounded-full overflow-hidden">
@@ -135,7 +131,7 @@ export function ProfileCompletionBanner({
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-slate-700">
-                Tiến độ hoàn thiện
+                {t('common.profileBanner_progress')}
               </span>
               <span className="text-sm font-semibold text-slate-900">
                 {completionPercentage}%
@@ -151,8 +147,9 @@ export function ProfileCompletionBanner({
               />
             </div>
             <p className="text-xs text-slate-600 mt-1">
-              Cần {requiredPercentage - completionPercentage}% nữa để{' '}
-              {role === 'worker' ? 'ứng tuyển' : 'đăng tin'}
+              {t('common.profileBanner_descWorker').split('80%')[0]}
+              {requiredPercentage - completionPercentage}%{' '}
+              {role === 'worker' ? t('common.profileBanner_toApply') : t('common.profileBanner_toPost')}
             </p>
           </div>
 
@@ -160,7 +157,7 @@ export function ProfileCompletionBanner({
           {nextSteps.items.length > 0 && (
             <div className="mb-4">
               <p className="text-sm font-medium text-slate-700 mb-2">
-                Các bước cần hoàn thành:
+                {t('common.profileBanner_steps')}
               </p>
               <ul className="space-y-1">
                 {nextSteps.items.map((item, index) => (

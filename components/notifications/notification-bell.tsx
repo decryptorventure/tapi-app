@@ -21,9 +21,12 @@ import { vi } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
+import { useTranslation } from '@/lib/i18n';
+
 export function NotificationBell() {
     const { user } = useAuth();
     const router = useRouter();
+    const { t } = useTranslation();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
@@ -174,7 +177,7 @@ export function NotificationBell() {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-80" align="end">
                 <DropdownMenuLabel className="flex justify-between items-center">
-                    <span>Thông báo</span>
+                    <span>{t('common.notifications')}</span>
                     {unreadCount > 0 && (
                         <Button
                             variant="ghost"
@@ -182,7 +185,7 @@ export function NotificationBell() {
                             className="text-xs h-6 px-2 text-muted-foreground hover:text-primary"
                             onClick={handleMarkAllRead}
                         >
-                            Đánh dấu đã đọc
+                            {t('common.markAllRead')}
                         </Button>
                     )}
                 </DropdownMenuLabel>
@@ -191,7 +194,7 @@ export function NotificationBell() {
                 <div className="max-h-[300px] overflow-y-auto">
                     {notifications.length === 0 ? (
                         <div className="p-4 text-center text-sm text-muted-foreground">
-                            Không có thông báo nào
+                            {t('common.noNotifications')}
                         </div>
                     ) : (
                         notifications.map((notification) => (

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useTranslation } from '@/lib/i18n';
 
 import { useState, useEffect } from 'react';
@@ -170,7 +170,7 @@ export default function MonitoringDashboard() {
                 <div className="text-sm text-muted-foreground">{title}</div>
                 {target !== undefined && (
                     <div className="text-xs text-muted-foreground mt-2">
-                        Mục tiêu: {target}{suffix}
+                        {t('admin.monitoring_target', {defaultValue: 'Mục tiêu'})}: {target}{suffix}
                     </div>
                 )}
             </div>
@@ -191,7 +191,7 @@ export default function MonitoringDashboard() {
                     <div className="flex items-center gap-4">
                         {lastUpdated && (
                             <span className="text-sm text-muted-foreground">
-                                Cập nhật: {lastUpdated.toLocaleTimeString('vi-VN')}
+                                {t('admin.monitoring_updated', {defaultValue: 'Cập nhật'})}: {lastUpdated.toLocaleTimeString()}
                             </span>
                         )}
                         <button

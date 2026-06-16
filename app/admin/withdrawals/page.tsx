@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useTranslation } from '@/lib/i18n';
 
 import { useState, useEffect } from 'react';
@@ -195,11 +195,11 @@ export default function AdminWithdrawalsPage() {
                                 : 'bg-muted text-muted-foreground hover:bg-muted/80'
                                 }`}
                         >
-                            {status === 'all' && 'Tất cả'}
+                            {status === 'all' && t('owner.payments_filterAll')}
                             {status === 'pending' && t('admin.withdrawals_pending')}
-                            {status === 'processing' && t('admin.withdrawals_processing')}
-                            {status === 'completed' && t('admin.withdrawals_transferred')}
-                            {status === 'rejected' && t('admin.withdrawals_reject')}
+                            {status === 'processing' && t('worker.wallet_withdrawStatusProcessing')}
+                            {status === 'completed' && t('worker.wallet_withdrawStatusCompleted')}
+                            {status === 'rejected' && t('worker.wallet_withdrawStatusRejected')}
                         </button>
                     ))}
                 </div>
@@ -408,7 +408,7 @@ export default function AdminWithdrawalsPage() {
 
                             {(selectedRequest.status === 'completed' || selectedRequest.status === 'rejected') && (
                                 <div className="pt-4 text-center text-sm text-muted-foreground">
-                                    Xử lý bởi admin lúc {selectedRequest.processed_at && format(new Date(selectedRequest.processed_at), 'dd/MM/yyyy HH:mm', { locale: vi })}
+                                    t('owner.payments_paidAt') + ' ' + {selectedRequest.processed_at && format(new Date(selectedRequest.processed_at), 'dd/MM/yyyy HH:mm', { locale: vi })}
                                 </div>
                             )}
                         </div>

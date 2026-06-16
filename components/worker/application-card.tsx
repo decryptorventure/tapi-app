@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -60,7 +60,7 @@ export function ApplicationCard({ application, paymentRequests, onRequestPayment
         return (
           <div className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
             <Clock className="h-4 w-4" />
-            Đang làm
+            {t('applicationCard.working')}
           </div>
         );
       case 'pending':
@@ -83,14 +83,14 @@ export function ApplicationCard({ application, paymentRequests, onRequestPayment
           return (
             <div className="flex items-center gap-1.5 px-3 py-1 bg-success/10 text-success rounded-full text-sm font-medium">
               <CheckCircle2 className="h-4 w-4" />
-              Đã thanh toán
+              {t('applicationCard.paid')}
             </div>
           );
         } else if (paymentRequest?.status === 'pending' || paymentRequest?.status === 'processing') {
           return (
             <div className="flex items-center gap-1.5 px-3 py-1 bg-warning/10 text-warning rounded-full text-sm font-medium">
               <Clock className="h-4 w-4" />
-              Chờ thanh toán
+              {t('applicationCard.waitingPayment')}
             </div>
           );
         }
@@ -159,7 +159,7 @@ export function ApplicationCard({ application, paymentRequests, onRequestPayment
 
         <div className="flex items-center text-sm font-semibold text-foreground">
           <DollarSign className="h-4 w-4 mr-2 text-success" />
-          {job.hourly_rate_vnd.toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US')}{locale === 'vi' ? 'đ/giờ' : 'VND/hour'}
+          {job.hourly_rate_vnd.toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US')}{t('applicationCard.rateUnit')}
         </div>
       </div>
 
@@ -187,7 +187,7 @@ export function ApplicationCard({ application, paymentRequests, onRequestPayment
               <Link href={`/worker/contracts/${application.id}`} className="flex-1">
                 <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white shadow-md">
                   <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Ký Hợp Đồng
+                  {t('applicationCard.signContract')}
                 </Button>
               </Link>
             ) : (
@@ -216,17 +216,17 @@ export function ApplicationCard({ application, paymentRequests, onRequestPayment
             {!paymentRequest && onRequestPayment ? (
               <Button onClick={onRequestPayment} className="flex-1 bg-green-600 hover:bg-green-700 text-white">
                 <DollarSign className="w-4 h-4 mr-2" />
-                Yêu cầu thanh toán
+                {t('applicationCard.requestPayment')}
               </Button>
             ) : paymentRequest?.status === 'pending' ? (
               <Button variant="outline" className="flex-1 text-warning border-warning" disabled>
                 <Clock className="w-4 h-4 mr-2" />
-                Đang chờ thanh toán
+                {t('applicationCard.waitingPaymentProcess')}
               </Button>
             ) : paymentRequest?.status === 'completed' ? (
               <Button variant="ghost" className="flex-1 text-success" disabled>
                 <CheckCircle2 className="w-4 h-4 mr-2" />
-                Đã nhận tiền
+                {t('applicationCard.received')}
               </Button>
             ) : (
               <Link href={`/worker/jobs/${application.id}`} className="flex-1">

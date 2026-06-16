@@ -5,9 +5,11 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
+import { useTranslation } from '@/lib/i18n';
 
 export function MainNav() {
     const pathname = usePathname();
+    const { t } = useTranslation();
 
     // Hide on auth pages, onboarding, dashboard, or public profile pages
     if (pathname.startsWith('/onboarding') || pathname.startsWith('/worker') || pathname.startsWith('/owner') || pathname.startsWith('/p/')) {
@@ -28,12 +30,12 @@ export function MainNav() {
                         <div className="flex gap-2">
                             <Link href="/login">
                                 <Button variant="ghost" className="font-medium">
-                                    Đăng nhập
+                                    {t('common.login')}
                                 </Button>
                             </Link>
                             <Link href="/signup">
                                 <Button className="bg-blue-600 hover:bg-blue-700">
-                                    Đăng ký
+                                    {t('common.signup')}
                                 </Button>
                             </Link>
                         </div>

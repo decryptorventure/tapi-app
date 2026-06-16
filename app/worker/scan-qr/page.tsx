@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { useTranslation } from '@/lib/i18n';
 
 type ScanState = 'idle' | 'scanning' | 'validating' | 'success' | 'error';
 
@@ -29,6 +30,7 @@ interface CheckinResult {
 
 export default function WorkerScanQRPage() {
     const router = useRouter();
+    const { t } = useTranslation();
     const [scanState, setScanState] = useState<ScanState>('idle');
     const [error, setError] = useState<string | null>(null);
     const [result, setResult] = useState<CheckinResult | null>(null);
@@ -80,7 +82,7 @@ export default function WorkerScanQRPage() {
             );
         } catch (error: any) {
             console.error('Scanner error:', error);
-            setError('Không thể mở camera. Vui lòng cấp quyền camera.');
+            setError(t('checkin.errorTitle'));
             setScanState('error');
         }
     };
@@ -262,15 +264,15 @@ export default function WorkerScanQRPage() {
                 <div className="max-w-lg mx-auto">
                     <Link href="/worker/dashboard" className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-4">
                         <ArrowLeft className="w-5 h-5" />
-                        <span>Quay lại</span>
+                        <span>{t('checkin.goBack')}</span>
                     </Link>
                     <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
                             <QrCode className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-white">Scan QR Check-in</h1>
-                            <p className="text-white/70 text-sm">Quét mã QR tại cửa hàng</p>
+                            <h1 className="text-2xl font-bold text-white">{t('checkin.pageTitle')}</h1>
+                            <p className="text-white/70 text-sm">{t('checkin.pageSubtitle')}</p>
                         </div>
                     </div>
                 </div>
@@ -283,13 +285,11 @@ export default function WorkerScanQRPage() {
                             <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <Camera className="w-10 h-10 text-primary" />
                             </div>
-                            <h2 className="text-xl font-bold text-foreground mb-2">Sẵn sàng quét</h2>
-                            <p className="text-muted-foreground mb-6">
-                                Đặt camera hướng vào mã QR tại cửa hàng
-                            </p>
+                            <h2 className="text-xl font-bold text-foreground mb-2">{t('checkin.readyToScan')}</h2>
+                            <p className="text-muted-foreground mb-6">{t('checkin.pointCameraDesc')}</p>
                             <Button onClick={startScanning} size="lg" className="w-full">
                                 <Camera className="w-5 h-5 mr-2" />
-                                Mở Camera
+                                {t('checkin.openCamera')}
                             </Button>
                         </div>
                     )}
@@ -298,9 +298,9 @@ export default function WorkerScanQRPage() {
                         <div>
                             <div id="qr-reader" className="w-full aspect-square bg-black" />
                             <div className="p-4 text-center">
-                                <p className="text-sm text-muted-foreground">Đang quét mã QR...</p>
+                                <p className="text-sm text-muted-foreground">{t('checkin.scanning')}</p>
                                 <Button variant="outline" size="sm" onClick={stopScanner} className="mt-2">
-                                    Hủy
+                                    {t('checkin.cancel')}
                                 </Button>
                             </div>
                         </div>
@@ -309,7 +309,7 @@ export default function WorkerScanQRPage() {
                     {scanState === 'validating' && (
                         <div className="p-8 text-center">
                             <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-                            <p className="text-foreground font-medium">Đang xác thực...</p>
+                            <p className="text-foreground font-medium">{t('checkin.validating')}</p>
                         </div>
                     )}
 
@@ -319,7 +319,7 @@ export default function WorkerScanQRPage() {
                                 <CheckCircle2 className="w-10 h-10 text-green-600" />
                             </div>
                             <h2 className="text-xl font-bold text-foreground mb-2">
-                                {result.type === 'checkin' ? 'Check-in thành công!' : 'Check-out thành công!'}
+                                {result.type === 'checkin' ? t('checkin.checkinSuccess') : t('checkin.checkoutSuccess')}
                             </h2>
                             <p className="text-muted-foreground mb-4">{result.message}</p>
 
@@ -333,7 +333,7 @@ export default function WorkerScanQRPage() {
                             </div>
 
                             <Button onClick={() => router.push('/worker/dashboard')} className="w-full">
-                                Về Dashboard
+                                {t('checkin.toDashboard')}
                             </Button>
                         </div>
                     )}
@@ -343,16 +343,16 @@ export default function WorkerScanQRPage() {
                             <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <XCircle className="w-10 h-10 text-destructive" />
                             </div>
-                            <h2 className="text-xl font-bold text-foreground mb-2">Lỗi thao tác</h2>
+                            <h2 className="text-xl font-bold text-foreground mb-2">{t('checkin.errorTitle')}</h2>
                             <p className="text-muted-foreground mb-6">{error}</p>
 
                             <div className="flex flex-col gap-2">
                                 <Button onClick={handleRetry} className="w-full">
                                     <RefreshCw className="w-4 h-4 mr-2" />
-                                    Thử lại
+                                    {t('checkin.retry')}
                                 </Button>
                                 <Button variant="outline" onClick={() => router.push('/worker/dashboard')}>
-                                    Về Dashboard
+                                    {t('checkin.toDashboard')}
                                 </Button>
                             </div>
                         </div>
@@ -361,11 +361,11 @@ export default function WorkerScanQRPage() {
 
                 {scanState === 'idle' && (
                     <div className="bg-muted/50 rounded-2xl p-6">
-                        <h3 className="font-bold text-foreground mb-3">Hướng dẫn</h3>
+                        <h3 className="font-bold text-foreground mb-3">{t('checkin.instructions')}</h3>
                         <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
-                            <li>Tìm mã QR tại quầy hoặc poster của cửa hàng</li>
-                            <li>Mở camera và đưa vào khung quét</li>
-                            <li>Hệ thống tự động ghi nhận check-in hoặc check-out</li>
+                            <li>{t('checkin.instruction1')}</li>
+                            <li>{t('checkin.instruction2')}</li>
+                            <li>{t('checkin.instruction3')}</li>
                         </ol>
                     </div>
                 )}

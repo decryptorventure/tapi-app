@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useTranslation } from '@/lib/i18n';
 
 import { useEffect, useState } from 'react';
@@ -101,7 +101,7 @@ export default function UsersPage() {
     const columns: ColumnDef<UserListItem>[] = [
         {
             accessorKey: 'full_name',
-            header: 'Người dùng',
+            header: t('admin.users_user'),
             cell: ({ row }) => {
                 const user = row.original;
                 return (
@@ -125,7 +125,7 @@ export default function UsersPage() {
         },
         {
             accessorKey: 'role',
-            header: 'Loại',
+            header: t('admin.users_type'),
             cell: ({ row }) => {
                 const role = row.original.role;
                 return (
@@ -143,7 +143,7 @@ export default function UsersPage() {
         },
         {
             accessorKey: 'is_verified',
-            header: 'Trạng thái',
+            header: t('common.status.approved'),
             cell: ({ row }) => {
                 const user = row.original;
                 return (
@@ -153,7 +153,7 @@ export default function UsersPage() {
                             user.is_verified ? "text-success" : "text-warning"
                         )}>
                             {user.is_verified ? <CheckCircle2 className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
-                            {user.is_verified ? 'Đã xác minh' : 'Chưa xác minh'}
+                            {user.is_verified ? t('worker.verified') : t('worker.unverified')}
                         </span>
                         {user.is_account_frozen && (
                             <span className="inline-flex items-center gap-1 text-xs text-destructive">
@@ -167,7 +167,7 @@ export default function UsersPage() {
         },
         {
             accessorKey: 'reliability_score',
-            header: 'Điểm tin cậy',
+            header: t('worker.reliabilityScore'),
             cell: ({ row }) => {
                 const score = row.original.reliability_score;
                 return (
@@ -188,7 +188,7 @@ export default function UsersPage() {
         },
         {
             accessorKey: 'created_at',
-            header: 'Ngày tạo',
+            header: t('admin.users_createdAt'),
             cell: ({ row }) => (
                 <span className="text-sm text-muted-foreground">
                     {format(new Date(row.original.created_at), 'dd/MM/yyyy', { locale: vi })}
@@ -240,7 +240,7 @@ export default function UsersPage() {
     ];
 
     const tabs: { key: TabType; label: string; icon: React.ReactNode }[] = [
-        { key: 'all', label: 'Tất cả', icon: <Users className="w-4 h-4" /> },
+        { key: 'all', label: t('owner.payments_filterAll'), icon: <Users className="w-4 h-4" /> },
         { key: 'workers', label: 'Workers', icon: <Users className="w-4 h-4" /> },
         { key: 'owners', label: 'Owners', icon: <Building2 className="w-4 h-4" /> },
     ];

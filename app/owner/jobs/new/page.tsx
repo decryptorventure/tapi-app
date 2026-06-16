@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -291,7 +291,7 @@ export default function NewJobPage() {
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 rows={4}
                                 className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground placeholder:text-muted-foreground resize-none"
-                                placeholder="Mô tả chi tiết công việc, yêu cầu, quyền lợi..."
+                                placeholder={t("forms.descriptionPlaceholder")}
                             />
                             <p className="text-xs text-muted-foreground mt-1.5">
                                 Gợi ý: Mô tả nhiệm vụ, môi trường làm việc, quyền lợi...
@@ -450,9 +450,9 @@ export default function NewJobPage() {
                                         className="w-full pl-11 pr-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground appearance-none"
                                     >
                                         <option value="">{t("forms.language")}</option>
-                                        <option value="japanese">Tiếng Nhật</option>
-                                        <option value="korean">Tiếng Hàn</option>
-                                        <option value="english">Tiếng Anh</option>
+                                        <option value="japanese">{t('common.japanese')}</option>
+                                        <option value="korean">{t('owner.settings_korean')}</option>
+                                        <option value="english">{t('common.english')}</option>
                                     </select>
                                 </div>
                             </div>
@@ -493,7 +493,7 @@ export default function NewJobPage() {
                                 />
                                 <div className="flex justify-between text-xs text-muted-foreground mt-2">
                                     <span>0</span>
-                                    <span className="font-bold text-primary">{formData.minReliabilityScore} điểm</span>
+                                    <span className="font-bold text-primary">{formData.minReliabilityScore} {t("forms.points")}</span>
                                     <span>100</span>
                                 </div>
                             </div>
@@ -527,7 +527,7 @@ export default function NewJobPage() {
                                     value={formData.dressCode}
                                     onChange={(e) => setFormData({ ...formData, dressCode: e.target.value })}
                                     className="w-full pl-11 pr-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all text-foreground placeholder:text-muted-foreground"
-                                    placeholder="VD: Áo trắng, quần đen, giày đen"
+                                    placeholder={t("forms.dressCodePlaceholder")}
                                 />
                             </div>
                         </div>
@@ -540,8 +540,8 @@ export default function NewJobPage() {
                                 <DollarSign className="w-5 h-5 text-cta" />
                             </div>
                             <div>
-                                <h2 className="text-lg font-bold text-foreground">Lương thưởng</h2>
-                                <p className="text-sm text-muted-foreground">Mức lương theo giờ</p>
+                                <h2 className="text-lg font-bold text-foreground">{t("forms.salary")}</h2>
+                                <p className="text-sm text-muted-foreground">{t("forms.salaryDesc")}</p>
                             </div>
                         </div>
 
@@ -564,7 +564,7 @@ export default function NewJobPage() {
                             </div>
                             <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
                                 <AlertCircle className="w-4 h-4" />
-                                <span>Thị trường: 40,000 - 80,000 VNĐ/giờ</span>
+                                <span>{t("forms.hourlyRatePlaceholder", {defaultValue: "40,000 - 80,000 VNĐ/giờ"})}</span>
                             </div>
                         </div>
                     </div>

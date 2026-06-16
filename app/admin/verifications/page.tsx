@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useTranslation } from '@/lib/i18n';
 
 import { useEffect, useState, Suspense } from 'react';
@@ -101,10 +101,10 @@ function VerificationsContent() {
 
     const getTypeLabel = () => {
         switch (type) {
-            case 'identity': return 'Xác minh danh tính';
-            case 'language': return 'Chứng chỉ ngôn ngữ';
-            case 'license': return 'Giấy phép kinh doanh';
-            default: return 'Tất cả xác minh';
+            case 'identity': return t('worker.identityVerification');
+            case 'language': return t('worker.languageSkills');
+            case 'license': return t('owner.businessLicense');
+            default: return t('admin.verifications_allVerifications', {defaultValue: 'Tất cả xác minh'});
         }
     };
 
@@ -129,7 +129,7 @@ function VerificationsContent() {
                         </Link>
                         <div>
                             <h1 className="text-lg font-bold text-foreground">{getTypeLabel()}</h1>
-                            <p className="text-sm text-muted-foreground">{users.length} yêu cầu chờ duyệt</p>
+                            <p className="text-sm text-muted-foreground">{users.length} {t('admin.verifications_pendingCount', {defaultValue: 'yêu cầu chờ duyệt'})}</p>
                         </div>
                     </div>
                 </div>
@@ -140,10 +140,10 @@ function VerificationsContent() {
                 <div className="container mx-auto px-4 max-w-4xl">
                     <div className="flex gap-1 overflow-x-auto py-2">
                         {[
-                            { key: 'all', label: 'Tất cả' },
-                            { key: 'identity', label: 'Danh tính' },
-                            { key: 'language', label: 'Ngôn ngữ' },
-                            { key: 'license', label: 'Giấy phép' }
+                            { key: 'all', label: t('owner.payments_filterAll') },
+                            { key: 'identity', label: t('worker.identityVerification') },
+                            { key: 'language', label: t('worker.languageSkills') },
+                            { key: 'license', label: t('owner.businessLicense') }
                         ].map(tab => (
                             <Link
                                 key={tab.key}

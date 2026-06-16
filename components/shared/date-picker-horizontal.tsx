@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import { format, addDays, isSameDay, isToday } from 'date-fns';
@@ -20,7 +20,7 @@ export function DatePickerHorizontal({
     daysToShow = 14,
     className
 }: DatePickerHorizontalProps) {
-    const { locale } = useTranslation();
+    const { t, locale } = useTranslation();
     const dateLocale = locale === 'vi' ? vi : enUS;
     const scrollRef = useRef<HTMLDivElement>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -99,7 +99,7 @@ export function DatePickerHorizontal({
                                 isSelected ? "text-white/80" : "text-muted-foreground"
                             )}>
                                 {isTodayDate
-                                    ? (locale === 'vi' ? 'Hôm nay' : 'Today')
+                                    ? (t('owner.shifts_today'))
                                     : format(date, 'EEE', { locale: dateLocale })
                                 }
                             </span>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -84,7 +84,7 @@ export default function OwnerSettingsPage() {
                 restaurant_lng: data.restaurant_lng
             });
         } catch (error) {
-            toast.error('Lỗi khi tải thông tin');
+            toast.error(t('common.error'));
         } finally {
             setLoading(false);
         }
@@ -126,10 +126,10 @@ export default function OwnerSettingsPage() {
                     .eq('id', profile.id);
 
                 setProfile({ ...profile, restaurant_logo_url: url });
-                toast.success('Đã cập nhật logo');
+                toast.success(t('common.save'));
             }
         } catch (error) {
-            toast.error('Lỗi khi upload logo');
+            toast.error(t('common.error'));
         } finally {
             setUploading(false);
         }
@@ -141,7 +141,7 @@ export default function OwnerSettingsPage() {
 
         const currentCovers = profile.restaurant_cover_urls || [];
         if (currentCovers.length + files.length > 5) {
-            toast.error('Tối đa 5 ảnh bìa');
+            toast.error(t('owner.settings_restaurantCover'));
             return;
         }
 
@@ -161,9 +161,9 @@ export default function OwnerSettingsPage() {
                 .eq('id', profile.id);
 
             setProfile({ ...profile, restaurant_cover_urls: updatedCovers });
-            toast.success('Đã thêm ảnh bìa');
+            toast.success(t('owner.settings_addImage'));
         } catch (error) {
-            toast.error('Lỗi khi upload ảnh');
+            toast.error(t('common.error'));
         } finally {
             setUploading(false);
         }
@@ -180,7 +180,7 @@ export default function OwnerSettingsPage() {
             .eq('id', profile.id);
 
         setProfile({ ...profile, restaurant_cover_urls: updatedCovers });
-        toast.success('Đã xóa ảnh');
+        toast.success(t('common.delete'));
     };
 
     const handleSave = async () => {
@@ -194,9 +194,9 @@ export default function OwnerSettingsPage() {
             .eq('id', profile.id);
 
         if (error) {
-            toast.error('Lỗi khi lưu');
+            toast.error(t('common.error'));
         } else {
-            toast.success('Đã lưu thông tin');
+            toast.success(t('owner.settings_saveChanges'));
         }
         setSaving(false);
     };
@@ -226,7 +226,7 @@ export default function OwnerSettingsPage() {
                 <div className="bg-card rounded-xl border border-border p-6">
                     <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
                         <Building2 className="w-5 h-5 text-primary" />
-                        Logo nhà hàng
+                        {t('owner.settings_restaurantLogo')}
                     </h2>
                     <div className="flex items-center gap-4">
                         <div className="relative">
@@ -261,7 +261,7 @@ export default function OwnerSettingsPage() {
                                 disabled={uploading}
                             >
                                 <Upload className="w-4 h-4 mr-2" />
-                                Tải lên logo
+                                {t('owner.settings_uploadLogo')}
                             </Button>
                             <p className="text-xs text-muted-foreground mt-2">PNG, JPG (max 2MB)</p>
                         </div>
@@ -274,13 +274,13 @@ export default function OwnerSettingsPage() {
                         <div>
                             <h3 className="font-bold text-foreground">{t('owner.settings_recruitmentPage')}</h3>
                             <p className="text-sm text-muted-foreground mt-1">
-                                Chia sẻ link này để thu hút nhân viên
+                                {t('owner.settings_shareLink')}
                             </p>
                         </div>
                         <Link href={`/r/${profile?.id}`} target="_blank">
                             <Button className="bg-orange-500 hover:bg-orange-600 gap-2">
                                 <ExternalLink className="w-4 h-4" />
-                                Xem trang
+                                {t('common.view')}
                             </Button>
                         </Link>
                     </div>
@@ -291,7 +291,7 @@ export default function OwnerSettingsPage() {
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="font-bold text-foreground flex items-center gap-2">
                             <ImageIcon className="w-5 h-5 text-cta" />
-                            Ảnh bìa nhà hàng
+                            {t('owner.settings_restaurantCover')}
                         </h2>
                         <span className="text-xs text-muted-foreground">
                             {profile?.restaurant_cover_urls?.length || 0}/5 ảnh
@@ -382,7 +382,7 @@ export default function OwnerSettingsPage() {
                         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 rounded-xl"
                     >
                         {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
-                        Lưu thay đổi
+                        {t('owner.settings_saveChanges')}
                     </Button>
                 </div>
             </div>

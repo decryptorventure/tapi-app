@@ -16,6 +16,8 @@ import {
 import Link from 'next/link';
 import { toast } from 'sonner';
 
+import { useTranslation } from '@/lib/i18n';
+
 interface Job {
     id: string;
     title: string;
@@ -38,6 +40,7 @@ export default function OwnerQRManagementPage() {
 
 function QRManagementContent() {
     const router = useRouter();
+    const { t } = useTranslation();
     const searchParams = useSearchParams();
     const jobId = searchParams.get('jobId');
 
@@ -119,7 +122,7 @@ function QRManagementContent() {
                     <Link href="/owner/shifts" className="absolute left-4 top-1/2 -translate-y-1/2 p-2 hover:bg-muted rounded-lg transition-colors">
                         <ArrowLeft className="w-5 h-5 text-muted-foreground" />
                     </Link>
-                    <h1 className="text-xl font-bold text-foreground">Mã QR Check-in</h1>
+                    <h1 className="text-xl font-bold text-foreground">{t('owner.qr_pageTitle')}</h1>
                 </div>
             </div>
 
@@ -128,12 +131,12 @@ function QRManagementContent() {
                 {!jobId && (
                     <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-6 text-center">
                         <AlertTriangle className="w-8 h-8 text-destructive mx-auto mb-2" />
-                        <p className="font-medium text-foreground">Không có thông tin ca làm việc</p>
+                        <p className="font-medium text-foreground">{t('owner.qr_missingJob')}</p>
                         <p className="text-sm text-muted-foreground mt-1">
-                            Vui lòng vào danh sách ca làm việc và nhấn nút QR trên ca cụ thể.
+                            {t('owner.qr_missingJobDesc')}
                         </p>
                         <Link href="/owner/shifts" className="mt-4 inline-block">
-                            <Button variant="outline">Về danh sách ca</Button>
+                            <Button variant="outline">{t('owner.qr_backToShifts')}</Button>
                         </Link>
                     </div>
                 )}
@@ -158,14 +161,14 @@ function QRManagementContent() {
                                             {job.shift_start_time.slice(0, 5)} – {job.shift_end_time.slice(0, 5)}
                                         </p>
                                         <p className="text-xs text-muted-foreground mt-1">
-                                            Mã QR ngẫu nhiên • Hiệu lực 5 phút • 1 lần dùng
+                                            {t('owner.qr_qrInfo')}
                                         </p>
                                     </div>
                                 </div>
                             </div>
                         ) : (
                             <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4 text-center text-sm text-destructive">
-                                Không tìm thấy ca làm việc này.
+                                {t('owner.qr_jobNotFound')}
                             </div>
                         )}
 
@@ -175,7 +178,7 @@ function QRManagementContent() {
                                 {loading ? (
                                     <div className="p-12 flex flex-col items-center gap-3">
                                         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                                        <p className="text-sm text-muted-foreground">Đang tạo mã QR...</p>
+                                        <p className="text-sm text-muted-foreground">{t('owner.qr_generating')}</p>
                                     </div>
                                 ) : qrDataUrl && !isExpired ? (
                                     <div className="flex flex-col items-center p-8 space-y-5">
@@ -187,11 +190,11 @@ function QRManagementContent() {
                                             isWarning ? 'bg-destructive/10 text-destructive' : 'bg-success/10 text-success'
                                         }`}>
                                             {isWarning ? <AlertTriangle className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
-                                            <span>Hết hạn sau {minutes}:{String(seconds).padStart(2, '0')}</span>
+                                            <span>{t('owner.qr_expiresIn')} {minutes}:{String(seconds).padStart(2, '0')}</span>
                                         </div>
                                         <Button className="w-full" onClick={generateQR}>
                                             <RefreshCw className="w-4 h-4 mr-2" />
-                                            Tạo mã mới
+                                            {t('owner.qr_regenerate')}
                                         </Button>
                                     </div>
                                 ) : qrDataUrl && isExpired ? (
@@ -199,10 +202,10 @@ function QRManagementContent() {
                                         <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center">
                                             <AlertTriangle className="w-10 h-10 text-destructive" />
                                         </div>
-                                        <p className="font-semibold text-foreground">Mã QR đã hết hạn</p>
+                                        <p className="font-semibold text-foreground">{t('owner.qr_expired')}</p>
                                         <Button size="lg" className="w-full" onClick={generateQR}>
                                             <RefreshCw className="w-4 h-4 mr-2" />
-                                            Tạo mã mới
+                                            {t('owner.qr_regenerate')}
                                         </Button>
                                     </div>
                                 ) : (
@@ -211,11 +214,11 @@ function QRManagementContent() {
                                             <QrCode className="w-10 h-10 text-muted-foreground/50" />
                                         </div>
                                         <p className="text-muted-foreground text-sm text-center">
-                                            Nhấn nút bên dưới để tạo mã QR cho ca này
+                                            {t('owner.qr_generateDesc')}
                                         </p>
                                         <Button size="lg" className="w-full" onClick={generateQR}>
                                             <QrCode className="w-5 h-5 mr-2" />
-                                            Tạo mã QR
+                                            {t('owner.qr_generate')}
                                         </Button>
                                     </div>
                                 )}

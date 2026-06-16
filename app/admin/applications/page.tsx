@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useTranslation } from '@/lib/i18n';
 
 import { useEffect, useState, Suspense } from 'react';
@@ -236,12 +236,12 @@ function ApplicationsContent() {
         },
         {
             accessorKey: 'status',
-            header: 'Trạng thái',
+            header: t('common.status.approved'),
             cell: ({ row }) => getStatusBadge(row.original.status, row.original.is_instant_book),
         },
         {
             accessorKey: 'applied_at',
-            header: 'Ngày ứng tuyển',
+            header: t('admin.applications_appliedDate'),
             cell: ({ row }) => (
                 <span className="text-sm text-muted-foreground">
                     {format(new Date(row.original.applied_at), 'dd/MM/yyyy HH:mm', { locale: vi })}
@@ -250,7 +250,7 @@ function ApplicationsContent() {
         },
         {
             accessorKey: 'job.shift_date',
-            header: 'Ca làm',
+            header: t('owner.shifts_shiftSchedule'),
             cell: ({ row }) => {
                 const job = row.original.job;
                 return (
@@ -312,7 +312,7 @@ function ApplicationsContent() {
     ];
 
     const tabs: { key: TabType; label: string; icon: React.ReactNode }[] = [
-        { key: 'all', label: 'Tất cả', icon: <FileCheck className="w-4 h-4" /> },
+        { key: 'all', label: t('owner.payments_filterAll'), icon: <FileCheck className="w-4 h-4" /> },
         { key: 'pending', label: t('admin.applications_pending'), icon: <Clock className="w-4 h-4" /> },
         { key: 'approved', label: t('admin.applications_approved'), icon: <CheckCircle2 className="w-4 h-4" /> },
         { key: 'completed', label: t('admin.applications_completed'), icon: <CheckCircle2 className="w-4 h-4" /> },
@@ -325,8 +325,8 @@ function ApplicationsContent() {
             <div>
                 <h1 className="text-2xl font-bold text-foreground">{t('admin.applications_manageApplications')}</h1>
                 <p className="text-sm text-muted-foreground">
-                    Xem và quản lý tất cả đơn ứng tuyển
-                    {jobFilter && <span className="text-primary"> (đang lọc theo job)</span>}
+                    {t('admin.applications_subtitle', {defaultValue: 'Xem và quản lý tất cả đơn ứng tuyển'})}
+                    {jobFilter && <span className="text-primary"> {t('admin.applications_filteringByJob', {defaultValue: 'đang lọc theo job'})}</span>}
                 </p>
             </div>
 

@@ -11,7 +11,7 @@ import { createClient } from '@/lib/supabase/client';
 import Image from 'next/image';
 
 export function Header() {
-    const { t, locale } = useTranslation();
+    const { t } = useTranslation();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [userProfile, setUserProfile] = useState<any>(null);
 
@@ -32,7 +32,7 @@ export function Header() {
     }, []);
 
     const navLinks = [
-        { href: '/guide', label: locale === 'vi' ? 'Hướng dẫn' : 'Guide' },
+        { href: '/guide', label: t('landing.guide', { defaultValue: 'Hướng dẫn' }) },
         { href: '/faq', label: 'FAQ' },
     ];
 
@@ -101,14 +101,17 @@ export function Header() {
                         )}
                     </div>
 
-                    {/* Mobile Menu Button */}
-                    <button
-                        className="md:hidden p-2 text-foreground cursor-pointer"
-                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        aria-label="Toggle menu"
-                    >
-                        {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                    </button>
+                    {/* Mobile: Globe + Hamburger */}
+                    <div className="md:hidden flex items-center gap-1">
+                        <LanguageSwitcher />
+                        <button
+                            className="p-2 text-foreground cursor-pointer"
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            aria-label="Toggle menu"
+                        >
+                            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -131,6 +134,9 @@ export function Header() {
                         </Link>
                     ))}
                     <div className="pt-4 border-t border-border space-y-3">
+                        {/* <div className="flex justify-start">
+                            <LanguageSwitcher />
+                        </div> */}
                         {userProfile ? (
                             <Link href={userProfile.role === 'owner' ? '/owner/dashboard' : '/worker/dashboard'} className="block">
                                 <Button variant="cta" className="w-full">

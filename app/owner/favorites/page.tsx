@@ -174,10 +174,10 @@ export default function FavoriteWorkersPage() {
                             <Heart className="w-8 h-8 text-rose-300" />
                         </div>
                         <h3 className="text-lg font-bold text-foreground mb-2">
-                            {searchTerm ? 'Không tìm thấy worker' : 'Chưa có worker yêu thích'}
+                            {searchTerm ? t('owner.favorites_searchWorker') : t('owner.noApplicationsYet')}
                         </h3>
                         <p className="text-muted-foreground mb-6">
-                            {searchTerm ? 'Thử tìm kiếm với từ khóa khác' : 'Nhấn vào nút ❤️ khi xem hồ sơ worker để thêm vào danh sách'}
+                            {searchTerm ? t('owner.favorites_searchWorker') : t('owner.postToAttract')}
                         </p>
                     </div>
                 ) : (
@@ -215,12 +215,12 @@ export default function FavoriteWorkersPage() {
                                             </div>
                                         </div>
                                         <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                                            {favorite.worker?.bio || 'Chưa có giới thiệu'}
+                                            {favorite.worker?.bio || t('worker.bio')}
                                         </p>
                                         <div className="flex items-center gap-2">
                                             <Link href={`/p/${favorite.worker_id}`}>
                                                 <Button variant="outline" size="sm">
-                                                    Xem hồ sơ
+                                                    {t('owner.favorites_viewProfile')}
                                                 </Button>
                                             </Link>
                                             <button

@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { useTranslation } from '@/lib/i18n';
 import { EarningsService } from '@/lib/services/earnings.service';
 import { PageLoader } from '@/components/shared/page-loader';
 
@@ -48,6 +49,7 @@ type FilterStatus = 'all' | 'pending' | 'paid';
 
 export default function OwnerPaymentsPage() {
     const router = useRouter();
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(true);
     const [requests, setRequests] = useState<PaymentRequest[]>([]);
     const [filterStatus, setFilterStatus] = useState<FilterStatus>('pending');
@@ -163,9 +165,9 @@ export default function OwnerPaymentsPage() {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'paid':
-                return <span className="px-2 py-1 bg-success/10 text-success text-xs font-medium rounded-full flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Đã thanh toán</span>;
+                return <span className="px-2 py-1 bg-success/10 text-success text-xs font-medium rounded-full flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> {t('owner.payments_statusPaid')}</span>;
             case 'pending':
-                return <span className="px-2 py-1 bg-warning/10 text-warning text-xs font-medium rounded-full flex items-center gap-1"><Clock className="w-3 h-3" /> Chờ thanh toán</span>;
+                return <span className="px-2 py-1 bg-warning/10 text-warning text-xs font-medium rounded-full flex items-center gap-1"><Clock className="w-3 h-3" /> {t('owner.payments_statusPending')}</span>;
             default:
                 return null;
         }
@@ -203,8 +205,8 @@ export default function OwnerPaymentsPage() {
                                 <ArrowLeft className="w-5 h-5" />
                             </Link>
                             <div>
-                                <h1 className="text-xl font-bold text-foreground">Thanh toán</h1>
-                                <p className="text-sm text-muted-foreground">Xác nhận thanh toán cho Worker</p>
+                                <h1 className="text-xl font-bold text-foreground">{t('owner.payments_title')}</h1>
+                                <p className="text-sm text-muted-foreground">{t('owner.payments_subtitle')}</p>
                             </div>
                         </div>
                         <Button
@@ -227,10 +229,10 @@ export default function OwnerPaymentsPage() {
                             <AlertCircle className="w-6 h-6 text-warning" />
                             <div>
                                 <p className="font-medium text-warning-foreground">
-                                    {stats.pending} yêu cầu chờ thanh toán
+                                    {stats.pending} {t('owner.payments_pendingCount')}
                                 </p>
                                 <p className="text-sm text-warning-foreground/80">
-                                    Tổng: {EarningsService.formatCurrency(stats.totalPending)}
+                                    {t('owner.payments_total')}: {EarningsService.formatCurrency(stats.totalPending)}
                                 </p>
                             </div>
                         </div>
@@ -248,9 +250,9 @@ export default function OwnerPaymentsPage() {
                                 : 'bg-muted text-muted-foreground hover:bg-muted/80'
                                 }`}
                         >
-                            {status === 'all' && 'Tất cả'}
-                            {status === 'pending' && 'Chờ thanh toán'}
-                            {status === 'paid' && 'Đã thanh toán'}
+                            {status === 'all' && t('owner.payments_filterAll')}
+                            {status === 'pending' && t('owner.payments_filterPending')}
+                            {status === 'paid' && t('owner.payments_filterPaid')}
                         </button>
                     ))}
                 </div>
@@ -261,8 +263,8 @@ export default function OwnerPaymentsPage() {
                         <Banknote className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
                         <p className="text-muted-foreground">
                             {filterStatus === 'pending'
-                                ? 'Không có yêu cầu thanh toán nào'
-                                : 'Chưa có lịch sử thanh toán'}
+                                ? t('owner.payments_noPending')
+                                : t('owner.payments_noHistory')}
                         </p>
                     </div>
                 ) : (
@@ -305,7 +307,7 @@ export default function OwnerPaymentsPage() {
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
                     <div className="bg-card rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
                         <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
-                            <h2 className="text-lg font-bold text-foreground">Chi tiết thanh toán</h2>
+                            <h2 className="text-lg font-bold text-foreground">{t('owner.payments_detailTitle')}</h2>
                             <button
                                 onClick={() => setSelectedRequest(null)}
                                 className="p-2 hover:bg-muted rounded-lg"
@@ -317,7 +319,7 @@ export default function OwnerPaymentsPage() {
                         <div className="p-4 space-y-4">
                             {/* Amount */}
                             <div className="text-center py-4 bg-muted/50 rounded-xl">
-                                <p className="text-sm text-muted-foreground">Số tiền cần thanh toán</p>
+                                <p className="text-sm text-muted-foreground">{t('owner.payments_amountLabel')}</p>
                                 <p className="text-3xl font-bold text-foreground">
                                     {EarningsService.formatCurrency(selectedRequest.amount_vnd)}
                                 </p>
@@ -326,7 +328,7 @@ export default function OwnerPaymentsPage() {
 
                             {/* Job & Worker Info */}
                             <div className="bg-muted/50 rounded-xl p-4">
-                                <p className="text-sm font-medium text-foreground mb-2">Thông tin công việc</p>
+                                <p className="text-sm font-medium text-foreground mb-2">{t('owner.payments_jobInfo')}</p>
                                 <p className="text-muted-foreground">{selectedRequest.job_title}</p>
                                 <div className="flex items-center gap-3 mt-3">
                                     <div className="p-2 bg-primary/10 rounded-lg">
@@ -342,7 +344,7 @@ export default function OwnerPaymentsPage() {
                             {/* Payment Info */}
                             <div className="bg-muted/50 rounded-xl p-4">
                                 <p className="text-sm font-medium text-foreground mb-2">
-                                    Thông tin tài khoản Worker • {selectedRequest.payment_method.toUpperCase()}
+                                    {t('owner.payments_paymentInfo')} • {selectedRequest.payment_method.toUpperCase()}
                                 </p>
 
                                 {(selectedRequest.payment_method === 'momo' || selectedRequest.payment_method === 'zalopay') ? (
@@ -364,11 +366,11 @@ export default function OwnerPaymentsPage() {
                                 ) : (
                                     <div className="space-y-2">
                                         <div className="flex items-center justify-between">
-                                            <span className="text-muted-foreground">Ngân hàng:</span>
+                                            <span className="text-muted-foreground">{t('owner.payments_bankName')}:</span>
                                             <span className="font-medium text-foreground">{selectedRequest.payment_info.bank_name}</span>
                                         </div>
                                         <div className="flex items-center justify-between">
-                                            <span className="text-muted-foreground">Số TK:</span>
+                                            <span className="text-muted-foreground">{t('owner.payments_bankAccount')}:</span>
                                             <div className="flex items-center gap-2">
                                                 <span className="font-mono text-foreground">{selectedRequest.payment_info.bank_account}</span>
                                                 <button onClick={() => copyToClipboard(selectedRequest.payment_info.bank_account || '')}>
@@ -377,7 +379,7 @@ export default function OwnerPaymentsPage() {
                                             </div>
                                         </div>
                                         <div className="flex items-center justify-between">
-                                            <span className="text-muted-foreground">Chủ TK:</span>
+                                            <span className="text-muted-foreground">{t('owner.payments_accountHolder')}:</span>
                                             <span className="font-medium text-foreground uppercase">{selectedRequest.payment_info.account_holder}</span>
                                         </div>
                                     </div>
@@ -393,17 +395,17 @@ export default function OwnerPaymentsPage() {
                                         disabled={processingId === selectedRequest.id}
                                     >
                                         <CheckCircle2 className="w-4 h-4 mr-2" />
-                                        Xác nhận đã thanh toán
+                                        {t('owner.payments_confirmPaid')}
                                     </Button>
                                     <p className="text-xs text-muted-foreground text-center mt-2">
-                                        Bấm sau khi đã chuyển tiền cho Worker
+                                        {t('owner.payments_confirmPaidDesc')}
                                     </p>
                                 </div>
                             )}
 
                             {selectedRequest.status === 'paid' && selectedRequest.paid_at && (
                                 <div className="pt-4 text-center text-sm text-muted-foreground">
-                                    Đã thanh toán lúc {format(new Date(selectedRequest.paid_at), 'dd/MM/yyyy HH:mm', { locale: vi })}
+                                    {t('owner.payments_paidAt')} {format(new Date(selectedRequest.paid_at), 'dd/MM/yyyy HH:mm', { locale: vi })}
                                 </div>
                             )}
                         </div>

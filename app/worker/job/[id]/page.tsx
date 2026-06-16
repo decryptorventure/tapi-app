@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
@@ -133,9 +133,9 @@ export default function JobDetailPage() {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
                 <FileText className="w-16 h-16 text-muted-foreground mb-4" />
-                <h1 className="text-xl font-bold text-foreground mb-2">Không tìm thấy công việc</h1>
+                <h1 className="text-xl font-bold text-foreground mb-2">{t('jobs.noDescription')}</h1>
                 <Link href="/worker/feed">
-                    <Button variant="outline">Quay lại</Button>
+                    <Button variant="outline">{t('common.back')}</Button>
                 </Link>
             </div>
         );
@@ -251,7 +251,7 @@ export default function JobDetailPage() {
                         <div className="mt-6 p-4 bg-cta/5 border border-cta/20 rounded-xl">
                             <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
                                 <DollarSign className="w-4 h-4 text-cta" />
-                                Thu nhập dự kiến
+                                {t('worker.wallet_earnings')}
                             </h3>
                             <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
@@ -275,12 +275,12 @@ export default function JobDetailPage() {
                             <div className="p-3 bg-muted rounded-xl text-center">
                                 <Star className="w-5 h-5 mx-auto mb-1 text-warning" />
                                 <p className="text-xs font-bold text-foreground">{job.min_reliability_score || 70}+</p>
-                                <p className="text-[10px] text-muted-foreground">Điểm tin cậy</p>
+                                <p className="text-[10px] text-muted-foreground">{t('worker.reliabilityScore')}</p>
                             </div>
                             <div className="p-3 bg-muted rounded-xl text-center">
                                 <Users className="w-5 h-5 mx-auto mb-1 text-success" />
                                 <p className="text-xs font-bold text-foreground">{job.current_workers || 0}/{job.max_workers || 1}</p>
-                                <p className="text-[10px] text-muted-foreground">Vị trí</p>
+                                <p className="text-[10px] text-muted-foreground">{t('owner.jobs_candidates')}</p>
                             </div>
                         </div>
 
@@ -395,7 +395,7 @@ export default function JobDetailPage() {
                                 Nhận job ngay
                             </>
                         ) : (
-                            'Gửi yêu cầu'
+                            t('feed.apply')
                         )}
                     </Button>
                 </div>

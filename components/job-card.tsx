@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Job } from '@/types/database.types';
 import { Button } from '@/components/ui/button';
@@ -90,7 +90,7 @@ export const JobCard = memo(function JobCard({ job, variant = 'card', onClick }:
             {job.status === 'filled' ? (
               <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
                 <CheckCircle2 className="w-3 h-3 mr-1" />
-                Đã đủ người
+                {t('owner.jobs_enoughPeople')}
               </span>
             ) : isInstantBook && (
               <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-success/10 text-success text-xs font-medium">
@@ -163,7 +163,7 @@ export const JobCard = memo(function JobCard({ job, variant = 'card', onClick }:
         {job.status === 'filled' ? (
           <span className="absolute top-2 left-2 inline-flex items-center px-2 py-1 rounded-lg bg-primary text-white text-xs font-semibold shadow-lg">
             <CheckCircle2 className="w-3 h-3 mr-1" />
-            Đã đủ người
+            {t('owner.jobs_enoughPeople')}
           </span>
         ) : isInstantBook && (
           <span className="absolute top-2 left-2 inline-flex items-center px-2 py-1 rounded-lg bg-success text-white text-xs font-semibold shadow-lg">
@@ -299,33 +299,33 @@ export const JobCard = memo(function JobCard({ job, variant = 'card', onClick }:
           {applyMutation.isPending ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              Đang xử lý...
+              {t('common.loading')}
             </>
           ) : job.status === 'expired' ? (
-            'Đã hết hạn'
+            t('owner.jobs_statusExpired')
           ) : (job.status === 'filled' && !qualification?.hasApplied) ? (
-            'Đã đủ người'
+            t('owner.jobs_enoughPeople')
           ) : qualification?.hasApplied ? (
             qualification.applicationStatus === 'pending' ? (
               <>
                 <Clock className="w-4 h-4" />
-                Đang chờ duyệt
+                {t('owner.dashboard_pending')}
               </>
             ) : qualification.applicationStatus === 'approved' ? (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                Đã nhận
+                {t('applicationCard.approved')}
               </>
             ) : (
-              'Đã ứng tuyển'
+              t('applicationCard.approved')
             )
           ) : isInstantBook ? (
             <>
               <Sparkles className="w-4 h-4" />
-              Nhận job ngay
+              {t('feed.instantBook') || 'Instant Book'}
             </>
           ) : (
-            'Gửi yêu cầu'
+            t('feed.apply')
           )}
         </Button>
       </div>

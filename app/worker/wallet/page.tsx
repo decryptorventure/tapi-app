@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -27,11 +27,13 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { useTranslation } from '@/lib/i18n';
 import { EarningsService, WalletBalance, Transaction } from '@/lib/services/earnings.service';
 import { WithdrawalService, WithdrawalRequest, PaymentMethod } from '@/lib/services/withdrawal.service';
 
 export default function WorkerWalletPage() {
     const router = useRouter();
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(true);
     const [balance, setBalance] = useState<WalletBalance | null>(null);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -186,21 +188,21 @@ export default function WorkerWalletPage() {
                 return (
                     <span className="flex items-center gap-1 text-xs text-success">
                         <CheckCircle2 className="w-3 h-3" />
-                        Hoàn thành
+                        {t('worker.wallet_statusCompleted')}
                     </span>
                 );
             case 'pending':
                 return (
                     <span className="flex items-center gap-1 text-xs text-warning">
                         <Clock className="w-3 h-3" />
-                        Đang xử lý
+                        {t('worker.wallet_statusPending')}
                     </span>
                 );
             case 'failed':
                 return (
                     <span className="flex items-center gap-1 text-xs text-destructive">
                         <XCircle className="w-3 h-3" />
-                        Thất bại
+                        {t('worker.wallet_statusFailed')}
                     </span>
                 );
             default:
@@ -211,13 +213,13 @@ export default function WorkerWalletPage() {
     const getWithdrawalStatusBadge = (status: string) => {
         switch (status) {
             case 'completed':
-                return <span className="px-2 py-0.5 bg-success/10 text-success text-xs font-medium rounded-full">Đã chuyển</span>;
+                return <span className="px-2 py-0.5 bg-success/10 text-success text-xs font-medium rounded-full">{t('worker.wallet_withdrawStatusCompleted')}</span>;
             case 'processing':
-                return <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded-full">Đang xử lý</span>;
+                return <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded-full">{t('worker.wallet_withdrawStatusProcessing')}</span>;
             case 'pending':
-                return <span className="px-2 py-0.5 bg-warning/10 text-warning text-xs font-medium rounded-full">Chờ duyệt</span>;
+                return <span className="px-2 py-0.5 bg-warning/10 text-warning text-xs font-medium rounded-full">{t('worker.wallet_withdrawStatusPending')}</span>;
             case 'rejected':
-                return <span className="px-2 py-0.5 bg-destructive/10 text-destructive text-xs font-medium rounded-full">Từ chối</span>;
+                return <span className="px-2 py-0.5 bg-destructive/10 text-destructive text-xs font-medium rounded-full">{t('worker.wallet_withdrawStatusRejected')}</span>;
             default:
                 return null;
         }
@@ -241,19 +243,18 @@ export default function WorkerWalletPage() {
                 <div className="max-w-lg mx-auto">
                     <Link href="/worker/dashboard" className="inline-flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground mb-4">
                         <ArrowLeft className="w-5 h-5" />
-                        <span>Quay lại</span>
+                        <span>{t('worker.wallet_back')}</span>
                     </Link>
 
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2.5 bg-white/20 rounded-xl">
                             <Wallet className="w-6 h-6 text-primary-foreground" />
                         </div>
-                        <h1 className="text-2xl font-bold text-primary-foreground">Ví của tôi</h1>
+                        <h1 className="text-2xl font-bold text-primary-foreground">{t('worker.wallet_title')}</h1>
                     </div>
 
-                    {/* Balance Card */}
                     <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                        <p className="text-primary-foreground/70 text-sm mb-1">Số dư khả dụng</p>
+                        <p className="text-primary-foreground/70 text-sm mb-1">{t('worker.wallet_available')}</p>
                         <p className="text-4xl font-bold text-primary-foreground mb-4">
                             {EarningsService.formatCurrency(balance?.available || 0)}
                         </p>
@@ -261,7 +262,7 @@ export default function WorkerWalletPage() {
                         <div className="flex items-center gap-4 text-sm">
                             <div className="flex items-center gap-1.5 text-primary-foreground/80">
                                 <Clock className="w-4 h-4" />
-                                <span>Đang xử lý: {EarningsService.formatCurrency(balance?.pending || 0)}</span>
+                                <span>{t('worker.wallet_pending')}: {EarningsService.formatCurrency(balance?.pending || 0)}</span>
                             </div>
                         </div>
 
@@ -272,9 +273,9 @@ export default function WorkerWalletPage() {
                         >
                             <Banknote className="w-4 h-4 mr-2" />
                             {hasPendingWithdrawal
-                                ? 'Đang có yêu cầu chờ xử lý'
+                                ? t('worker.wallet_hasPending')
                                 : withdrawCheck.canWithdraw
-                                    ? 'Rút tiền'
+                                    ? t('worker.wallet_withdraw')
                                     : withdrawCheck.reason}
                         </Button>
                     </div>
@@ -287,7 +288,7 @@ export default function WorkerWalletPage() {
                     <div className="bg-warning/10 border border-warning/20 rounded-2xl p-4">
                         <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
                             <Clock className="w-5 h-5 text-warning" />
-                            Yêu cầu rút tiền đang xử lý
+                            {t('worker.wallet_pendingRequests')}
                         </h3>
                         <div className="space-y-2">
                             {withdrawals.filter(w => w.status === 'pending' || w.status === 'processing').map(w => (
@@ -311,26 +312,20 @@ export default function WorkerWalletPage() {
                 <div className="bg-card rounded-2xl border border-border p-5">
                     <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
                         <TrendingUp className="w-5 h-5 text-success" />
-                        Thu nhập
+                        {t('worker.wallet_earnings')}
                     </h3>
                     <div className="grid grid-cols-3 gap-4">
                         <div className="text-center">
-                            <p className="text-2xl font-bold text-success">
-                                {(summary.today / 1000).toFixed(0)}k
-                            </p>
-                            <p className="text-xs text-muted-foreground">Hôm nay</p>
+                            <p className="text-2xl font-bold text-success">{(summary.today / 1000).toFixed(0)}k</p>
+                            <p className="text-xs text-muted-foreground">{t('worker.wallet_today')}</p>
                         </div>
                         <div className="text-center border-x border-border">
-                            <p className="text-2xl font-bold text-primary">
-                                {(summary.thisWeek / 1000).toFixed(0)}k
-                            </p>
-                            <p className="text-xs text-muted-foreground">Tuần này</p>
+                            <p className="text-2xl font-bold text-primary">{(summary.thisWeek / 1000).toFixed(0)}k</p>
+                            <p className="text-xs text-muted-foreground">{t('worker.wallet_thisWeek')}</p>
                         </div>
                         <div className="text-center">
-                            <p className="text-2xl font-bold text-warning">
-                                {(summary.thisMonth / 1000).toFixed(0)}k
-                            </p>
-                            <p className="text-xs text-muted-foreground">Tháng này</p>
+                            <p className="text-2xl font-bold text-warning">{(summary.thisMonth / 1000).toFixed(0)}k</p>
+                            <p className="text-xs text-muted-foreground">{t('worker.wallet_thisMonth')}</p>
                         </div>
                     </div>
                 </div>
@@ -338,13 +333,13 @@ export default function WorkerWalletPage() {
                 {/* Total Stats */}
                 <div className="grid grid-cols-2 gap-4">
                     <div className="bg-card rounded-xl border border-border p-4">
-                        <p className="text-sm text-muted-foreground mb-1">Tổng thu nhập</p>
+                        <p className="text-sm text-muted-foreground mb-1">{t('worker.wallet_totalEarned')}</p>
                         <p className="text-xl font-bold text-success">
                             {EarningsService.formatCurrency(balance?.total_earned || 0)}
                         </p>
                     </div>
                     <div className="bg-card rounded-xl border border-border p-4">
-                        <p className="text-sm text-muted-foreground mb-1">Đã rút</p>
+                        <p className="text-sm text-muted-foreground mb-1">{t('worker.wallet_totalWithdrawn')}</p>
                         <p className="text-xl font-bold text-primary">
                             {EarningsService.formatCurrency(balance?.total_withdrawn || 0)}
                         </p>
@@ -354,10 +349,10 @@ export default function WorkerWalletPage() {
                 {/* Transaction History */}
                 <div className="bg-card rounded-2xl border border-border overflow-hidden">
                     <div className="px-5 py-4 border-b border-border flex items-center justify-between">
-                        <h3 className="font-bold text-foreground">Lịch sử giao dịch</h3>
+                        <h3 className="font-bold text-foreground">{t('worker.wallet_history')}</h3>
                         {summary.pendingCount > 0 && (
                             <span className="px-2 py-0.5 bg-warning/10 text-warning text-xs font-medium rounded-full">
-                                {summary.pendingCount} đang xử lý
+                                {summary.pendingCount} {t('worker.wallet_processing')}
                             </span>
                         )}
                     </div>
@@ -365,10 +360,10 @@ export default function WorkerWalletPage() {
                     {transactions.length === 0 ? (
                         <div className="p-8 text-center">
                             <Wallet className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                            <p className="text-muted-foreground">Chưa có giao dịch nào</p>
+                            <p className="text-muted-foreground">{t('worker.wallet_noTransactions')}</p>
                             <Link href="/worker/feed" className="mt-4 inline-block">
                                 <Button variant="outline" size="sm">
-                                    Tìm việc ngay
+                                    {t('worker.wallet_findJobs')}
                                     <ChevronRight className="w-4 h-4 ml-1" />
                                 </Button>
                             </Link>
@@ -411,11 +406,8 @@ export default function WorkerWalletPage() {
                     <div className="flex items-start gap-3">
                         <Clock className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                         <div>
-                            <p className="font-medium text-foreground">Thời gian xử lý</p>
-                            <p className="text-sm text-muted-foreground">
-                                Yêu cầu rút tiền sẽ được xử lý trong vòng 24 giờ làm việc.
-                                Số tiền tối thiểu để rút là 50,000đ.
-                            </p>
+                            <p className="font-medium text-foreground">{t('worker.wallet_infoTitle')}</p>
+                            <p className="text-sm text-muted-foreground">{t('worker.wallet_infoDesc')}</p>
                         </div>
                     </div>
                 </div>
@@ -427,7 +419,7 @@ export default function WorkerWalletPage() {
                     <div className="bg-card rounded-t-2xl sm:rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
                         {/* Modal Header */}
                         <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
-                            <h2 className="text-lg font-bold text-foreground">Rút tiền</h2>
+                            <h2 className="text-lg font-bold text-foreground">{t('worker.wallet_withdrawTitle')}</h2>
                             <button
                                 onClick={() => setShowWithdrawModal(false)}
                                 className="p-2 hover:bg-muted rounded-lg transition-colors"
@@ -440,7 +432,7 @@ export default function WorkerWalletPage() {
                             {/* Amount */}
                             <div>
                                 <label className="block text-sm font-medium text-foreground mb-2">
-                                    Số tiền muốn rút
+                                    {t('worker.wallet_amountLabel')}
                                 </label>
                                 <div className="relative">
                                     <input
@@ -453,25 +445,23 @@ export default function WorkerWalletPage() {
                                         className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary transition-all text-foreground text-lg font-bold"
                                         placeholder="0"
                                     />
-                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">
-                                        VNĐ
-                                    </span>
+                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">{t('analytics_vnd', {defaultValue: 'VNĐ'})}</span>
                                 </div>
                                 <p className="text-xs text-muted-foreground mt-1">
-                                    Tối thiểu 50,000đ • Khả dụng: {EarningsService.formatCurrency(balance?.available || 0)}
+                                    {t('worker.wallet_minAmount')}: {EarningsService.formatCurrency(balance?.available || 0)}
                                 </p>
                             </div>
 
                             {/* Payment Method */}
                             <div>
                                 <label className="block text-sm font-medium text-foreground mb-2">
-                                    Phương thức nhận tiền
+                                    {t('worker.wallet_methodLabel')}
                                 </label>
                                 <div className="grid grid-cols-3 gap-2">
                                     {[
                                         { value: 'momo', label: 'MoMo', icon: Smartphone, color: 'text-pink-600' },
                                         { value: 'zalopay', label: 'ZaloPay', icon: Smartphone, color: 'text-blue-600' },
-                                        { value: 'bank_transfer', label: 'Ngân hàng', icon: Building2, color: 'text-slate-600' },
+                                        { value: 'bank_transfer', label: t('worker.wallet_bank'), icon: Building2, color: 'text-slate-600' },
                                     ].map((method) => (
                                         <button
                                             key={method.value}
@@ -493,7 +483,7 @@ export default function WorkerWalletPage() {
                             {(withdrawForm.method === 'momo' || withdrawForm.method === 'zalopay') ? (
                                 <div>
                                     <label className="block text-sm font-medium text-foreground mb-2">
-                                        Số điện thoại {withdrawForm.method === 'momo' ? 'MoMo' : 'ZaloPay'}
+                                        {t('worker.wallet_phoneLabel')} {withdrawForm.method === 'momo' ? 'MoMo' : 'ZaloPay'}
                                     </label>
                                     <input
                                         type="tel"
@@ -508,7 +498,7 @@ export default function WorkerWalletPage() {
                                 <div className="space-y-3">
                                     <div>
                                         <label className="block text-sm font-medium text-foreground mb-2">
-                                            Tên ngân hàng
+                                            {t('worker.wallet_bankName')}
                                         </label>
                                         <input
                                             type="text"
@@ -516,12 +506,12 @@ export default function WorkerWalletPage() {
                                             value={withdrawForm.bankName}
                                             onChange={(e) => setWithdrawForm({ ...withdrawForm, bankName: e.target.value })}
                                             className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary transition-all text-foreground"
-                                            placeholder="VD: Vietcombank, Techcombank..."
+                                            placeholder={t('worker.wallet_bankNamePlaceholder')}
                                         />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-foreground mb-2">
-                                            Số tài khoản
+                                            {t('worker.wallet_bankAccount')}
                                         </label>
                                         <input
                                             type="text"
@@ -529,12 +519,12 @@ export default function WorkerWalletPage() {
                                             value={withdrawForm.bankAccount}
                                             onChange={(e) => setWithdrawForm({ ...withdrawForm, bankAccount: e.target.value })}
                                             className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary transition-all text-foreground"
-                                            placeholder="Nhập số tài khoản"
+                                            placeholder={t('worker.wallet_bankAccountPlaceholder')}
                                         />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-foreground mb-2">
-                                            Tên chủ tài khoản
+                                            {t('worker.wallet_accountHolder')}
                                         </label>
                                         <input
                                             type="text"
@@ -548,28 +538,20 @@ export default function WorkerWalletPage() {
                                 </div>
                             )}
 
-                            {/* Note */}
                             <div className="bg-muted/50 rounded-xl p-3">
-                                <p className="text-sm text-muted-foreground">
-                                    Yêu cầu sẽ được xử lý trong 24 giờ làm việc. Bạn sẽ nhận được thông báo khi hoàn tất.
-                                </p>
+                                <p className="text-sm text-muted-foreground">{t('worker.wallet_noteDesc')}</p>
                             </div>
 
-                            {/* Submit Button */}
-                            <Button
-                                type="submit"
-                                className="w-full h-12 text-base font-bold"
-                                disabled={withdrawLoading}
-                            >
+                            <Button type="submit" className="w-full h-12 text-base font-bold" disabled={withdrawLoading}>
                                 {withdrawLoading ? (
                                     <>
                                         <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                        Đang xử lý...
+                                        {t('worker.wallet_submitting')}
                                     </>
                                 ) : (
                                     <>
                                         <Banknote className="w-5 h-5 mr-2" />
-                                        Gửi yêu cầu rút tiền
+                                        {t('worker.wallet_submit')}
                                     </>
                                 )}
                             </Button>

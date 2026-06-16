@@ -6,9 +6,11 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CheckCircle2, FileText, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from '@/lib/i18n';
 
 export default function SignContractPage({ params }: { params: { applicationId: string } }) {
     const router = useRouter();
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(true);
     const [signing, setSigning] = useState(false);
     const [application, setApplication] = useState<any>(null);
@@ -39,14 +41,13 @@ export default function SignContractPage({ params }: { params: { applicationId: 
 
             if (error) throw error;
             if ((data as any).contract_accepted_at) {
-                // Already signed
                 router.replace(`/worker/jobs/${data.id}`);
                 return;
             }
             setApplication(data);
         } catch (error) {
             console.error(error);
-            toast.error('Không thể tải thông tin hợp đồng');
+            toast.error(t('common.error'));
             router.push('/worker/jobs');
         } finally {
             setLoading(false);
@@ -63,22 +64,21 @@ export default function SignContractPage({ params }: { params: { applicationId: 
                 .eq('id', params.applicationId);
 
             if (error) throw error;
-            
-            toast.success('Ký hợp đồng thành công!');
-            
-            // Optionally dispatch notification to owner
+
+            toast.success(t('worker.contract_success'));
+
             const { NotificationService } = await import('@/lib/services/notification.service');
             await NotificationService.createNotification({
                 user_id: application.job.owner.id,
-                title: 'Ứng viên đã ký hợp đồng',
-                message: `${application.worker.full_name} đã xác nhận hợp đồng cho ${application.job.title}`,
+                title: t('worker.contract_title'),
+                message: `${application.worker.full_name} - ${application.job.title}`,
                 type: 'system',
                 related_id: params.applicationId
             }).catch(console.error);
 
             router.push(`/worker/jobs/${params.applicationId}/qr`);
         } catch (error) {
-            toast.error('Có lỗi xảy ra khi ký hợp đồng');
+            toast.error(t('worker.contract_error'));
         } finally {
             setSigning(false);
         }
@@ -96,14 +96,13 @@ export default function SignContractPage({ params }: { params: { applicationId: 
 
     return (
         <div className="min-h-screen bg-slate-50 pb-24">
-            {/* Header */}
             <div className="bg-white border-b sticky top-0 z-10 px-4 py-4 flex items-center gap-4">
                 <button onClick={() => router.back()} className="p-2 -ml-2 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100">
                     <ArrowLeft className="w-5 h-5" />
                 </button>
                 <div>
-                    <h1 className="text-xl font-bold">Ký Hợp Đồng</h1>
-                    <p className="text-sm text-slate-500">Xác nhận trước khi nhận việc</p>
+                    <h1 className="text-xl font-bold">{t('worker.contract_title')}</h1>
+                    <p className="text-sm text-slate-500">{t('worker.contract_subtitle')}</p>
                 </div>
             </div>
 
@@ -113,38 +112,38 @@ export default function SignContractPage({ params }: { params: { applicationId: 
                         <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
                             <FileText className="w-8 h-8 text-blue-600" />
                         </div>
-                        <h2 className="text-xl font-bold text-slate-900">Thoả Thuận Cung Cấp Dịch Vụ</h2>
-                        <p className="text-slate-500 text-sm mt-1">Vui lòng đọc kỹ các điều khoản dưới đây</p>
+                        <h2 className="text-xl font-bold text-slate-900">{t('worker.contract_docTitle')}</h2>
+                        <p className="text-slate-500 text-sm mt-1">{t('worker.contract_readCarefully')}</p>
                     </div>
 
                     <div className="bg-slate-50 p-4 rounded-lg text-sm text-slate-700 leading-relaxed border border-slate-100 h-64 overflow-y-auto space-y-4">
-                        <p><strong>BÊN A (Bên thuê dịch vụ):</strong> {application.job.owner?.restaurant_name}</p>
-                        <p><strong>BÊN B (Người cung cấp dịch vụ):</strong> {application.worker?.full_name}</p>
-                        
-                        <p><strong>1. Nội dung công việc:</strong></p>
+                        <p><strong>{t('worker.contract_partyA')}:</strong> {application.job.owner?.restaurant_name}</p>
+                        <p><strong>{t('worker.contract_partyB')}:</strong> {application.worker?.full_name}</p>
+
+                        <p><strong>{t('worker.contract_section1')}:</strong></p>
                         <ul className="list-disc pl-5 space-y-1">
-                            <li>Vị trí: {application.job.title}</li>
-                            <li>Địa điểm: {application.job.owner?.restaurant_address}</li>
-                            <li>Thời gian làm việc: {application.job.shift_start_time} - {application.job.shift_end_time} ({new Date(application.job.shift_date).toLocaleDateString('vi-VN')})</li>
+                            <li>{t('worker.contract_position')}: {application.job.title}</li>
+                            <li>{t('worker.contract_location')}: {application.job.owner?.restaurant_address}</li>
+                            <li>{t('worker.contract_workTime')}: {application.job.shift_start_time} - {application.job.shift_end_time} ({new Date(application.job.shift_date).toLocaleDateString()})</li>
                         </ul>
 
-                        <p><strong>2. Thù lao:</strong></p>
+                        <p><strong>{t('worker.contract_section2')}:</strong></p>
                         <ul className="list-disc pl-5 space-y-1">
-                            <li>Mức lương: {application.job.hourly_rate_vnd.toLocaleString()}đ / giờ</li>
-                            <li>Phương thức thanh toán: Chuyển khoản ví Tapy hoặc tài khoản ngân hàng được cung cấp.</li>
+                            <li>{t('worker.contract_salary')}: {application.job.hourly_rate_vnd.toLocaleString()} VNĐ/h</li>
+                            <li>{t('worker.contract_paymentMethod')}</li>
                         </ul>
 
-                        <p><strong>3. Cam kết:</strong></p>
-                        <p>Bên B cam kết hoàn thành công việc theo đúng thời gian và yêu cầu của Bên A. Nếu vắng mặt không lý do chính đáng sẽ bị phạt theo quy định nền tảng Tapy (trừ điểm tín nhiệm, khoá tải khoản).</p>
+                        <p><strong>{t('worker.contract_section3')}:</strong></p>
+                        <p>{t('worker.contract_commitment')}</p>
                     </div>
 
                     <div className="bg-blue-50 p-4 rounded-lg flex gap-3 text-blue-800 text-sm border border-blue-100">
                         <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                        <p>Bằng việc bấm "Đồng ý & Ký hợp đồng", bạn xác nhận đã đọc, hiểu và đồng ý với các điều khoản trên.</p>
+                        <p>{t('worker.contract_disclaimer')}</p>
                     </div>
 
-                    <Button 
-                        onClick={handleSignContract} 
+                    <Button
+                        onClick={handleSignContract}
                         disabled={signing}
                         className="w-full text-base py-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
                     >
@@ -153,7 +152,7 @@ export default function SignContractPage({ params }: { params: { applicationId: 
                         ) : (
                             <CheckCircle2 className="w-5 h-5 mr-2" />
                         )}
-                        Đồng ý & Ký hợp đồng
+                        {t('worker.contract_signBtn')}
                     </Button>
                 </div>
             </div>

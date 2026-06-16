@@ -5,49 +5,40 @@ import { Zap, Mail, Phone, MapPin, Facebook, Instagram, Youtube } from 'lucide-r
 import { useTranslation } from '@/lib/i18n';
 
 export function Footer() {
-    const { t, locale } = useTranslation();
+    const { t } = useTranslation();
 
-    const footerLinks = {
-        forWorkers: {
-            titleVi: 'Cho nhân viên',
-            titleEn: 'For Workers',
+    const footerLinks = [
+        {
+            title: t('landing.forWorkers', { defaultValue: 'Cho nhân viên' }),
             links: [
-                { href: '/worker/feed', labelVi: 'Tìm việc làm', labelEn: 'Find Jobs' },
-                { href: '/signup?role=worker', labelVi: 'Đăng ký', labelEn: 'Sign Up' },
-                { href: '/guide', labelVi: 'Hướng dẫn', labelEn: 'Guide' },
-                { href: '/faq', labelVi: 'Câu hỏi thường gặp', labelEn: 'FAQ' },
+                { href: '/worker/feed', label: t('common.searchJobs') },
+                { href: '/signup?role=worker', label: t('common.signup') },
+                { href: '/guide', label: t('landing.guide', { defaultValue: 'Hướng dẫn' }) },
+                { href: '/faq', label: 'FAQ' },
             ],
         },
-        forOwners: {
-            titleVi: 'Cho chủ nhà hàng',
-            titleEn: 'For Owners',
+        {
+            title: t('landing.forOwners', { defaultValue: 'Cho chủ nhà hàng' }),
             links: [
-                { href: '/signup?role=owner', labelVi: 'Đăng tuyển dụng', labelEn: 'Post Jobs' },
-                { href: '/pricing', labelVi: 'Bảng giá', labelEn: 'Pricing' },
-                { href: '/guide', labelVi: 'Hướng dẫn', labelEn: 'Guide' },
-                { href: '/success-stories', labelVi: 'Câu chuyện thành công', labelEn: 'Success Stories' },
+                { href: '/signup?role=owner', label: t('owner.postNewJob') },
+                { href: '/guide', label: t('landing.guide', { defaultValue: 'Hướng dẫn' }) },
             ],
         },
-        company: {
-            titleVi: 'Công ty',
-            titleEn: 'Company',
+        {
+            title: t('landing.company', { defaultValue: 'Công ty' }),
             links: [
-                { href: '/about', labelVi: 'Về chúng tôi', labelEn: 'About Us' },
-                { href: '/careers', labelVi: 'Tuyển dụng', labelEn: 'Careers' },
-                { href: '/blog', labelVi: 'Blog', labelEn: 'Blog' },
-                { href: '/contact', labelVi: 'Liên hệ', labelEn: 'Contact' },
+                { href: '/about', label: t('landing.about', { defaultValue: 'Về chúng tôi' }) },
+                { href: '/contact', label: t('landing.contact', { defaultValue: 'Liên hệ' }) },
             ],
         },
-        legal: {
-            titleVi: 'Pháp lý',
-            titleEn: 'Legal',
+        {
+            title: t('landing.legal', { defaultValue: 'Pháp lý' }),
             links: [
-                { href: '/terms', labelVi: 'Điều khoản sử dụng', labelEn: 'Terms of Service' },
-                { href: '/privacy', labelVi: 'Chính sách bảo mật', labelEn: 'Privacy Policy' },
-                { href: '/cookies', labelVi: 'Cookie', labelEn: 'Cookie Policy' },
+                { href: '/terms', label: t('landing.terms', { defaultValue: 'Điều khoản sử dụng' }) },
+                { href: '/privacy', label: t('landing.privacy', { defaultValue: 'Chính sách bảo mật' }) },
             ],
         },
-    };
+    ];
 
     const socialLinks = [
         { icon: Facebook, href: '#', label: 'Facebook' },
@@ -57,7 +48,6 @@ export function Footer() {
 
     return (
         <footer className="bg-card border-t border-border">
-            {/* Main Footer */}
             <div className="container px-4 mx-auto py-16">
                 <div className="grid grid-cols-2 md:grid-cols-6 gap-8 lg:gap-12">
                     {/* Brand Column */}
@@ -69,12 +59,9 @@ export function Footer() {
                             <span className="font-black text-2xl text-foreground">TAPY</span>
                         </Link>
                         <p className="text-muted-foreground mb-6 max-w-xs">
-                            {locale === 'vi'
-                                ? 'Nền tảng kết nối nhân viên nhà hàng với cơ hội việc làm linh hoạt.'
-                                : 'Platform connecting restaurant workers with flexible job opportunities.'}
+                            {t('landing.tagline', { defaultValue: 'Nền tảng kết nối nhân viên nhà hàng với cơ hội việc làm linh hoạt.' })}
                         </p>
 
-                        {/* Contact Info */}
                         <div className="space-y-3">
                             <a href="mailto:hello@tapy.vn" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                                 <Mail className="w-4 h-4" />
@@ -86,25 +73,20 @@ export function Footer() {
                             </a>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <MapPin className="w-4 h-4" />
-                                {locale === 'vi' ? 'TP. Hồ Chí Minh, Việt Nam' : 'Ho Chi Minh City, Vietnam'}
+                                {t('landing.address', { defaultValue: 'TP. Hồ Chí Minh, Việt Nam' })}
                             </div>
                         </div>
                     </div>
 
                     {/* Link Columns */}
-                    {Object.values(footerLinks).map((section, index) => (
+                    {footerLinks.map((section, index) => (
                         <div key={index}>
-                            <h4 className="font-bold text-foreground mb-4">
-                                {locale === 'vi' ? section.titleVi : section.titleEn}
-                            </h4>
+                            <h4 className="font-bold text-foreground mb-4">{section.title}</h4>
                             <ul className="space-y-3">
                                 {section.links.map((link, linkIndex) => (
                                     <li key={linkIndex}>
-                                        <Link
-                                            href={link.href}
-                                            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                                        >
-                                            {locale === 'vi' ? link.labelVi : link.labelEn}
+                                        <Link href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                                            {link.label}
                                         </Link>
                                     </li>
                                 ))}
@@ -114,15 +96,12 @@ export function Footer() {
                 </div>
             </div>
 
-            {/* Bottom Footer */}
             <div className="border-t border-border">
                 <div className="container px-4 mx-auto py-6">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                         <p className="text-sm text-muted-foreground">
-                            © 2026 Tapy. {locale === 'vi' ? 'Bảo lưu mọi quyền.' : 'All rights reserved.'}
+                            © 2026 Tapy. {t('landing.allRights', { defaultValue: 'Bảo lưu mọi quyền.' })}
                         </p>
-
-                        {/* Social Links */}
                         <div className="flex items-center gap-4">
                             {socialLinks.map((social, index) => {
                                 const Icon = social.icon;

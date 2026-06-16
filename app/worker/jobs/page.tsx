@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -165,14 +165,14 @@ export default function MyJobsPage() {
 
       if (paymentForm.method === 'momo' || paymentForm.method === 'zalopay') {
         if (!paymentForm.phone) {
-          toast.error('Vui lòng nhập số điện thoại');
+          toast.error(t('worker.wallet_phoneLabel'));
           setSubmitLoading(false);
           return;
         }
         paymentInfo.phone = paymentForm.phone;
       } else {
         if (!paymentForm.bankName || !paymentForm.bankAccount || !paymentForm.accountHolder) {
-          toast.error('Vui lòng nhập đầy đủ thông tin ngân hàng');
+          toast.error(t('worker.wallet_bankName'));
           setSubmitLoading(false);
           return;
         }
@@ -196,7 +196,7 @@ export default function MyJobsPage() {
       );
 
       if (result.success) {
-        toast.success('Đã gửi yêu cầu thanh toán!');
+        toast.success(t('applicationCard.requestPayment'));
         setShowPaymentModal(false);
         setPaymentForm({
           method: 'momo',
@@ -207,10 +207,10 @@ export default function MyJobsPage() {
         });
         refetch();
       } else {
-        toast.error(result.error || 'Có lỗi xảy ra');
+        toast.error(result.error || t('common.error'));
       }
     } catch (error) {
-      toast.error('Có lỗi xảy ra');
+      toast.error(t('common.error'));
     } finally {
       setSubmitLoading(false);
     }
@@ -265,7 +265,7 @@ export default function MyJobsPage() {
           <div className="mb-6 space-y-4">
             <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              Ca đang làm
+              {t('applicationCard.working')}
             </h2>
             {applications
               .filter((app: any) => app.status === 'working')
@@ -329,7 +329,7 @@ export default function MyJobsPage() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
           <div className="bg-card rounded-t-2xl sm:rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-foreground">Yêu cầu thanh toán</h2>
+              <h2 className="text-lg font-bold text-foreground">{t('applicationCard.requestPayment')}</h2>
               <button onClick={() => setShowPaymentModal(false)} className="p-2 hover:bg-muted rounded-lg">
                 <X className="w-5 h-5" />
               </button>
@@ -337,7 +337,7 @@ export default function MyJobsPage() {
 
             <form onSubmit={handleSubmitPayment} className="p-4 space-y-4">
               <div className="bg-primary/5 p-4 rounded-xl border border-primary/10">
-                <p className="text-sm text-muted-foreground">Số tiền yêu cầu</p>
+                <p className="text-sm text-muted-foreground">{t('worker.wallet_amountLabel')}</p>
                 <p className="text-2xl font-bold text-primary">
                   {calculateTotalAmount(selectedApp).toLocaleString()}đ
                 </p>
@@ -345,12 +345,12 @@ export default function MyJobsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Phương thức nhận tiền</label>
+                <label className="block text-sm font-medium mb-2">{t('worker.wallet_methodLabel')}</label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
                     { value: 'momo', label: 'MoMo', icon: Smartphone, color: 'text-pink-600' },
                     { value: 'zalopay', label: 'ZaloPay', icon: Smartphone, color: 'text-blue-600' },
-                    { value: 'bank_transfer', label: 'Ngân hàng', icon: Building2, color: 'text-slate-600' },
+                    { value: 'bank_transfer', label: t('worker.wallet_bank'), icon: Building2, color: 'text-slate-600' },
                   ].map((method) => (
                     <button
                       key={method.value}
@@ -368,7 +368,7 @@ export default function MyJobsPage() {
 
               {(paymentForm.method === 'momo' || paymentForm.method === 'zalopay') ? (
                 <div>
-                  <label className="block text-sm font-medium mb-2">Số điện thoại</label>
+                  <label className="block text-sm font-medium mb-2">{t('worker.wallet_phoneLabel')}</label>
                   <input
                     type="tel"
                     required
@@ -386,7 +386,7 @@ export default function MyJobsPage() {
                     value={paymentForm.bankName}
                     onChange={(e) => setPaymentForm({ ...paymentForm, bankName: e.target.value })}
                     className="w-full px-4 py-3 bg-background border border-border rounded-xl"
-                    placeholder="Tên ngân hàng"
+                    placeholder={t("worker.wallet_bankName")}
                   />
                   <input
                     type="text"
@@ -394,7 +394,7 @@ export default function MyJobsPage() {
                     value={paymentForm.bankAccount}
                     onChange={(e) => setPaymentForm({ ...paymentForm, bankAccount: e.target.value })}
                     className="w-full px-4 py-3 bg-background border border-border rounded-xl"
-                    placeholder="Số tài khoản"
+                    placeholder={t("worker.wallet_bankAccount")}
                   />
                   <input
                     type="text"
@@ -402,14 +402,14 @@ export default function MyJobsPage() {
                     value={paymentForm.accountHolder}
                     onChange={(e) => setPaymentForm({ ...paymentForm, accountHolder: e.target.value })}
                     className="w-full px-4 py-3 bg-background border border-border rounded-xl uppercase"
-                    placeholder="Tên chủ tài khoản"
+                    placeholder={t("worker.wallet_accountHolder")}
                   />
                 </div>
               )}
 
               <Button type="submit" className="w-full" disabled={submitLoading}>
                 {submitLoading ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : <Banknote className="w-4 h-4 mr-2" />}
-                Gửi yêu cầu
+                {t('worker.wallet_submit')}
               </Button>
             </form>
           </div>

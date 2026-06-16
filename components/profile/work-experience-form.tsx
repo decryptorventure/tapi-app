@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,7 @@ interface WorkExperienceFormProps {
 }
 
 export function WorkExperienceForm({ onSave, onCancel, initialData }: WorkExperienceFormProps) {
-    const { locale } = useTranslation();
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState<WorkExperienceFormData>(initialData || {
         company_name: '',
@@ -52,7 +52,7 @@ export function WorkExperienceForm({ onSave, onCancel, initialData }: WorkExperi
             <div className="flex items-center justify-between mb-2">
                 <h3 className="font-semibold text-slate-900 flex items-center gap-2">
                     <Briefcase className="w-4 h-4 text-blue-600" />
-                    {initialData ? (locale === 'vi' ? 'Sửa kinh nghiệm' : 'Edit Experience') : (locale === 'vi' ? 'Thêm kinh nghiệm' : 'Add Experience')}
+                    {initialData ? (t('worker.jobHistory')) : (t('worker.addCertificate'))}
                 </h3>
                 <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
                     <X className="w-4 h-4" />
@@ -61,7 +61,7 @@ export function WorkExperienceForm({ onSave, onCancel, initialData }: WorkExperi
 
             <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                    {locale === 'vi' ? 'Tên công ty *' : 'Company Name *'}
+                    {t('forms.fullName')}
                 </label>
                 <div className="relative">
                     <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -70,7 +70,7 @@ export function WorkExperienceForm({ onSave, onCancel, initialData }: WorkExperi
                         value={formData.company_name}
                         onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
                         className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder={locale === 'vi' ? 'VD: Nhà hàng Tokyo Garden' : 'e.g. Tokyo Garden Restaurant'}
+                        placeholder={t('forms.jobTitlePlaceholder')}
                         required
                     />
                 </div>
@@ -78,7 +78,7 @@ export function WorkExperienceForm({ onSave, onCancel, initialData }: WorkExperi
 
             <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                    {locale === 'vi' ? 'Vị trí công việc *' : 'Job Title *'}
+                    {t('forms.jobTitle')}
                 </label>
                 <div className="relative">
                     <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -87,7 +87,7 @@ export function WorkExperienceForm({ onSave, onCancel, initialData }: WorkExperi
                         value={formData.job_title}
                         onChange={(e) => setFormData({ ...formData, job_title: e.target.value })}
                         className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder={locale === 'vi' ? 'VD: Phục vụ bàn' : 'e.g. Server'}
+                        placeholder={t('forms.jobTitlePlaceholder')}
                         required
                     />
                 </div>
@@ -96,7 +96,7 @@ export function WorkExperienceForm({ onSave, onCancel, initialData }: WorkExperi
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">
-                        {locale === 'vi' ? 'Từ tháng' : 'Start Date'}
+                        {t('forms.startTime')}
                     </label>
                     <div className="relative">
                         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -111,7 +111,7 @@ export function WorkExperienceForm({ onSave, onCancel, initialData }: WorkExperi
 
                 <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">
-                        {locale === 'vi' ? 'Đến tháng' : 'End Date'}
+                        {t('forms.endTime')}
                     </label>
                     <div className="relative">
                         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -133,19 +133,19 @@ export function WorkExperienceForm({ onSave, onCancel, initialData }: WorkExperi
                     onChange={(e) => setFormData({ ...formData, is_current: e.target.checked, end_date: e.target.checked ? '' : formData.end_date })}
                     className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
-                {locale === 'vi' ? 'Tôi đang làm việc ở đây' : 'I currently work here'}
+                {t('worker.verified')}
             </label>
 
             <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                    {locale === 'vi' ? 'Mô tả công việc' : 'Job Description'}
+                    {t('forms.description')}
                 </label>
                 <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={3}
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                    placeholder={locale === 'vi' ? 'Mô tả ngắn gọn về công việc của bạn...' : 'Brief description of your work...'}
+                    placeholder={t('forms.descriptionPlaceholder')}
                 />
             </div>
 
@@ -156,7 +156,7 @@ export function WorkExperienceForm({ onSave, onCancel, initialData }: WorkExperi
                     onClick={onCancel}
                     className="flex-1"
                 >
-                    {locale === 'vi' ? 'Hủy' : 'Cancel'}
+                    {t('common.cancel')}
                 </Button>
                 <Button
                     type="submit"
@@ -166,10 +166,10 @@ export function WorkExperienceForm({ onSave, onCancel, initialData }: WorkExperi
                     {loading ? (
                         <>
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            {locale === 'vi' ? 'Đang lưu...' : 'Saving...'}
+                            {t('common.loading')}
                         </>
                     ) : (
-                        locale === 'vi' ? 'Lưu' : 'Save'
+                        t('common.save')
                     )}
                 </Button>
             </div>

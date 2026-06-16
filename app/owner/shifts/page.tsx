@@ -159,10 +159,10 @@ export default function OwnerShiftsPage() {
 
     const getStatusLabel = (status: string) => {
         const labels: Record<string, string> = {
-            open: 'Đang mở',
-            filled: 'Đủ người',
-            completed: 'Hoàn thành',
-            cancelled: 'Đã hủy',
+            open: t('owner.jobs_open'),
+            filled: t('owner.jobs_enoughPeople'),
+            completed: t('owner.jobs_statusCompleted'),
+            cancelled: t('owner.jobs_statusCancelled'),
         };
         return labels[status] || status;
     };
@@ -195,7 +195,7 @@ export default function OwnerShiftsPage() {
                                 <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                             </Button>
                             <Button variant="outline" size="sm" onClick={goToToday}>
-                                Hôm nay
+                                {t('owner.shifts_today')}
                             </Button>
                         </div>
                     </div>
@@ -326,7 +326,7 @@ export default function OwnerShiftsPage() {
                                             </Link>
                                             <Link href={`/owner/jobs/${shift.id}/applications`}>
                                                 <Button variant="default" size="sm">
-                                                    Xem đơn
+                                                    {t('owner.shifts_viewApps')}
                                                 </Button>
                                             </Link>
                                         </div>

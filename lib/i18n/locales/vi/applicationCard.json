@@ -4,11 +4,19 @@
     "rejected": "Bị từ chối",
     "completed": "Hoàn thành",
     "cancelled": "Đã hủy",
+    "working": "Đang làm",
+    "paid": "Đã thanh toán",
+    "waitingPayment": "Chờ thanh toán",
+    "requestPayment": "Yêu cầu thanh toán",
+    "waitingPaymentProcess": "Đang chờ thanh toán",
+    "received": "Đã nhận tiền",
+    "signContract": "Ký Hợp Đồng",
     "restaurant": "Nhà hàng",
     "noAddress": "Địa chỉ chưa cập nhật",
     "viewQr": "Xem QR Code",
     "waitingOwner": "Đang chờ owner xác nhận",
     "viewDetails": "Xem chi tiết",
     "viewOtherJobs": "Xem công việc khác",
-    "instantBook": "Instant Book"
+    "instantBook": "Instant Book",
+    "rateUnit": "đ/giờ"
 }

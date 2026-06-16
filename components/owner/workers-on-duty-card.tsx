@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { Users } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n';
 
 interface WorkerOnDuty {
     id: string;
@@ -18,6 +19,7 @@ interface WorkersOnDutyCardProps {
 }
 
 export function WorkersOnDutyCard({ workers, onViewWorker }: WorkersOnDutyCardProps) {
+    const { t } = useTranslation();
     if (workers.length === 0) return null;
 
     return (
@@ -28,8 +30,8 @@ export function WorkersOnDutyCard({ workers, onViewWorker }: WorkersOnDutyCardPr
                         <Users className="w-5 h-5 text-success" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-foreground">Workers đang làm</h3>
-                        <p className="text-xs text-muted-foreground">{workers.length} người đã check-in hôm nay</p>
+                        <h3 className="font-bold text-foreground">{t('common.workersOnDuty')}</h3>
+                        <p className="text-xs text-muted-foreground">{workers.length} {t('common.checkedInToday')}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -63,7 +65,7 @@ export function WorkersOnDutyCard({ workers, onViewWorker }: WorkersOnDutyCardPr
                 ))}
                 {workers.length > 5 && (
                     <div className="flex items-center gap-1 px-3 py-2 text-sm text-success">
-                        +{workers.length - 5} khác
+                        +{workers.length - 5} {t('common.others')}
                     </div>
                 )}
             </div>

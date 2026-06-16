@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import {
@@ -26,6 +26,7 @@ import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
+import { useTranslation } from '@/lib/i18n';
 
 interface WorkerProfileModalProps {
     worker: any;
@@ -37,6 +38,7 @@ interface WorkerProfileModalProps {
 export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: WorkerProfileModalProps) {
     const [isFavorite, setIsFavorite] = useState(false);
     const [savingFavorite, setSavingFavorite] = useState(false);
+    const { t } = useTranslation();
 
     useEffect(() => {
         if (worker?.id && isOpen) {
@@ -96,9 +98,9 @@ export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: 
 
     const getLanguageLabel = (lang: string) => {
         const labels: Record<string, string> = {
-            japanese: 'Tiếng Nhật',
-            korean: 'Tiếng Hàn',
-            english: 'Tiếng Anh',
+            japanese: t('common.japanese'),
+            korean: t('owner.settings_korean'),
+            english: t('common.english'),
         };
         return labels[lang] || lang;
     };
@@ -109,7 +111,7 @@ export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: 
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-xl font-bold">
                         <Contact className="w-5 h-5 text-blue-600" />
-                        Hồ sơ ứng viên
+                        {t('owner.favorites_viewProfile')}
                     </DialogTitle>
                 </DialogHeader>
 
@@ -130,7 +132,7 @@ export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: 
                                 <h2 className="text-2xl font-black text-slate-900">{worker.full_name}</h2>
                                 {worker.is_verified && (
                                     <span className="flex items-center gap-1 text-[10px] font-bold uppercase bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                                        <CheckCircle2 className="w-3 h-3" /> Đã xác minh
+                                        <CheckCircle2 className="w-3 h-3" /> {t('worker.verified')}
                                     </span>
                                 )}
                             </div>
@@ -152,11 +154,11 @@ export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: 
                                 </p>
                                 <p className="flex items-center gap-1.5 font-medium">
                                     <Calendar className="w-4 h-4 text-slate-400" />
-                                    {worker.university_name || 'Hồ sơ chưa cập nhật trường'}
+                                    {worker.university_name || t('worker.university_name')}
                                 </p>
                             </div>
                             <p className="text-slate-600 text-sm italic leading-relaxed bg-slate-50 p-3 rounded-lg border-l-4 border-slate-200">
-                                &quot;{worker.bio || 'Chưa có giới thiệu bản thân.'}&quot;
+                                &quot;{worker.bio || t('worker.bio')}&quot;
                             </p>
                         </div>
                     </div>
@@ -165,7 +167,7 @@ export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: 
                         {/* Language Section */}
                         <div className="space-y-3">
                             <h3 className="font-bold text-slate-800 flex items-center gap-2 text-sm uppercase tracking-wider">
-                                <Languages className="w-4 h-4 text-blue-600" /> Kỹ năng ngôn ngữ
+                                <Languages className="w-4 h-4 text-blue-600" /> {t('worker.languageSkills')}
                             </h3>
                             <div className="space-y-2">
                                 {languageSkills.length > 0 ? (
@@ -179,15 +181,15 @@ export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: 
                                             </div>
                                             <div className="flex items-center gap-1">
                                                 {skill.is_verified ? (
-                                                    <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-md font-bold">Xác minh</span>
+                                                    <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-md font-bold">{t('worker.verified')}</span>
                                                 ) : (
-                                                    <span className="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-md font-bold italic">Chờ duyệt</span>
+                                                    <span className="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-md font-bold italic">{t('worker.pending')}</span>
                                                 )}
                                             </div>
                                         </div>
                                     ))
                                 ) : (
-                                    <p className="text-sm text-slate-400 italic">Chưa có thông tin ngôn ngữ</p>
+                                    <p className="text-sm text-slate-400 italic">{t('worker.noLanguages')}</p>
                                 )}
                             </div>
                         </div>
@@ -195,7 +197,7 @@ export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: 
                         {/* Video Section */}
                         <div className="space-y-3">
                             <h3 className="font-bold text-slate-800 flex items-center gap-2 text-sm uppercase tracking-wider">
-                                <Video className="w-4 h-4 text-blue-600" /> Video giới thiệu
+                                <Video className="w-4 h-4 text-blue-600" /> {t('worker.qrCode')}
                             </h3>
                             {worker.intro_video_url ? (
                                 <div className="rounded-xl overflow-hidden bg-black aspect-video shadow-md border border-slate-200">
@@ -204,7 +206,7 @@ export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: 
                             ) : (
                                 <div className="aspect-video bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-400 flex-col gap-2">
                                     <Video className="w-8 h-8 opacity-20" />
-                                    <p className="text-xs italic">Không có video giới thiệu</p>
+                                    <p className="text-xs italic">{t('worker.university_name')}</p>
                                 </div>
                             )}
                         </div>
@@ -222,9 +224,9 @@ export function WorkerProfileModal({ worker, isOpen, onClose, languageSkills }: 
                             ) : (
                                 <Heart className={`w-4 h-4 mr-2 ${isFavorite ? 'fill-rose-500' : ''}`} />
                             )}
-                            {isFavorite ? 'Yêu thích' : 'Thêm yêu thích'}
+                            {isFavorite ? t('owner.favorites_removeFavorite') : t('owner.dashboard_postJob')}
                         </Button>
-                        <Button onClick={onClose} className="rounded-xl px-8">Đóng</Button>
+                        <Button onClick={onClose} className="rounded-xl px-8">{t('common.close')}</Button>
                     </div>
                 </div>
             </DialogContent>

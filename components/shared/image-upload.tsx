@@ -1,10 +1,11 @@
-'use client';
+﻿'use client';
 
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, X, FileImage, FileText } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/lib/i18n';
 
 interface ImageUploadProps {
   onFileSelect: (file: File) => void;
@@ -34,6 +35,7 @@ export function ImageUpload({
   disabled = false,
   error,
 }: ImageUploadProps) {
+  const { t } = useTranslation();
   const [preview, setPreview] = useState<string | null>(existingUrl || null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(error || null);
@@ -48,9 +50,9 @@ export function ImageUpload({
         if (rejection.errors[0]?.code === 'file-too-large') {
           setUploadError(`Tệp quá lớn. Kích thước tối đa: ${maxSize}MB`);
         } else if (rejection.errors[0]?.code === 'file-invalid-type') {
-          setUploadError('Loại tệp không hợp lệ. Chỉ chấp nhận ảnh và PDF');
+          setUploadError(t('common.error'));
         } else {
-          setUploadError('Lỗi tải lên tệp');
+          setUploadError(t('common.error'));
         }
         return;
       }
@@ -123,13 +125,13 @@ export function ImageUpload({
             )}
           />
           <p className="text-sm font-medium text-slate-700 mb-1">
-            {isDragActive ? 'Thả tệp vào đây...' : 'Kéo thả tệp hoặc nhấp để chọn'}
+            {isDragActive ? t('forms.uploading') : t('identity.helperText', { defaultValue: 'Kéo thả tệp hoặc nhấp để chọn' })}
           </p>
           {helperText && (
             <p className="text-xs text-slate-500">{helperText}</p>
           )}
           <p className="text-xs text-slate-400 mt-2">
-            Kích thước tối đa: {maxSize}MB
+            {t('forms.thumbnailHint').split('(')[0].trim()}: {maxSize}MB
           </p>
         </div>
       )}
@@ -148,7 +150,7 @@ export function ImageUpload({
             <button
               onClick={handleRemove}
               className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md hover:bg-red-50 transition-colors"
-              aria-label="Xóa ảnh"
+              aria-label={t("common.delete")}
             >
               <X className="h-4 w-4 text-red-600" />
             </button>
@@ -167,14 +169,14 @@ export function ImageUpload({
             )}
             <div>
               <p className="text-sm font-medium text-slate-700">{fileName}</p>
-              <p className="text-xs text-slate-500">Tệp đã tải lên</p>
+              <p className="text-xs text-slate-500">{t('forms.thumbnailUpload')}</p>
             </div>
           </div>
           {!disabled && (
             <button
               onClick={handleRemove}
               className="p-2 hover:bg-red-50 rounded-full transition-colors"
-              aria-label="Xóa tệp"
+              aria-label={t("common.delete")}
             >
               <X className="h-5 w-5 text-red-600" />
             </button>

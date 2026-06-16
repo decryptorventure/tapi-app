@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Clock, MapPin, QrCode, Timer, PlayCircle, CheckCircle2 } from 'lucide-react';
+import { Clock, MapPin, QrCode, Timer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/lib/i18n';
 
 interface Job {
     id: string;
@@ -31,6 +32,7 @@ interface ActiveJobCardProps {
 
 export function ActiveJobCard({ application, onCheckout }: ActiveJobCardProps) {
     const { jobs: job, status, checkin_time } = application;
+    const { t } = useTranslation();
     const [timeElapsed, setTimeElapsed] = useState('00:00:00');
     const [timeRemaining, setTimeRemaining] = useState('');
     const [isOvertime, setIsOvertime] = useState(false);
@@ -60,12 +62,12 @@ export function ActiveJobCard({ application, onCheckout }: ActiveJobCardProps) {
                 const overtime = Math.abs(remaining);
                 const otHours = Math.floor(overtime / 3600);
                 const otMinutes = Math.floor((overtime % 3600) / 60);
-                setTimeRemaining(`+${otHours}h ${otMinutes}m overtime`);
+                setTimeRemaining(`+${otHours}h ${otMinutes}m ${t('checkin.overtime')}`);
             } else {
                 setIsOvertime(false);
                 const remHours = Math.floor(remaining / 3600);
                 const remMinutes = Math.floor((remaining % 3600) / 60);
-                setTimeRemaining(`${remHours}h ${remMinutes}m còn lại`);
+                setTimeRemaining(`${remHours}h ${remMinutes}m ${t('checkin.timeLeft')}`);
             }
         };
 
@@ -85,7 +87,7 @@ export function ActiveJobCard({ application, onCheckout }: ActiveJobCardProps) {
                 <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
                     <span className="text-sm font-semibold text-green-600 dark:text-green-400">
-                        ĐANG LÀM VIỆC
+                        {t('checkin.activeJob')}
                     </span>
                 </div>
                 <div className={cn(
@@ -113,7 +115,7 @@ export function ActiveJobCard({ application, onCheckout }: ActiveJobCardProps) {
             <div className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-4">
                 <div className="text-center">
                     <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                        Thời gian làm việc
+                        {t('checkin.workingTime')}
                     </p>
                     <div className="flex items-center justify-center gap-2">
                         <Timer className="w-6 h-6 text-blue-600" />
@@ -122,7 +124,7 @@ export function ActiveJobCard({ application, onCheckout }: ActiveJobCardProps) {
                         </span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">
-                        Ca: {formatTime(job.shift_start_time)} - {formatTime(job.shift_end_time)}
+                        {t('checkin.shiftTime')}: {formatTime(job.shift_start_time)} - {formatTime(job.shift_end_time)}
                     </p>
                 </div>
             </div>
@@ -133,12 +135,12 @@ export function ActiveJobCard({ application, onCheckout }: ActiveJobCardProps) {
                     className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white py-6 text-lg font-semibold rounded-xl shadow-lg"
                 >
                     <QrCode className="w-5 h-5 mr-2" />
-                    Scan QR Check-out
+                    {t('checkin.scanQrCheckout')}
                 </Button>
             </Link>
 
             <p className="text-xs text-center text-muted-foreground mt-3">
-                Quét mã QR tại nhà hàng để kết thúc ca làm
+                {t('checkin.scanQrAtRestaurant')}
             </p>
         </div>
     );

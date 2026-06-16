@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -6,7 +6,7 @@ import { ArrowRight, Smartphone, Users, Briefcase } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 
 export function CTA() {
-    const { t, locale } = useTranslation();
+    const { t } = useTranslation();
 
     return (
         <section className="py-24 relative overflow-hidden">
@@ -22,14 +22,10 @@ export function CTA() {
                             {/* Left Content */}
                             <div>
                                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-primary-foreground mb-6 leading-tight">
-                                    {locale === 'vi'
-                                        ? 'Sẵn sàng bắt đầu?'
-                                        : 'Ready to Get Started?'}
+                                {t('landing.readyToStart', { defaultValue: 'Sẵn sàng bắt đầu?' })}
                                 </h2>
                                 <p className="text-lg text-primary-foreground/80 mb-8 max-w-md">
-                                    {locale === 'vi'
-                                        ? 'Tham gia hàng nghìn nhân viên và nhà hàng đang sử dụng Tapy để kết nối cơ hội việc làm.'
-                                        : 'Join thousands of workers and restaurants using Tapy to connect job opportunities.'}
+                                    {t('landing.ctaDesc')}
                                 </p>
 
                                 {/* Dual CTA Buttons */}

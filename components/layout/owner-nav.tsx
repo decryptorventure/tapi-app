@@ -12,9 +12,12 @@ import { useRouter } from 'next/navigation';
 import { NotificationBell } from '@/components/notifications/notification-bell';
 import { LanguageSwitcher } from '@/components/shared/language-switcher';
 
+import { useTranslation } from '@/lib/i18n';
+
 export function OwnerNav() {
     const pathname = usePathname();
     const router = useRouter();
+    const { t } = useTranslation();
     const [profile, setProfile] = useState<any>(null);
 
     useEffect(() => {
@@ -48,21 +51,9 @@ export function OwnerNav() {
     };
 
     const navItems = [
-        {
-            href: '/owner/dashboard',
-            label: 'Tổng quan',
-            icon: LayoutDashboard,
-        },
-        {
-            href: '/owner/jobs',
-            label: 'Tin tuyển dụng',
-            icon: Briefcase,
-        },
-        {
-            href: '/owner/settings',
-            label: 'Cài đặt',
-            icon: Settings,
-        },
+        { href: '/owner/dashboard', label: t('common.nav_overview'), icon: LayoutDashboard },
+        { href: '/owner/jobs', label: t('common.nav_jobs'), icon: Briefcase },
+        { href: '/owner/settings', label: t('common.nav_settings'), icon: Settings },
     ];
 
     if (pathname.includes('/onboarding')) return null;
@@ -154,7 +145,7 @@ export function OwnerNav() {
                         className="text-slate-500 hover:text-red-600"
                     >
                         <LogOut className="h-5 w-5" />
-                        <span className="sr-only">Đăng xuất</span>
+                        <span className="sr-only">{t('common.logout')}</span>
                     </Button>
                 </div>
             </div>
@@ -203,7 +194,7 @@ export function OwnerNav() {
                         <div className="p-1.5 rounded-xl">
                             <LogOut className="w-5 h-5" />
                         </div>
-                        <span className="text-[10px] font-medium">Thoát</span>
+                        <span className="text-[10px] font-medium">{t('common.logout')}</span>
                     </button>
                 </div>
             </div>

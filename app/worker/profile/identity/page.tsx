@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -22,7 +22,7 @@ interface VerificationData {
 
 export default function IdentityVerificationPage() {
   const router = useRouter();
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const [pageLoading, setPageLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [existingVerification, setExistingVerification] = useState<VerificationData | null>(null);
@@ -111,7 +111,7 @@ export default function IdentityVerificationPage() {
           {/* Back Button */}
           <Link href="/worker/profile" className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-6">
             <ArrowLeft className="w-4 h-4" />
-            {locale === 'vi' ? 'Quay lại hồ sơ' : 'Back to profile'}
+            {t('checkin.goBack')}
           </Link>
 
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center">
@@ -121,12 +121,10 @@ export default function IdentityVerificationPage() {
                   <CheckCircle2 className="w-10 h-10 text-green-600" />
                 </div>
                 <h1 className="text-2xl font-bold text-slate-900 mb-2">
-                  {locale === 'vi' ? 'Đã xác minh danh tính' : 'Identity Verified'}
+                  {t('worker.verified')}
                 </h1>
                 <p className="text-slate-600 mb-6">
-                  {locale === 'vi'
-                    ? 'Danh tính của bạn đã được xác minh thành công. Bạn có thể ứng tuyển các công việc ngay bây giờ.'
-                    : 'Your identity has been verified successfully. You can apply for jobs now.'}
+                  {t('identity.title')}
                 </p>
               </>
             ) : (
@@ -135,12 +133,10 @@ export default function IdentityVerificationPage() {
                   <Clock className="w-10 h-10 text-orange-600" />
                 </div>
                 <h1 className="text-2xl font-bold text-slate-900 mb-2">
-                  {locale === 'vi' ? 'Đang xử lý xác minh' : 'Verification In Progress'}
+                  {t('worker.pending')}
                 </h1>
                 <p className="text-slate-600 mb-6">
-                  {locale === 'vi'
-                    ? 'Hồ sơ xác minh của bạn đang được xét duyệt. Quá trình này thường mất 24-48 giờ làm việc.'
-                    : 'Your verification documents are being reviewed. This usually takes 24-48 business hours.'}
+                  {t('identity.description')}
                 </p>
               </>
             )}
@@ -148,7 +144,7 @@ export default function IdentityVerificationPage() {
             {/* Show uploaded images */}
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="bg-slate-50 rounded-lg p-4">
-                <p className="text-xs text-slate-500 mb-2">{locale === 'vi' ? 'Mặt trước' : 'Front'}</p>
+                <p className="text-xs text-slate-500 mb-2">{t('identity.frontLabel')}</p>
                 <img
                   src={existingVerification.id_front_url}
                   alt="ID Front"
@@ -156,7 +152,7 @@ export default function IdentityVerificationPage() {
                 />
               </div>
               <div className="bg-slate-50 rounded-lg p-4">
-                <p className="text-xs text-slate-500 mb-2">{locale === 'vi' ? 'Mặt sau' : 'Back'}</p>
+                <p className="text-xs text-slate-500 mb-2">{t('identity.backLabel')}</p>
                 <img
                   src={existingVerification.id_back_url}
                   alt="ID Back"
@@ -168,12 +164,12 @@ export default function IdentityVerificationPage() {
             <div className="space-y-3">
               <Link href="/worker/profile">
                 <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600">
-                  {locale === 'vi' ? 'Quay lại hồ sơ' : 'Back to Profile'}
+                  {t('checkin.goBack')}
                 </Button>
               </Link>
               <Link href="/worker/feed">
                 <Button variant="outline" className="w-full">
-                  {locale === 'vi' ? 'Xem việc làm' : 'Browse Jobs'}
+                  {t('worker.findJobs')}
                 </Button>
               </Link>
             </div>
@@ -191,7 +187,7 @@ export default function IdentityVerificationPage() {
           {/* Back Button */}
           <Link href="/worker/profile" className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-6">
             <ArrowLeft className="w-4 h-4" />
-            {locale === 'vi' ? 'Quay lại hồ sơ' : 'Back to profile'}
+            {t('checkin.goBack')}
           </Link>
 
           <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6">
@@ -199,12 +195,10 @@ export default function IdentityVerificationPage() {
               <XCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
               <div>
                 <h2 className="text-lg font-semibold text-red-900 mb-1">
-                  {locale === 'vi' ? 'Xác minh bị từ chối' : 'Verification Rejected'}
+                  {t('worker.unverified')}
                 </h2>
                 <p className="text-red-700">
-                  {existingVerification.rejection_reason || (locale === 'vi'
-                    ? 'Ảnh CMND/CCCD không hợp lệ. Vui lòng tải lên ảnh rõ ràng hơn.'
-                    : 'ID images were invalid. Please upload clearer images.')}
+                  {existingVerification.rejection_reason || (t('identity.description'))}
                 </p>
               </div>
             </div>
@@ -218,10 +212,10 @@ export default function IdentityVerificationPage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-slate-900">
-                  {locale === 'vi' ? 'Tải lại ảnh xác minh' : 'Re-upload Verification'}
+                  {t('identity.title')}
                 </h1>
                 <p className="text-slate-600">
-                  {locale === 'vi' ? 'Vui lòng tải lên ảnh CMND/CCCD rõ ràng' : 'Please upload clear ID photos'}
+                  {t('identity.description')}
                 </p>
               </div>
             </div>
@@ -284,7 +278,7 @@ export default function IdentityVerificationPage() {
                   {t('identity.submitting')}
                 </>
               ) : (
-                locale === 'vi' ? 'Gửi lại xác minh' : 'Resubmit Verification'
+                t('identity.submit')
               )}
             </Button>
           </div>
@@ -300,7 +294,7 @@ export default function IdentityVerificationPage() {
         {/* Back Button */}
         <Link href="/worker/profile" className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-6">
           <ArrowLeft className="w-4 h-4" />
-          {locale === 'vi' ? 'Quay lại hồ sơ' : 'Back to profile'}
+          {t('checkin.goBack')}
         </Link>
 
         <div className="mb-8">

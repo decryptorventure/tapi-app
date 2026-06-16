@@ -13,27 +13,27 @@ export function WorkerNav() {
     const navItems = [
         {
             href: '/worker/dashboard',
-            label: t('workerNav.home') || 'Trang chủ',
+            label: t('workerNav.home'),
             icon: Home,
         },
         {
             href: '/worker/feed',
-            label: t('workerNav.feed') || 'Tìm việc',
+            label: t('workerNav.feed'),
             icon: Search,
         },
         {
             href: '/worker/jobs',
-            label: t('workerNav.myJobs') || 'Việc của tôi',
+            label: t('workerNav.myJobs'),
             icon: Briefcase,
         },
         {
             href: '/worker/wallet',
-            label: t('workerNav.wallet') || 'Ví tiền',
+            label: t('workerNav.wallet'),
             icon: Wallet,
         },
         {
             href: '/worker/profile',
-            label: t('workerNav.profile') || 'Hồ sơ',
+            label: t('workerNav.profile'),
             icon: User,
         },
     ];

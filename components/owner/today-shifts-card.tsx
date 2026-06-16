@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Clock, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/lib/i18n';
 
 interface Shift {
     id: string;
@@ -18,6 +19,7 @@ interface TodayShiftsCardProps {
 }
 
 export function TodayShiftsCard({ shifts }: TodayShiftsCardProps) {
+    const { t } = useTranslation();
     if (shifts.length === 0) return null;
 
     return (
@@ -25,10 +27,10 @@ export function TodayShiftsCard({ shifts }: TodayShiftsCardProps) {
             <div className="flex items-center justify-between mb-3">
                 <h3 className="font-bold text-foreground flex items-center gap-2">
                     <Clock className="w-4 h-4 text-primary" />
-                    Ca làm hôm nay
+                    {t('common.todayShifts')}
                 </h3>
                 <Link href="/owner/shifts" className="text-xs text-primary hover:underline">
-                    Xem tất cả
+                    {t('common.viewAll')}
                 </Link>
             </div>
             <div className="space-y-2">
@@ -42,7 +44,7 @@ export function TodayShiftsCard({ shifts }: TodayShiftsCardProps) {
                             <div className="border-l border-border pl-3">
                                 <p className="text-sm font-medium text-foreground">{shift.title}</p>
                                 <p className="text-[11px] text-muted-foreground">
-                                    {shift.current_workers || 0}/{shift.max_workers} nhân viên
+                                    {shift.current_workers || 0}/{shift.max_workers} {t('common.staffUnit')}
                                 </p>
                             </div>
                         </div>

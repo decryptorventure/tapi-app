@@ -4,11 +4,19 @@
     "rejected": "Rejected",
     "completed": "Completed",
     "cancelled": "Cancelled",
+    "working": "Working",
+    "paid": "Paid",
+    "waitingPayment": "Awaiting Payment",
+    "requestPayment": "Request Payment",
+    "waitingPaymentProcess": "Processing Payment",
+    "received": "Payment Received",
+    "signContract": "Sign Contract",
     "restaurant": "Restaurant",
     "noAddress": "Address not updated",
     "viewQr": "View QR Code",
     "waitingOwner": "Waiting for Owner approval",
     "viewDetails": "View Details",
     "viewOtherJobs": "View other jobs",
-    "instantBook": "Instant Book"
+    "instantBook": "Instant Book",
+    "rateUnit": "VND/hr"
 }

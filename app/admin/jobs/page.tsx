@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useTranslation } from '@/lib/i18n';
 
 import { useEffect, useState } from 'react';
@@ -196,12 +196,12 @@ export default function JobsPage() {
         },
         {
             accessorKey: 'status',
-            header: 'Trạng thái',
+            header: t('common.status.approved'),
             cell: ({ row }) => getStatusBadge(row.original.status),
         },
         {
             accessorKey: 'shift_date',
-            header: 'Ca làm',
+            header: t('owner.shifts_shiftSchedule'),
             cell: ({ row }) => {
                 const job = row.original;
                 return (
@@ -213,7 +213,7 @@ export default function JobsPage() {
         },
         {
             accessorKey: 'hourly_rate_vnd',
-            header: 'Lương/giờ',
+            header: t('forms.hourlyRate'),
             cell: ({ row }) => (
                 <span className="text-sm font-medium text-foreground">
                     {formatCurrency(row.original.hourly_rate_vnd)}đ
@@ -234,7 +234,7 @@ export default function JobsPage() {
         },
         {
             accessorKey: 'applications_count',
-            header: 'Đơn ứng tuyển',
+            header: t('owner.dashboard_recentApplications'),
             cell: ({ row }) => (
                 <span className="text-sm font-medium text-foreground">
                     {row.original.applications_count}
@@ -278,7 +278,7 @@ export default function JobsPage() {
     ];
 
     const tabs: { key: TabType; label: string; icon: React.ReactNode }[] = [
-        { key: 'all', label: 'Tất cả', icon: <Briefcase className="w-4 h-4" /> },
+        { key: 'all', label: t('owner.payments_filterAll'), icon: <Briefcase className="w-4 h-4" /> },
         { key: 'open', label: t('admin.jobs_open'), icon: <CheckCircle2 className="w-4 h-4" /> },
         { key: 'completed', label: t('admin.jobs_completed'), icon: <CheckCircle2 className="w-4 h-4" /> },
         { key: 'cancelled', label: t('admin.jobs_canceled'), icon: <XCircle className="w-4 h-4" /> },

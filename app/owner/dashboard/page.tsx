@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useTranslation } from '@/lib/i18n';
 
 import { useEffect, useState } from 'react';
@@ -93,7 +93,7 @@ export default function OwnerDashboardPage() {
             setSelectedWorker({ ...worker, skills });
             setIsModalOpen(true);
         } catch (error) {
-            toast.error('Không thể tải thông tin ứng viên');
+            toast.error(t('common.error'));
         } finally {
             setLoading(false);
         }
@@ -200,7 +200,7 @@ export default function OwnerDashboardPage() {
                     const formattedApps = applications.map((app: any) => ({
                         id: app.id,
                         worker_id: app.worker_id,
-                        worker_name: app.profiles?.full_name || 'Ứng viên',
+                        worker_name: app.profiles?.full_name || t('owner.noApplicationsYet'),
                         worker_avatar: app.profiles?.avatar_url,
                         worker_score: app.profiles?.reliability_score,
                         job_title: jobMap.get(app.job_id) || 'Unknown',
@@ -277,7 +277,7 @@ export default function OwnerDashboardPage() {
             }
         } catch (error: any) {
             console.error('Dashboard fetch error:', error);
-            toast.error('Lỗi tải dữ liệu');
+            toast.error(t('common.error'));
         } finally {
             setLoading(false);
         }
@@ -296,10 +296,10 @@ export default function OwnerDashboardPage() {
 
             if (!result.success) throw new Error(result.message);
 
-            toast.success('Đã duyệt ứng viên');
+            toast.success(t('owner.dashboard_approve'));
             fetchDashboardData();
         } catch (error: any) {
-            toast.error(error.message || 'Lỗi duyệt ứng viên');
+            toast.error(t('common.error'));
         }
     };
 
@@ -316,10 +316,10 @@ export default function OwnerDashboardPage() {
                 .eq('id', applicationId);
 
             if (error) throw error;
-            toast.success('Đã từ chối ứng viên');
+            toast.success(t('owner.dashboard_reject'));
             fetchDashboardData();
         } catch (error) {
-            toast.error('Lỗi từ chối ứng viên');
+            toast.error(t('common.error'));
         }
     };
 
@@ -328,28 +328,28 @@ export default function OwnerDashboardPage() {
             return (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full bg-warning/10 text-warning">
                     <Clock className="w-3 h-3" />
-                    Chờ duyệt
+                    {t('owner.dashboard_pending')}
                 </span>
             );
         } else if (status === 'approved') {
             return (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full bg-success/10 text-success">
                     {isInstantBook ? <Sparkles className="w-3 h-3" /> : <Check className="w-3 h-3" />}
-                    {isInstantBook ? 'Instant Book' : 'Đã duyệt'}
+                    {isInstantBook ? 'Instant Book' : t('owner.analytics_approved')}
                 </span>
             );
         } else if (status === 'rejected') {
             return (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full bg-destructive/10 text-destructive">
                     <X className="w-3 h-3" />
-                    Từ chối
+                    {t('owner.analytics_rejected')}
                 </span>
             );
         } else if (status === 'completed') {
             return (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary">
                     <Check className="w-3 h-3" />
-                    Hoàn thành
+                    {t('owner.analytics_completed')}
                 </span>
             );
         }
@@ -413,7 +413,7 @@ export default function OwnerDashboardPage() {
                                 {/* Info */}
                                 <div className="flex-1 min-w-0">
                                     <h1 className="text-xl font-bold text-foreground truncate">
-                                        {profile?.restaurant_name || 'Nhà hàng của tôi'}
+                                        {profile?.restaurant_name || t('owner.restaurantName')}
                                     </h1>
                                     <div className="flex flex-wrap gap-3 mt-2 text-sm text-muted-foreground">
                                         {profile?.phone_number && (
@@ -436,7 +436,7 @@ export default function OwnerDashboardPage() {
                                     <Link href="/owner/jobs/new">
                                         <Button variant="cta" size="sm" className="shadow-md">
                                             <Plus className="w-4 h-4 mr-1" />
-                                            Đăng tin
+                                            {t('owner.jobs_postJobBtn')}
                                         </Button>
                                     </Link>
                                 </div>
@@ -485,13 +485,13 @@ export default function OwnerDashboardPage() {
                             <div className="px-4 py-3 border-b border-border flex items-center justify-between">
                                 <h2 className="text-base font-bold text-foreground flex items-center gap-2">
                                     <Clock className="w-4 h-4 text-cta" />
-                                    Ứng tuyển gần đây
+                                    {t('owner.dashboard_recentApplications')}
                                 </h2>
                                 <Link
                                     href="/owner/jobs"
                                     className="text-[10px] font-semibold text-muted-foreground hover:text-cta transition-colors"
                                 >
-                                    TẤT CẢ
+                                    {t('owner.dashboard_all')}
                                 </Link>
                             </div>
 
@@ -503,13 +503,13 @@ export default function OwnerDashboardPage() {
                                     <div>
                                         <p className="text-foreground font-bold text-lg mb-1">{t('owner.dashboard_noApplications')}</p>
                                         <p className="text-sm text-muted-foreground">
-                                            Đăng tin để đón những nhân viên chất lượng
+                                            {t('owner.dashboard_postJobPrompt')}
                                         </p>
                                     </div>
                                     <Link href="/owner/jobs/new" className="mt-4">
                                         <Button variant="cta">
                                             <Plus className="w-4 h-4 mr-2" />
-                                            Tạo tin tuyển dụng
+                                            {t('owner.dashboard_createJob')}
                                         </Button>
                                     </Link>
                                 </div>
@@ -592,7 +592,7 @@ export default function OwnerDashboardPage() {
                             <div className="bg-card rounded-2xl border border-cta/20 p-6 relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1 h-full bg-cta"></div>
                                 <h3 className="text-xs font-bold text-cta uppercase tracking-wide mb-4">
-                                    Nâng cấp hồ sơ
+                                    t('owner.dashboard_upgradeProfile')
                                 </h3>
                                 <div className="mb-6">
                                     <div className="flex justify-between items-baseline mb-2">
@@ -613,7 +613,7 @@ export default function OwnerDashboardPage() {
                                         variant="outline"
                                         className="w-full border-cta/20 text-cta hover:bg-cta/10"
                                     >
-                                        Tiếp tục cập nhật
+                                        {t('owner.dashboard_keepUpdating')}
                                         <ChevronRight className="w-4 h-4 ml-2" />
                                     </Button>
                                 </Link>
@@ -623,7 +623,7 @@ export default function OwnerDashboardPage() {
                         {/* Quick Actions */}
                         <div className="bg-card rounded-2xl border border-border p-6">
                             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-4">
-                                Lối tắt nhanh
+                                {t('owner.dashboard_quickShortcuts')}
                             </h3>
                             <div className="grid grid-cols-2 gap-3">
                                 <Link
@@ -632,7 +632,7 @@ export default function OwnerDashboardPage() {
                                 >
                                     <Plus className="w-5 h-5 text-muted-foreground group-hover:text-cta" />
                                     <span className="text-xs font-semibold text-muted-foreground group-hover:text-cta">
-                                        Đăng việc
+                                        {t('owner.dashboard_postWork')}
                                     </span>
                                 </Link>
                                 <Link
@@ -641,7 +641,7 @@ export default function OwnerDashboardPage() {
                                 >
                                     <Briefcase className="w-5 h-5 text-muted-foreground group-hover:text-success" />
                                     <span className="text-xs font-semibold text-muted-foreground group-hover:text-success">
-                                        Quản lý
+                                        {t('owner.dashboard_manage')}
                                     </span>
                                 </Link>
                                 <Link
@@ -650,7 +650,7 @@ export default function OwnerDashboardPage() {
                                 >
                                     <Store className="w-5 h-5 text-muted-foreground group-hover:text-warning" />
                                     <span className="text-xs font-semibold text-muted-foreground group-hover:text-warning">
-                                        Cài đặt
+                                        {t('owner.dashboard_settings')}
                                     </span>
                                 </Link>
                             </div>
@@ -665,11 +665,11 @@ export default function OwnerDashboardPage() {
                                 <p className="text-sm font-bold text-foreground">{t('owner.dashboard_hiringSpeed')}</p>
                             </div>
                             <p className="text-xs text-muted-foreground leading-relaxed mb-4">
-                                Nhân viên sẽ xuất hiện ngay khi có ứng tuyển mới.
+                                {t('owner.dashboard_workersWillAppear')}
                             </p>
                             <Button variant="outline" className="w-full" size="sm">
                                 <Bell className="w-4 h-4 mr-2" />
-                                Bật thông báo
+                                {t('owner.dashboard_enableNotifications')}
                             </Button>
                         </div>
                     </div>

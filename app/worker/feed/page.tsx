@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo } from 'react';
 import { JobCard } from '@/components/job-card';
@@ -273,7 +273,7 @@ export default function JobFeedPage() {
                                             className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                                         />
                                         <div className="flex justify-between text-xs text-muted-foreground mt-1 uppercase font-bold">
-                                            <span>0đ</span>
+                                            <span>{t('forms.hourlyRatePlaceholder', {defaultValue: '0'})}</span>
                                             <span className="text-primary">{filters.minRate.toLocaleString()}đ/h</span>
                                         </div>
                                     </div>

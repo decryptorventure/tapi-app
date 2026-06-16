@@ -1,8 +1,9 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { X, Download, Share, Plus, Smartphone, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/lib/i18n';
 
 interface BeforeInstallPromptEvent extends Event {
     prompt: () => Promise<void>;
@@ -18,6 +19,7 @@ declare global {
 type DeviceType = 'ios' | 'android' | 'desktop' | 'unknown';
 
 export function PWAInstallPrompt() {
+    const { t } = useTranslation();
     const [showPrompt, setShowPrompt] = useState(false);
     const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
     const [deviceType, setDeviceType] = useState<DeviceType>('unknown');
@@ -125,7 +127,7 @@ export function PWAInstallPrompt() {
                             <Smartphone className="w-8 h-8 text-primary" />
                         </div>
                         <h2 className="text-xl font-bold text-primary-foreground">
-                            Cài đặt TAPI trên iPhone
+                            {t('landing.appComingSoon')}
                         </h2>
                     </div>
 
@@ -136,9 +138,9 @@ export function PWAInstallPrompt() {
                                 <span className="text-primary font-bold">1</span>
                             </div>
                             <div>
-                                <p className="font-medium text-foreground">Nhấn nút Chia sẻ</p>
+                                <p className="font-medium text-foreground">{t('checkin.instruction1')}</p>
                                 <p className="text-sm text-muted-foreground">
-                                    Nhấn vào biểu tượng <Share className="w-4 h-4 inline text-primary" /> ở thanh công cụ Safari
+                                    t('checkin.ownerInstruction1')
                                 </p>
                             </div>
                         </div>
@@ -148,9 +150,9 @@ export function PWAInstallPrompt() {
                                 <span className="text-primary font-bold">2</span>
                             </div>
                             <div>
-                                <p className="font-medium text-foreground">Thêm vào Màn hình chính</p>
+                                <p className="font-medium text-foreground">{t('checkin.instruction2')}</p>
                                 <p className="text-sm text-muted-foreground">
-                                    Cuộn xuống và chọn <Plus className="w-4 h-4 inline text-primary" /> &quot;Thêm vào MH chính&quot;
+                                    t('checkin.ownerInstruction2')
                                 </p>
                             </div>
                         </div>
@@ -160,9 +162,9 @@ export function PWAInstallPrompt() {
                                 <span className="text-primary font-bold">3</span>
                             </div>
                             <div>
-                                <p className="font-medium text-foreground">Xác nhận cài đặt</p>
+                                <p className="font-medium text-foreground">{t('auth.verify_submit')}</p>
                                 <p className="text-sm text-muted-foreground">
-                                    Nhấn &quot;Thêm&quot; ở góc trên bên phải
+                                    {t('checkin.ownerInstruction3')}
                                 </p>
                             </div>
                         </div>
@@ -170,7 +172,7 @@ export function PWAInstallPrompt() {
                         <div className="bg-success/10 border border-success/20 rounded-xl p-4 mt-4">
                             <div className="flex items-center gap-2 text-success">
                                 <Check className="w-5 h-5" />
-                                <span className="font-medium">Xong! Mở app từ màn hình chính</span>
+                                <span className="font-medium">{t('checkin.checkinSuccess')}</span>
                             </div>
                         </div>
                     </div>
@@ -182,7 +184,7 @@ export function PWAInstallPrompt() {
                             className="w-full"
                             onClick={handleDismiss}
                         >
-                            Đã hiểu
+                            {t('common.confirm')}
                         </Button>
                     </div>
                 </div>
@@ -205,9 +207,9 @@ export function PWAInstallPrompt() {
                         <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between">
                                 <div>
-                                    <h3 className="font-bold text-foreground">Cài đặt TAPI</h3>
+                                    <h3 className="font-bold text-foreground">{t('landing.appComingSoon')}</h3>
                                     <p className="text-sm text-muted-foreground line-clamp-2">
-                                        Thêm vào màn hình chính để truy cập nhanh hơn
+                                        {t('landing.ctaDesc')}
                                     </p>
                                 </div>
                                 <button
@@ -221,10 +223,10 @@ export function PWAInstallPrompt() {
                             {/* Benefits */}
                             <div className="flex flex-wrap gap-2 mt-3">
                                 <span className="text-xs bg-success/10 text-success px-2 py-1 rounded-full">
-                                    ✓ Mở nhanh
+                                    ✓ {t('checkin.startScan', {defaultValue: 'Nhanh'})}
                                 </span>
                                 <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                                    ✓ Thông báo
+                                    ✓ {t('common.notifications')}
                                 </span>
                                 <span className="text-xs bg-warning/10 text-warning px-2 py-1 rounded-full">
                                     ✓ Offline
@@ -239,7 +241,7 @@ export function PWAInstallPrompt() {
                         className="w-full mt-4 h-11 font-bold"
                     >
                         <Download className="w-4 h-4 mr-2" />
-                        {deviceType === 'ios' ? 'Xem hướng dẫn' : 'Cài đặt miễn phí'}
+                        {deviceType === 'ios' ? t('landing.guide') : t('landing.free100')}
                     </Button>
                 </div>
             </div>

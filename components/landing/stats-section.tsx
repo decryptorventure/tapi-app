@@ -1,74 +1,27 @@
-'use client';
+﻿'use client';
 
 import { useTranslation } from '@/lib/i18n';
 import { TrendingUp, Users, Briefcase, Star, Clock, Shield } from 'lucide-react';
 
-interface Stat {
-    icon: React.ElementType;
-    value: string;
-    labelVi: string;
-    labelEn: string;
-    suffix?: string;
-}
+const statIcons = [Users, Briefcase, TrendingUp, Clock];
+const statValues = ['10,000', '5,000', '98', '24'];
+const statSuffixes = ['+', '+', '%', 'h'];
+const statKeys = ['statUsers', 'statJobs', 'statSatisfaction', 'statResponse'];
 
-const stats: Stat[] = [
-    {
-        icon: Users,
-        value: '10,000',
-        suffix: '+',
-        labelVi: 'Người dùng đăng ký',
-        labelEn: 'Registered Users',
-    },
-    {
-        icon: Briefcase,
-        value: '5,000',
-        suffix: '+',
-        labelVi: 'Việc làm đã đăng',
-        labelEn: 'Jobs Posted',
-    },
-    {
-        icon: TrendingUp,
-        value: '98',
-        suffix: '%',
-        labelVi: 'Tỷ lệ hài lòng',
-        labelEn: 'Satisfaction Rate',
-    },
-    {
-        icon: Clock,
-        value: '24',
-        suffix: 'h',
-        labelVi: 'Thời gian phản hồi',
-        labelEn: 'Response Time',
-    },
-];
-
-const features = [
-    {
-        icon: Shield,
-        titleVi: 'Xác minh danh tính',
-        titleEn: 'Verified Identities',
-        descVi: 'Tất cả người dùng đều được xác minh',
-        descEn: 'All users are identity verified',
-    },
-    {
-        icon: Star,
-        titleVi: 'Đánh giá minh bạch',
-        titleEn: 'Transparent Reviews',
-        descVi: 'Hệ thống đánh giá 2 chiều công bằng',
-        descEn: 'Fair two-way rating system',
-    },
-];
+const featureIcons = [Shield, Star];
+const featureTitleKeys = ['featureVerified', 'featureReviews'];
+const featureDescKeys = ['featureVerifiedDesc', 'featureReviewsDesc'];
 
 export function StatsSection() {
-    const { t, locale } = useTranslation();
+    const { t } = useTranslation();
 
     return (
         <section className="py-20 bg-gradient-to-b from-primary/5 to-background">
             <div className="container px-4 mx-auto max-w-6xl">
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-                    {stats.map((stat, index) => {
-                        const Icon = stat.icon;
+                    {statKeys.map((key, index) => {
+                        const Icon = statIcons[index];
                         return (
                             <div
                                 key={index}
@@ -78,11 +31,11 @@ export function StatsSection() {
                                     <Icon className="w-6 h-6 text-primary" />
                                 </div>
                                 <div className="text-3xl sm:text-4xl font-black text-foreground mb-1">
-                                    {stat.value}
-                                    <span className="text-primary">{stat.suffix}</span>
+                                    {statValues[index]}
+                                    <span className="text-primary">{statSuffixes[index]}</span>
                                 </div>
                                 <div className="text-sm text-muted-foreground">
-                                    {locale === 'vi' ? stat.labelVi : stat.labelEn}
+                                    {t(`landing.${key}`)}
                                 </div>
                             </div>
                         );
@@ -91,8 +44,8 @@ export function StatsSection() {
 
                 {/* Trust Features */}
                 <div className="grid md:grid-cols-2 gap-6">
-                    {features.map((feature, index) => {
-                        const Icon = feature.icon;
+                    {featureTitleKeys.map((titleKey, index) => {
+                        const Icon = featureIcons[index];
                         return (
                             <div
                                 key={index}
@@ -103,10 +56,10 @@ export function StatsSection() {
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold text-foreground mb-1">
-                                        {locale === 'vi' ? feature.titleVi : feature.titleEn}
+                                        {t(`landing.${titleKey}`)}
                                     </h3>
                                     <p className="text-muted-foreground">
-                                        {locale === 'vi' ? feature.descVi : feature.descEn}
+                                        {t(`landing.${featureDescKeys[index]}`)}
                                     </p>
                                 </div>
                             </div>

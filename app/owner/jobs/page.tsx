@@ -44,9 +44,9 @@ export default function OwnerJobsPage() {
     const statusLabels: Record<JobStatus, { label: string; color: string }> = {
         open: { label: t('owner.jobs_open'), color: 'bg-success/10 text-success' },
         filled: { label: t('owner.jobs_enoughPeople'), color: 'bg-primary/10 text-primary' },
-        completed: { label: 'Hoàn thành', color: 'bg-slate-100 text-slate-700' },
-        cancelled: { label: 'Đã hủy', color: 'bg-destructive/10 text-destructive' },
-        expired: { label: 'Hết hạn', color: 'bg-slate-100 text-slate-500' },
+        completed: { label: t('owner.jobs_statusCompleted'), color: 'bg-slate-100 text-slate-700' },
+        cancelled: { label: t('owner.jobs_statusCancelled'), color: 'bg-destructive/10 text-destructive' },
+        expired: { label: t('owner.jobs_statusExpired'), color: 'bg-slate-100 text-slate-500' },
     };
     const router = useRouter();
     const [loading, setLoading] = useState(true);
@@ -204,7 +204,7 @@ export default function OwnerJobsPage() {
                             <Link href="/owner/jobs/new">
                                 <Button variant="cta" className="shadow-md hover:shadow-lg transition-shadow">
                                     <Plus className="w-4 h-4 mr-2" />
-                                    Đăng tin
+                                    {t('owner.jobs_postJobBtn')}
                                 </Button>
                             </Link>
                         </div>
@@ -268,7 +268,7 @@ export default function OwnerJobsPage() {
                                 : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border'
                                 }`}
                         >
-                            {status === 'all' ? 'Tất cả' : statusLabels[status].label}
+                            {status === 'all' ? t('owner.jobs_filterAll') : statusLabels[status].label}
                             {status !== 'all' && (
                                 <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${filter === status ? 'bg-white/20' : 'bg-background'
                                     }`}>
@@ -286,18 +286,18 @@ export default function OwnerJobsPage() {
                             <Briefcase className="w-8 h-8 text-muted-foreground/50" />
                         </div>
                         <h3 className="text-lg font-bold text-foreground mb-2">
-                            {filter === 'all' ? 'Chưa có tin tuyển dụng' : 'Không có kết quả'}
+                            {filter === 'all' ? t('owner.jobs_noJobs') : t('owner.jobs_noResults')}
                         </h3>
                         <p className="text-muted-foreground mb-6">
                             {filter === 'all'
-                                ? 'Đăng tin tuyển dụng để tìm nhân viên phù hợp'
-                                : 'Không có tin nào trong trạng thái này'}
+                                ? t('owner.jobs_noJobsDesc')
+                                : t('owner.jobs_noResultsDesc')}
                         </p>
                         {filter === 'all' && (
                             <Link href="/owner/jobs/new">
                                 <Button variant="cta" className="shadow-md">
                                     <Plus className="w-4 h-4 mr-2" />
-                                    Đăng tin đầu tiên
+                                    {t('owner.jobs_postFirstJob')}
                                 </Button>
                             </Link>
                         )}
@@ -339,10 +339,10 @@ export default function OwnerJobsPage() {
                                             </div>
                                             <div className="flex items-center gap-1.5">
                                                 <Users className="w-4 h-4" />
-                                                <span>{job.current_workers}/{job.max_workers} người</span>
+                                                <span>{job.current_workers}/{job.max_workers} {t('owner.jobs_workerUnit')}</span>
                                             </div>
                                             <div className="font-bold text-cta">
-                                                {job.hourly_rate_vnd.toLocaleString('vi-VN')}đ/giờ
+                                                {job.hourly_rate_vnd.toLocaleString('vi-VN')}{t('owner.jobs_rateUnit')}
                                             </div>
                                         </div>
                                     </div>
@@ -364,7 +364,7 @@ export default function OwnerJobsPage() {
                                                     onClick={() => setOpenMenu(null)}
                                                 >
                                                     <Eye className="w-4 h-4" />
-                                                    Xem đơn ứng tuyển
+                                                    {t('owner.jobs_viewJobApps')}
                                                 </Link>
                                                 <Link
                                                     href={`/owner/qr-management?jobId=${job.id}`}
@@ -372,7 +372,7 @@ export default function OwnerJobsPage() {
                                                     onClick={() => setOpenMenu(null)}
                                                 >
                                                     <QrCode className="w-4 h-4" />
-                                                    Xem QR
+                                                    {t('owner.jobs_viewQr')}
                                                 </Link>
                                                 {job.status === 'open' && (
                                                     <>
@@ -382,14 +382,14 @@ export default function OwnerJobsPage() {
                                                             onClick={() => setOpenMenu(null)}
                                                         >
                                                             <Edit className="w-4 h-4" />
-                                                            Chỉnh sửa
+                                                            {t('owner.jobs_edit')}
                                                         </Link>
                                                         <button
                                                             onClick={() => handleCancelJob(job.id)}
                                                             className="flex items-center gap-2 px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10 w-full text-left transition-colors"
                                                         >
                                                             <XCircle className="w-4 h-4" />
-                                                            Hủy tin
+                                                            {t('owner.jobs_cancelJob')}
                                                         </button>
                                                     </>
                                                 )}
@@ -404,13 +404,13 @@ export default function OwnerJobsPage() {
                                         <Link href={`/owner/qr-management?jobId=${job.id}`}>
                                             <Button variant="default" size="sm" className="bg-success hover:bg-success/90">
                                                 <QrCode className="w-4 h-4 mr-2" />
-                                                QR Check in/out
+                                                {t('owner.jobs_qrCheckin')}
                                             </Button>
                                         </Link>
                                         <Link href={`/owner/jobs/${job.id}/applications`}>
                                             <Button variant="outline" size="sm">
                                                 <Eye className="w-4 h-4 mr-2" />
-                                                Xem đơn
+                                                {t('owner.jobs_viewAppsBtn')}
                                             </Button>
                                         </Link>
                                     </div>

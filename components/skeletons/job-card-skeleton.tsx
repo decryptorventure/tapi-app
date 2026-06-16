@@ -1,3 +1,5 @@
+﻿import { useTranslation } from '@/lib/i18n';
+
 interface JobCardSkeletonProps {
   variant?: 'card' | 'list';
 }
@@ -7,12 +9,13 @@ interface JobCardSkeletonProps {
  * Supports both card and list variants
  */
 export function JobCardSkeleton({ variant = 'card' }: JobCardSkeletonProps) {
+  const { t } = useTranslation();
   if (variant === 'list') {
     return (
       <div
         className="bg-card rounded-xl border border-border p-4 animate-pulse flex items-center gap-4"
         role="status"
-        aria-label="Đang tải công việc..."
+        aria-label={t("common.loading")}
       >
         {/* Logo */}
         <div className="w-12 h-12 bg-muted rounded-lg shrink-0" />
@@ -32,7 +35,7 @@ export function JobCardSkeleton({ variant = 'card' }: JobCardSkeletonProps) {
         {/* Arrow */}
         <div className="w-5 h-5 bg-muted rounded shrink-0" />
 
-        <span className="sr-only">Đang tải thông tin công việc...</span>
+        <span className="sr-only">{t('common.loading')}</span>
       </div>
     );
   }
@@ -42,7 +45,7 @@ export function JobCardSkeleton({ variant = 'card' }: JobCardSkeletonProps) {
     <div
       className="bg-card rounded-2xl border border-border overflow-hidden animate-pulse"
       role="status"
-      aria-label="Đang tải công việc..."
+      aria-label={t("common.loading")}
     >
       {/* Thumbnail */}
       <div className="aspect-[16/10] bg-muted w-full" />
@@ -78,7 +81,7 @@ export function JobCardSkeleton({ variant = 'card' }: JobCardSkeletonProps) {
         <div className="h-11 bg-muted rounded-lg w-full" />
       </div>
 
-      <span className="sr-only">Đang tải thông tin công việc...</span>
+      <span className="sr-only">{t('common.loading')}</span>
     </div>
   );
 }

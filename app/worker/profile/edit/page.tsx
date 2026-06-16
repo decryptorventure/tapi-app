@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -34,7 +34,7 @@ interface ProfileData {
 
 export default function EditProfilePage() {
     const router = useRouter();
-    const { locale } = useTranslation();
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [profile, setProfile] = useState<ProfileData>({
@@ -81,7 +81,7 @@ export default function EditProfilePage() {
             });
         } catch (error) {
             console.error('Error fetching profile:', error);
-            toast.error(locale === 'vi' ? 'Lỗi tải thông tin' : 'Error loading profile');
+            toast.error(t('worker.profile'));
         } finally {
             setLoading(false);
         }
@@ -131,11 +131,11 @@ export default function EditProfilePage() {
 
             if (error) throw error;
 
-            toast.success(locale === 'vi' ? 'Đã lưu thông tin' : 'Profile saved');
+            toast.success(t('common.save'));
             router.push('/worker/profile');
         } catch (error: any) {
             console.error('Error saving profile:', error);
-            toast.error(error.message || (locale === 'vi' ? 'Lỗi lưu thông tin' : 'Error saving profile'));
+            toast.error(error.message || (t('common.error')));
         } finally {
             setSaving(false);
         }
@@ -161,7 +161,7 @@ export default function EditProfilePage() {
                             </Button>
                         </Link>
                         <h1 className="text-lg font-bold text-slate-900">
-                            {locale === 'vi' ? 'Chỉnh sửa hồ sơ' : 'Edit Profile'}
+                            {t('worker.myProfile')}
                         </h1>
                     </div>
                 </div>
@@ -195,7 +195,7 @@ export default function EditProfilePage() {
                             </label>
                         </div>
                         <p className="text-sm text-slate-500">
-                            {locale === 'vi' ? 'Nhấn vào biểu tượng camera để thay đổi ảnh' : 'Tap camera icon to change photo'}
+                            {t('worker.uploadCert')}
                         </p>
                     </div>
                 </div>
@@ -206,13 +206,13 @@ export default function EditProfilePage() {
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">
                             <User className="w-4 h-4 inline mr-1" />
-                            {locale === 'vi' ? 'Họ và tên *' : 'Full Name *'}
+                            {t('forms.fullName')}
                         </label>
                         <Input
                             type="text"
                             value={profile.full_name}
                             onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
-                            placeholder={locale === 'vi' ? 'Nguyễn Văn A' : 'John Doe'}
+                            placeholder={t('auth.signup_namePlaceholder')}
                             required
                         />
                     </div>
@@ -234,7 +234,7 @@ export default function EditProfilePage() {
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">
                             <Phone className="w-4 h-4 inline mr-1" />
-                            {locale === 'vi' ? 'Số điện thoại' : 'Phone Number'}
+                            {t('forms.phoneNumber')}
                         </label>
                         <Input
                             type="tel"
@@ -248,7 +248,7 @@ export default function EditProfilePage() {
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">
                             <Calendar className="w-4 h-4 inline mr-1" />
-                            {locale === 'vi' ? 'Ngày sinh' : 'Date of Birth'}
+                            {t('worker.dateOfBirth')}
                         </label>
                         <Input
                             type="date"
@@ -262,13 +262,13 @@ export default function EditProfilePage() {
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">
                             <GraduationCap className="w-4 h-4 inline mr-1" />
-                            {locale === 'vi' ? 'Trường đại học' : 'University'}
+                            {t('worker.university')}
                         </label>
                         <Input
                             type="text"
                             value={profile.university_name}
                             onChange={(e) => setProfile({ ...profile, university_name: e.target.value })}
-                            placeholder={locale === 'vi' ? 'VD: Đại học Bách khoa Hà Nội' : 'e.g. MIT'}
+                            placeholder={t('worker.university')}
                         />
                     </div>
 
@@ -276,13 +276,13 @@ export default function EditProfilePage() {
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">
                             <FileText className="w-4 h-4 inline mr-1" />
-                            {locale === 'vi' ? 'Giới thiệu bản thân' : 'Bio'}
+                            {t('worker.bio')}
                         </label>
                         <Textarea
                             value={profile.bio}
                             onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                             rows={4}
-                            placeholder={locale === 'vi' ? 'Viết một vài dòng về bản thân...' : 'Write a few lines about yourself...'}
+                            placeholder={t('worker.bio')}
                         />
                     </div>
                 </div>
@@ -296,10 +296,10 @@ export default function EditProfilePage() {
                     {saving ? (
                         <>
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            {locale === 'vi' ? 'Đang lưu...' : 'Saving...'}
+                            {t('common.loading')}
                         </>
                     ) : (
-                        locale === 'vi' ? 'Lưu thay đổi' : 'Save Changes'
+                        t('owner.settings_saveChanges')
                     )}
                 </Button>
             </div>

@@ -11,106 +11,52 @@ interface FAQItem {
 }
 
 interface FAQCategory {
-    title: string;
+    titleKey: string;
     icon: React.ReactNode;
-    items: FAQItem[];
+    items: { qKey: string; aKey: string }[];
 }
 
-const faqData: FAQCategory[] = [
+const faqStructure: FAQCategory[] = [
     {
-        title: 'Dành cho Nhân viên (Worker)',
+        titleKey: 'faq_workerTitle',
         icon: <Users className="w-5 h-5" />,
         items: [
-            {
-                question: 'Instant Book là gì?',
-                answer: 'Instant Book cho phép bạn nhận việc ngay lập tức mà không cần chờ duyệt, nếu bạn đủ điều kiện: điểm reliability đạt yêu cầu, chứng chỉ ngôn ngữ đạt chuẩn, và tài khoản đã xác minh.',
-            },
-            {
-                question: 'Làm sao để tăng điểm Reliability?',
-                answer: 'Check-in đúng giờ (+1 điểm), hoàn thành ca làm (+1 điểm). Tránh: trễ giờ (-1 đến -2 điểm), vắng mặt (-20 điểm + đóng băng 7 ngày).',
-            },
-            {
-                question: 'Tài khoản bị đóng băng thì làm sao?',
-                answer: 'Tài khoản sẽ tự động mở sau 7 ngày. Nếu có lý do chính đáng (ốm đau, tai nạn), liên hệ hỗ trợ để xem xét mở sớm.',
-            },
-            {
-                question: 'Hủy đơn có bị phạt không?',
-                answer: 'Tùy thời điểm: Trước 6h (không phạt), 6h-1h (-5 điểm), 1h-15\' sau (-15 điểm), Sau 15\' (-20 điểm + đóng băng). Hãy hủy sớm nếu có việc bận!',
-            },
-            {
-                question: 'QR code không quét được?',
-                answer: 'Kiểm tra kết nối internet. Nếu vẫn lỗi, nhờ quản lý nhập mã thủ công hoặc liên hệ hỗ trợ ngay.',
-            },
+            { qKey: 'faq_w1q', aKey: 'faq_w1a' },
+            { qKey: 'faq_w2q', aKey: 'faq_w2a' },
+            { qKey: 'faq_w3q', aKey: 'faq_w3a' },
+            { qKey: 'faq_w4q', aKey: 'faq_w4a' },
+            { qKey: 'faq_w5q', aKey: 'faq_w5a' },
         ],
     },
     {
-        title: 'Dành cho Chủ nhà hàng (Owner)',
+        titleKey: 'faq_ownerTitle',
         icon: <Briefcase className="w-5 h-5" />,
         items: [
-            {
-                question: 'Làm sao để đăng tin tuyển dụng?',
-                answer: 'Vào Dashboard → Đăng tin mới → Điền thông tin: tiêu đề, ngày giờ, lương, yêu cầu ngôn ngữ → Nhấn Đăng tin.',
-            },
-            {
-                question: 'Instant Book có an toàn không?',
-                answer: 'Có. Chỉ những worker đã được xác minh, có điểm reliability cao và chứng chỉ ngôn ngữ đạt chuẩn mới được Instant Book. Bạn luôn có thể xem hồ sơ trước khi ca làm.',
-            },
-            {
-                question: 'Worker không đến thì làm sao?',
-                answer: 'Vào ứng viên đã duyệt → Đánh dấu vắng mặt. Worker sẽ bị trừ 20 điểm và đóng băng 7 ngày. Hệ thống sẽ học và giảm Instant Book cho worker này.',
-            },
-            {
-                question: 'Làm sao in poster QR code?',
-                answer: 'Vào Dashboard → Tải QR Poster → In A4. Đặt poster tại quầy hoặc lối vào để worker check-in.',
-            },
-            {
-                question: 'Có thể hủy ca đã duyệt không?',
-                answer: 'Có. Vào job → ứng viên → Hủy. Nếu hủy trong vòng 1h trước ca, worker sẽ được thông báo và bạn có thể bị ghi nhận.',
-            },
+            { qKey: 'faq_o1q', aKey: 'faq_o1a' },
+            { qKey: 'faq_o2q', aKey: 'faq_o2a' },
+            { qKey: 'faq_o3q', aKey: 'faq_o3a' },
+            { qKey: 'faq_o4q', aKey: 'faq_o4a' },
+            { qKey: 'faq_o5q', aKey: 'faq_o5a' },
         ],
     },
     {
-        title: 'Check-in & QR Code',
+        titleKey: 'faq_checkinTitle',
         icon: <QrCode className="w-5 h-5" />,
         items: [
-            {
-                question: 'QR code có hạn sử dụng không?',
-                answer: 'Có. QR code chỉ có hiệu lực từ 15 phút trước ca đến 1 giờ sau khi ca bắt đầu.',
-            },
-            {
-                question: 'Có thể check-in nhiều lần không?',
-                answer: 'Không. Mỗi QR code chỉ sử dụng được 1 lần để tránh gian lận.',
-            },
-            {
-                question: 'Check-in trễ có bị trừ điểm không?',
-                answer: 'Trễ 15-30 phút: -1 điểm. Trễ >30 phút: -2 điểm. Đúng giờ: +1 điểm!',
-            },
-            {
-                question: 'Không có mạng khi check-in?',
-                answer: 'Đảm bảo có wifi hoặc 4G. Nếu vẫn lỗi, nhờ quản lý nhập mã thủ công từ màn hình QR của bạn.',
-            },
+            { qKey: 'faq_c1q', aKey: 'faq_c1a' },
+            { qKey: 'faq_c2q', aKey: 'faq_c2a' },
+            { qKey: 'faq_c3q', aKey: 'faq_c3a' },
+            { qKey: 'faq_c4q', aKey: 'faq_c4a' },
         ],
     },
     {
-        title: 'Điểm Reliability & Tài khoản',
+        titleKey: 'faq_reliabilityTitle',
         icon: <Star className="w-5 h-5" />,
         items: [
-            {
-                question: 'Điểm Reliability ảnh hưởng gì?',
-                answer: 'Điểm cao = Nhiều cơ hội Instant Book hơn, ưu tiên xuất hiện trước, owner tin tưởng hơn.',
-            },
-            {
-                question: 'Điểm tối đa và tối thiểu?',
-                answer: 'Tối đa 100, tối thiểu 0. Điểm khởi đầu là 85.',
-            },
-            {
-                question: 'Làm sao xác minh tài khoản?',
-                answer: 'Upload ảnh đại diện rõ mặt, thêm chứng chỉ ngôn ngữ (JLPT, TOPIK, IELTS...), và hoàn thành profile.',
-            },
-            {
-                question: 'Quên mật khẩu?',
-                answer: 'Nhấn "Quên mật khẩu" tại trang đăng nhập → Nhập email → Nhận link đặt lại mật khẩu.',
-            },
+            { qKey: 'faq_r1q', aKey: 'faq_r1a' },
+            { qKey: 'faq_r2q', aKey: 'faq_r2a' },
+            { qKey: 'faq_r3q', aKey: 'faq_r3a' },
+            { qKey: 'faq_r4q', aKey: 'faq_r4a' },
         ],
     },
 ];
@@ -125,6 +71,16 @@ export default function FAQPage() {
         const key = `${catIndex}-${itemIndex}`;
         setOpenItems((prev) => ({ ...prev, [key]: !prev[key] }));
     };
+
+    // Build translated data for filtering
+    const faqData = faqStructure.map((cat) => ({
+        title: t(`common.${cat.titleKey}`),
+        icon: cat.icon,
+        items: cat.items.map((item) => ({
+            question: t(`common.${item.qKey}`),
+            answer: t(`common.${item.aKey}`),
+        })),
+    }));
 
     const filteredData = searchQuery
         ? faqData.map((cat) => ({
@@ -144,13 +100,11 @@ export default function FAQPage() {
                 <div className="max-w-4xl mx-auto px-4 text-center">
                     <HelpCircle className="w-16 h-16 mx-auto text-primary mb-4" />
                     <h1 className="text-4xl font-bold text-foreground mb-4">
-                        Câu hỏi thường gặp
+                        {t('common.faq_faqTitle')}
                     </h1>
                     <p className="text-lg text-muted-foreground mb-8">
-                        Tìm câu trả lời cho các thắc mắc phổ biến về Tapy
+                        {t('common.faq_findAnswers')}
                     </p>
-
-                    {/* Search */}
                     <div className="relative max-w-md mx-auto">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                         <input
@@ -186,7 +140,7 @@ export default function FAQPage() {
                                             {category.title}
                                         </span>
                                         <span className="text-sm text-muted-foreground">
-                                            ({category.items.length} câu hỏi)
+                                            ({category.items.length} {t('common.faq_questionsCount')})
                                         </span>
                                     </div>
                                     {openCategory === catIndex ? (
@@ -231,20 +185,20 @@ export default function FAQPage() {
                 <div className="mt-12 text-center p-8 bg-muted/30 rounded-xl">
                     <h2 className="text-xl font-semibold mb-2">{t('common.faq_stillNeedHelp')}</h2>
                     <p className="text-muted-foreground mb-4">
-                        Liên hệ đội ngũ hỗ trợ của chúng tôi
+                        {t('common.faq_contactSupportTeam')}
                     </p>
                     <div className="flex justify-center gap-4">
                         <a
                             href="mailto:support@tapy.vn"
                             className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                         >
-                            Email hỗ trợ
+                            {t('common.faq_supportEmail')}
                         </a>
                         <Link
                             href="/status"
                             className="px-6 py-2 border border-border rounded-lg hover:bg-muted transition-colors"
                         >
-                            Trạng thái hệ thống
+                            {t('common.faq_systemStatus')}
                         </Link>
                     </div>
                 </div>

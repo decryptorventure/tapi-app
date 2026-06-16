@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { QRCodeService } from '@/lib/services/qr-code.service';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useTranslation } from '@/lib/i18n';
 import Link from 'next/link';
 import {
     ArrowLeft,
@@ -29,6 +30,7 @@ interface CheckInResult {
 
 export default function OwnerScanQRPage() {
     const router = useRouter();
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(true);
     const [scanning, setScanning] = useState(false);
     const [processing, setProcessing] = useState(false);
@@ -112,7 +114,7 @@ export default function OwnerScanQRPage() {
     const handleQRCode = async (qrText: string) => {
         const now = Date.now();
         if (now - lastScanTime < SCAN_COOLDOWN_MS) {
-            toast.error('Vui lòng chờ 2 giây trước khi quét tiếp');
+            toast.error(t('checkin.cooldownError'));
             return;
         }
         setLastScanTime(now);
@@ -131,7 +133,7 @@ export default function OwnerScanQRPage() {
             } catch {
                 setResult({
                     success: false,
-                    message: 'Mã QR không hợp lệ - định dạng sai',
+                    message: t('checkin.qrInvalidFormat'),
                 });
                 return;
             }
@@ -140,7 +142,7 @@ export default function OwnerScanQRPage() {
             if (qrData.version === 2 || qrData.version === 3) {
                 setResult({
                     success: false,
-                    message: 'Đây là mã QR của bạn. Worker cần quét mã này, không phải bạn.',
+                    message: t('checkin.qrOwnQr'),
                 });
                 return;
             }
@@ -149,7 +151,7 @@ export default function OwnerScanQRPage() {
             if (!qrData.application_id) {
                 setResult({
                     success: false,
-                    message: 'Mã QR không chứa thông tin worker',
+                    message: t('checkin.qrNoWorkerInfo'),
                 });
                 return;
             }
@@ -179,7 +181,7 @@ export default function OwnerScanQRPage() {
             if (appError || !app) {
                 setResult({
                     success: false,
-                    message: 'Đơn ứng tuyển không tồn tại',
+                    message: t('checkin.qrApplicationNotFound'),
                 });
                 return;
             }
@@ -190,7 +192,7 @@ export default function OwnerScanQRPage() {
             if (job.owner_id !== user.id) {
                 setResult({
                     success: false,
-                    message: 'Công việc này không thuộc nhà hàng của bạn',
+                    message: t('checkin.qrNotYourJob'),
                 });
                 return;
             }
@@ -211,7 +213,7 @@ export default function OwnerScanQRPage() {
                 if (existingCheckout && existingCheckout.length > 0) {
                     setResult({
                         success: false,
-                        message: 'Worker đã check-out trước đó',
+                        message: t('checkin.qrAlreadyCheckedOut'),
                     });
                     return;
                 }
@@ -261,17 +263,17 @@ export default function OwnerScanQRPage() {
                 success: true,
                 workerName: worker?.full_name || 'Worker',
                 jobTitle: job.title,
-                message: checkinType === 'checkin' ? 'Check-in thành công!' : 'Check-out thành công!',
+                message: checkinType === 'checkin' ? t('checkin.checkinSuccess') : t('checkin.checkoutSuccess'),
                 type: checkinType,
             });
 
-            toast.success(checkinType === 'checkin' ? 'Check-in thành công!' : 'Check-out thành công!');
+            toast.success(checkinType === 'checkin' ? t('checkin.checkinSuccess') : t('checkin.checkoutSuccess'));
 
         } catch (error: any) {
             console.error('QR processing error:', error);
             setResult({
                 success: false,
-                message: error.message || 'Lỗi xử lý mã QR',
+                message: error.message || t('checkin.qrProcessError'),
             });
         } finally {
             setProcessing(false);
@@ -279,7 +281,7 @@ export default function OwnerScanQRPage() {
     };
 
     const handleManualInput = () => {
-        const code = prompt('Nhập mã check-in thủ công:');
+        const code = prompt(t('checkin.manualPrompt'));
         if (code) {
             handleQRCode(code);
         }
@@ -310,7 +312,7 @@ export default function OwnerScanQRPage() {
                             <div className="p-2 bg-primary rounded-lg">
                                 <QrCode className="w-5 h-5 text-white" />
                             </div>
-                            <h1 className="text-lg font-bold text-white">Quét QR Worker</h1>
+                            <h1 className="text-lg font-bold text-white">{t('checkin.ownerScanTitle')}</h1>
                         </div>
                     </div>
                 </div>
@@ -326,7 +328,7 @@ export default function OwnerScanQRPage() {
                             <>
                                 <CheckCircle2 className="w-16 h-16 mx-auto mb-4" />
                                 <h2 className="text-xl font-bold mb-2">
-                                    {result.type === 'checkout' ? 'Check-out Thành Công!' : 'Check-in Thành Công!'}
+                                    {t('checkin.scanSuccess')}
                                 </h2>
                                 <div className="flex items-center justify-center gap-2 mb-2">
                                     <User className="w-5 h-5" />
@@ -341,7 +343,7 @@ export default function OwnerScanQRPage() {
                         ) : (
                             <>
                                 <XCircle className="w-16 h-16 mx-auto mb-4" />
-                                <h2 className="text-xl font-bold mb-2">Thất Bại</h2>
+                                <h2 className="text-xl font-bold mb-2">{t('checkin.scanFailed')}</h2>
                                 <p>{result.message}</p>
                             </>
                         )}
@@ -371,7 +373,7 @@ export default function OwnerScanQRPage() {
                                     ) : (
                                         <div className="text-center p-6">
                                             <Camera className="w-16 h-16 mx-auto text-slate-500 mb-4" />
-                                            <p className="text-slate-400">Nhấn nút bên dưới để bắt đầu quét</p>
+                                            <p className="text-slate-400">{t('checkin.pressToScan')}</p>
                                         </div>
                                     )}
                                 </div>
@@ -414,11 +416,11 @@ export default function OwnerScanQRPage() {
                 )}
 
                 <div className="mt-8 bg-slate-700/50 rounded-xl p-4">
-                    <h4 className="font-medium text-white mb-3">📋 Hướng dẫn</h4>
+                    <h4 className="font-medium text-white mb-3">{t('checkin.instructionsTitle')}</h4>
                     <ul className="text-sm text-slate-300 space-y-2">
-                        <li>1. Yêu cầu nhân viên xuất trình mã QR trên app</li>
-                        <li>2. Nhấn &quot;Bắt đầu quét&quot; và hướng camera vào mã QR</li>
-                        <li>3. Hệ thống sẽ tự động ghi nhận check-in/check-out</li>
+                        <li>{t('checkin.ownerInstruction1')}</li>
+                        <li>{t('checkin.ownerInstruction2')}</li>
+                        <li>{t('checkin.ownerInstruction3')}</li>
                     </ul>
                 </div>
             </div>
