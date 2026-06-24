@@ -1,22 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import {usePathname} from 'next/navigation';
+import {useEffect, useState} from 'react';
 import Image from 'next/image';
-import { LayoutDashboard, Briefcase, QrCode, Settings, LogOut, Plus, Store } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
-import { NotificationBell } from '@/components/notifications/notification-bell';
-import { LanguageSwitcher } from '@/components/shared/language-switcher';
-
-import { useTranslation } from '@/lib/i18n';
+import {Briefcase, LayoutDashboard, LogOut, Settings, Store} from 'lucide-react';
+import {cn} from '@/lib/utils';
+import {createClient} from '@/lib/supabase/client';
+import {NotificationBell} from '@/components/notifications/notification-bell';
+import {LanguageSwitcher} from '@/components/shared/language-switcher';
+import {useTranslation} from '@/lib/i18n';
 
 export function OwnerNav() {
     const pathname = usePathname();
-    const router = useRouter();
     const { t } = useTranslation();
     const [profile, setProfile] = useState<any>(null);
 
@@ -38,14 +34,10 @@ export function OwnerNav() {
 
     const handleLogout = async () => {
         try {
-            console.log('Logging out...');
             const supabase = createClient();
             await supabase.auth.signOut();
-            // Use window.location for a harder reset to clear all client states/cookies
             window.location.href = '/login';
-        } catch (error) {
-            console.error('Logout error:', error);
-            // Fallback: even if signOut fails, redirect to login
+        } catch {
             window.location.href = '/login';
         }
     };
@@ -59,10 +51,12 @@ export function OwnerNav() {
     if (pathname.includes('/onboarding')) return null;
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-            <div className="container flex h-16 items-center px-4">
-                <div className="mr-8 hidden md:flex">
-                    <Link href="/owner/dashboard" className="mr-6 flex items-center space-x-3">
+        <>
+            {/* ── TOP HEADER (sticky) ── logo + LanguageSwitcher + NotificationBell */}
+            <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+                <div className="container flex h-14 items-center justify-between px-4">
+                    {/* Logo */}
+                    <Link href="/owner/dashboard" className="flex items-center gap-2">
                         {profile?.restaurant_logo_url ? (
                             <div className="w-8 h-8 rounded-lg overflow-hidden border border-slate-200 shadow-sm relative">
                                 <Image
@@ -77,81 +71,21 @@ export function OwnerNav() {
                                 <Store className="w-4 h-4 text-orange-600" />
                             </div>
                         )}
-                        <span className="hidden font-bold sm:inline-block text-lg text-slate-800 truncate max-w-[150px]">
+                        <span className="font-bold text-base text-slate-800 truncate max-w-[150px]">
                             {profile?.restaurant_name || 'Tapy Owner'}
                         </span>
                     </Link>
-                    <nav className="flex items-center space-x-6 text-sm font-medium">
-                        {navItems.map((item) => (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                className={cn(
-                                    "transition-colors hover:text-foreground/80",
-                                    pathname === item.href || (item.href !== '/owner/dashboard' && pathname.startsWith(item.href))
-                                        ? "text-foreground"
-                                        : "text-foreground/60"
-                                )}
-                            >
-                                {item.label}
-                            </Link>
-                        ))}
-                    </nav>
-                </div>
 
-                {/* Mobile View - Simplified */}
-                <div className="md:hidden w-full flex justify-between items-center">
-                    <Link href="/owner/dashboard" className="flex items-center gap-2">
-                        {profile?.restaurant_logo_url ? (
-                            <div className="w-8 h-8 rounded-lg overflow-hidden border border-slate-200">
-                                <Image
-                                    src={profile.restaurant_logo_url}
-                                    alt={profile.restaurant_name || 'Logo'}
-                                    width={32}
-                                    height={32}
-                                    className="object-cover"
-                                />
-                            </div>
-                        ) : (
-                            <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                                <Store className="w-4 h-4 text-orange-600" />
-                            </div>
-                        )}
-                        <span className="font-bold text-lg text-slate-800 truncate max-w-[120px]">
-                            {profile?.restaurant_name || 'Tapy Owner'}
-                        </span>
-                    </Link>
-                    <div className="flex gap-2 items-center">
-                        <LanguageSwitcher />
-                        <NotificationBell />
-                        <Link href="/owner/jobs/new">
-                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 rounded-full border-dashed border-orange-300">
-                                <Plus className="h-4 w-4 text-orange-600" />
-                            </Button>
-                        </Link>
-                    </div>
-                </div>
-
-
-                <div className="hidden md:flex flex-1 items-center justify-between space-x-2 md:justify-end">
-                    <div className="w-full flex-1 md:w-auto md:flex-none flex justify-end gap-2">
+                    {/* Right: Language + Notification */}
+                    <div className="flex items-center gap-1">
                         <LanguageSwitcher />
                         <NotificationBell />
                     </div>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleLogout}
-                        className="text-slate-500 hover:text-red-600"
-                    >
-                        <LogOut className="h-5 w-5" />
-                        <span className="sr-only">{t('common.logout')}</span>
-                    </Button>
                 </div>
-            </div>
+            </header>
 
-            {/* Mobile Bottom Nav for Owners */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-slate-200/80 px-2 py-1.5 z-50 pb-safe shadow-lg shadow-black/5">
+            {/* ── BOTTOM NAV ── Dashboard · Jobs · Settings · Logout */}
+            <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-slate-200/80 px-2 py-1.5 z-50 pb-safe shadow-lg shadow-black/5">
                 <div className="flex justify-around items-center max-w-lg mx-auto">
                     {navItems.map((item) => {
                         const Icon = item.icon;
@@ -163,30 +97,20 @@ export function OwnerNav() {
                                 href={item.href}
                                 className={cn(
                                     "flex flex-col items-center gap-0.5 p-1.5 rounded-xl transition-all min-w-[56px]",
-                                    isActive
-                                        ? "text-orange-600"
-                                        : "text-slate-400 hover:text-slate-600"
+                                    isActive ? "text-orange-600" : "text-slate-400 hover:text-slate-600"
                                 )}
                             >
-                                <div className={cn(
-                                    "p-1.5 rounded-xl transition-all",
-                                    isActive && "bg-orange-50"
-                                )}>
-                                    <Icon className={cn(
-                                        "w-5 h-5 transition-transform",
-                                        isActive && "scale-110"
-                                    )} />
+                                <div className={cn("p-1.5 rounded-xl transition-all", isActive && "bg-orange-50")}>
+                                    <Icon className={cn("w-5 h-5 transition-transform", isActive && "scale-110")} />
                                 </div>
-                                <span className={cn(
-                                    "text-[10px] transition-all",
-                                    isActive ? "font-bold" : "font-medium"
-                                )}>
+                                <span className={cn("text-[10px] transition-all", isActive ? "font-bold" : "font-medium")}>
                                     {item.label}
                                 </span>
                             </Link>
                         );
                     })}
-                    {/* Logout button for mobile */}
+
+                    {/* Logout */}
                     <button
                         onClick={handleLogout}
                         className="flex flex-col items-center gap-0.5 p-1.5 rounded-xl transition-all min-w-[56px] text-slate-400 hover:text-red-500"
@@ -198,6 +122,6 @@ export function OwnerNav() {
                     </button>
                 </div>
             </div>
-        </header>
+        </>
     );
 }
