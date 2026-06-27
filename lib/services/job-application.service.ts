@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { evaluateWorkerQualification, getQualificationFeedback } from '@/lib/job-matching';
+import { syncJobStatus } from '@/lib/services/job-status.service';
 import { Job, JobApplication, Profile } from '@/types/database.types';
 
 /**
@@ -151,16 +152,8 @@ export async function applyToJob(
       };
     }
 
-    // 7. If instant book, update job workers count and generate QR code
     if (isInstantBook) {
-      // Update job workers count
-      await supabase
-        .from('jobs')
-        .update({
-          current_workers: job.current_workers + 1,
-          ...(job.current_workers + 1 >= job.max_workers && { status: 'filled' }),
-        })
-        .eq('id', jobId);
+      await syncJobStatus(jobId);
     }
 
     return {
@@ -311,7 +304,11 @@ export async function approveApplication(
     };
   }
 
-
+  const jobId = (application as { job_id: string }).job_id;
+  const syncResult = await syncJobStatus(jobId);
+  if (!syncResult.success) {
+    console.error('syncJobStatus after approve failed:', syncResult.error);
+  }
 
   return {
     success: true,

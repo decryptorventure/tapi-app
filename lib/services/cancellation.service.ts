@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { CheckinService } from './checkin.service';
+import { syncJobStatus } from './job-status.service';
 
 interface CancellationResult {
     success: boolean;
@@ -114,6 +115,8 @@ export const CancellationService = {
                     penalty: 0,
                 };
             }
+
+            await syncJobStatus((app as { job_id: string }).job_id);
 
             // Apply penalty if any
             if (penalty.points < 0) {
@@ -233,6 +236,8 @@ export const CancellationService = {
                     penalty: 0,
                 };
             }
+
+            await syncJobStatus((app as { job_id: string }).job_id);
 
             // Notify worker
             let warningNote = '';

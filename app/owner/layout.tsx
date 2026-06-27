@@ -8,7 +8,7 @@ export default function OwnerLayout({
     return (
         <div className="min-h-screen flex flex-col bg-background">
             <OwnerNav />
-            <main className="flex-1">
+            <main className="flex-1 pb-20">
                 {children}
             </main>
         </div>

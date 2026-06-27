@@ -27,6 +27,7 @@ import {
 import { Job, JobApplication, Profile } from '@/types/database.types';
 import { approveApplication } from '@/lib/services/job-application.service';
 import { CheckinService } from '@/lib/services/checkin.service';
+import { syncJobStatus } from '@/lib/services/job-status.service';
 
 interface ApplicationWithWorker extends JobApplication {
     worker: Profile;
@@ -165,14 +166,6 @@ export default function JobApplicationsPage() {
                 throw new Error(result.message);
             }
 
-            // Update job current_workers count
-            if (job) {
-                await supabase
-                    .from('jobs')
-                    .update({ current_workers: job.current_workers + 1 })
-                    .eq('id', jobId);
-            }
-
             toast.success('Đã duyệt đơn ứng tuyển và tạo mã QR check-in');
             fetchData();
         } catch (error: any) {
@@ -224,6 +217,11 @@ export default function JobApplicationsPage() {
 
             if (error) throw error;
 
+            const syncResult = await syncJobStatus(jobId);
+            if (!syncResult.success) {
+                console.error('syncJobStatus after complete failed:', syncResult.error);
+            }
+
             // Update worker reliability score (+1 for completion)
             const { data: profile } = await supabase
                 .from('profiles')
@@ -269,6 +267,8 @@ export default function JobApplicationsPage() {
             if (!result.success) {
                 throw new Error(result.message);
             }
+
+            await syncJobStatus(jobId);
 
             toast.success('Đã ghi nhận vắng mặt');
             fetchData();

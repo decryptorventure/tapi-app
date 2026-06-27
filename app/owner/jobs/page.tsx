@@ -26,6 +26,7 @@ import {
     RefreshCw
 } from 'lucide-react';
 import { Job, JobStatus } from '@/types/database.types';
+import { syncOwnerJobStatuses } from '@/lib/services/job-status.service';
 import { PageLoader } from '@/components/shared/page-loader';
 import { EmptyState } from '@/components/shared/empty-state';
 
@@ -74,6 +75,8 @@ export default function OwnerJobsPage() {
             if (rpcError) {
                 console.error("Error from cleanup_expired_jobs:", rpcError);
             }
+
+            await syncOwnerJobStatuses(user.id);
 
             const { data, error } = await supabase
                 .from('jobs')

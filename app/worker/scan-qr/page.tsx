@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { syncJobStatus } from '@/lib/services/job-status.service';
 import { Button } from '@/components/ui/button';
 import {
     Loader2,
@@ -226,6 +227,11 @@ export default function WorkerScanQRPage() {
                 .update({ status: 'completed', completed_at: new Date().toISOString() })
                 .eq('id', application.id);
             if (statusError) throw new Error(`Lỗi cập nhật trạng thái: ${statusError.message}`);
+
+            const syncResult = await syncJobStatus(jobId);
+            if (!syncResult.success) {
+                console.error('syncJobStatus after checkout failed:', syncResult.error);
+            }
         }
 
         // Hiển thị kết quả

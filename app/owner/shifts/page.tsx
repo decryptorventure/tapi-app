@@ -4,6 +4,7 @@ import { useTranslation } from '@/lib/i18n';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { syncOwnerJobStatuses } from '@/lib/services/job-status.service';
 import { Button } from '@/components/ui/button';
 import {
     Loader2,
@@ -68,6 +69,9 @@ export default function OwnerShiftsPage() {
             }
 
             const dateStr = format(selectedDate, 'yyyy-MM-dd');
+
+            await supabase.rpc('cleanup_expired_jobs');
+            await syncOwnerJobStatuses(user.id, { shiftDate: dateStr });
 
             const { data, error } = await supabase
                 .from('jobs')
@@ -152,6 +156,8 @@ export default function OwnerShiftsPage() {
                 return <CheckCircle2 className="w-4 h-4 text-primary" />;
             case 'cancelled':
                 return <XCircle className="w-4 h-4 text-destructive" />;
+            case 'expired':
+                return <Clock className="w-4 h-4 text-muted-foreground" />;
             default:
                 return null;
         }
@@ -163,6 +169,7 @@ export default function OwnerShiftsPage() {
             filled: t('owner.jobs_enoughPeople'),
             completed: t('owner.jobs_statusCompleted'),
             cancelled: t('owner.jobs_statusCancelled'),
+            expired: t('owner.jobs_statusExpired'),
         };
         return labels[status] || status;
     };
