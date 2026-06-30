@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
@@ -77,6 +77,8 @@ export default function JobDetailPage() {
 
     const isInstantBook = qualification?.qualification.qualifiesForInstantBook;
 
+    // Get the apply button text - will be updated whenever locale changes
+    const applyButtonText = t('feed.apply');
 
     useEffect(() => {
         fetchJob();
@@ -395,7 +397,7 @@ export default function JobDetailPage() {
                                 Nhận job ngay
                             </>
                         ) : (
-                            t('feed.apply')
+                            applyButtonText
                         )}
                     </Button>
                 </div>
