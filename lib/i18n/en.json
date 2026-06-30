@@ -385,7 +385,8 @@
         "noResults": "No matching jobs found",
         "noResultsDesc": "Try changing your search terms or filters to find more opportunities!",
         "clearFilters": "Clear all filters",
-        "jobCount": "jobs"
+        "jobCount": "jobs",
+        "apply": "Apply"  
     },
     "profileBanner": {
         "workerTitle": "Complete your profile to apply",
