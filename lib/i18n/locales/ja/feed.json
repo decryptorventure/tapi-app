@@ -17,5 +17,6 @@
     "noResults": "マッチする求人が見つかりませんでした",
     "noResultsDesc": "検索条件やフィルターを変更して、他の求人を検索してみてください！",
     "clearFilters": "すべてのフィルターをクリア",
-    "jobCount": "件の求人"
+    "jobCount": "件の求人",
+    "apply": "適用する"
 }
