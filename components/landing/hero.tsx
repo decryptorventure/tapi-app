@@ -62,7 +62,7 @@ export function Hero() {
             <div className="absolute inset-0 z-0">
                 <Image
                     src="/images/hero-restaurant.jpg"
-                    alt="Restaurant workers"
+                    alt=""
                     fill
                     className="object-cover"
                     priority

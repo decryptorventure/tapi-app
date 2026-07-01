@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -26,6 +26,17 @@ export default function LoginPage() {
         const supabase = createClient();
 
         try {
+            // Check if account is deleted BEFORE attempting auth
+            const { data: preCheck } = await supabase
+                .from('profiles')
+                .select('deleted_at')
+                .eq('email', formData.email)
+                .maybeSingle();
+
+            if (preCheck?.deleted_at) {
+                throw new Error('Invalid login credentials');
+            }
+
             // Sign in with email and password
             const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
                 email: formData.email,
@@ -48,12 +59,12 @@ export default function LoginPage() {
             if (profileError) {
                 console.error('Profile fetch error:', profileError);
                 // Profile might not exist yet, redirect to role selection
-                toast.success('Đăng nhập thành công!');
+                toast.success(t('auth.loginTitle'));
                 router.push('/onboarding/role');
                 return;
             }
 
-            toast.success('Đăng nhập thành công!');
+            toast.success(t('auth.loginTitle'));
 
             // Redirect based on role and onboarding status
             if (!profile || !profile.role) {
@@ -109,7 +120,7 @@ export default function LoginPage() {
                 <form onSubmit={handleLogin} className="space-y-4 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">
-                            {t('auth.email', { defaultValue: 'Email' })}
+                            {t('auth.email')}
                         </label>
                         <input
                             type="email"
@@ -124,7 +135,7 @@ export default function LoginPage() {
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">
-                            {t('auth.password', { defaultValue: 'Mật khẩu' })}
+                            {t('auth.password')}
                         </label>
                         <input
                             type="password"
@@ -140,7 +151,7 @@ export default function LoginPage() {
                     {/* Forgot password link */}
                     <div className="text-right">
                         <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
-                            {t('auth.login_forgotPassword', { defaultValue: 'Quên mật khẩu?' })}
+                            {t('auth.login_forgotPassword')}
                         </Link>
                     </div>
 
@@ -152,7 +163,7 @@ export default function LoginPage() {
                         {loading ? (
                             <>
                                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                {t('auth.login_loggingIn', { defaultValue: 'Đang đăng nhập...' })}
+                                {t('auth.login_loggingIn')}
                             </>
                         ) : (
                             t('auth.login_login')
@@ -162,9 +173,9 @@ export default function LoginPage() {
 
                 {/* Sign up link */}
                 <p className="text-center text-sm text-slate-600 mt-6">
-                    {t('auth.noAccount', { defaultValue: 'Chưa có tài khoản?' })}{' '}
+                    {t('auth.noAccount')}{' '}
                     <Link href="/signup" className="text-blue-600 font-medium hover:underline">
-                        {t('auth.login_registerNow', { defaultValue: 'Đăng ký ngay' })}
+                        {t('auth.login_registerNow')}
                     </Link>
                 </p>
             </div>
